@@ -92,6 +92,10 @@
       <button onclick="switchTab('portfolio')" id="tab-btn-portfolio" class="py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200">
         Angel One Portfolio
       </button>
+      <button onclick="switchTab('automaton')" id="tab-btn-automaton" class="py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Automaton & Survival Tiers
+      </button>
       <button onclick="switchTab('settings')" id="tab-btn-settings" class="py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200">
         Settings & Credentials
       </button>
@@ -558,6 +562,145 @@ LIVE_EXECUTION_ENABLED=false
         </div>
       </div>
     </div>
+
+    <!-- TAB 6: AUTOMATON AGENT & SURVIVAL TIERS -->
+    <div id="tab-automaton" class="hidden space-y-6">
+      
+      <!-- Top Autonomous Status Card -->
+      <div class="bg-gradient-to-r from-slate-900 via-emerald-950/30 to-slate-900 border border-emerald-500/30 rounded-2xl p-5 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xl">
+              ⚡
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-white">Autonomous Heartbeat Engine</h2>
+                <span id="autoSessionBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">CHECKING</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5" id="autoObservationText">Heartbeat daemon running continuous cycle (Think → Act → Observe → Repeat).</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="triggerAutonomousBeat()" id="triggerBeatBtn" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow">
+              <span>⚡ Trigger Cycle Now</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-800/80 text-xs">
+          <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-slate-400 text-[10px]">Heartbeat Status</div>
+            <div class="text-emerald-400 font-bold flex items-center gap-1.5 mt-0.5" id="hbStatus">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Active
+            </div>
+          </div>
+          <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-slate-400 text-[10px]">Cycles Executed</div>
+            <div class="text-white font-mono font-bold mt-0.5" id="hbCycles">--</div>
+          </div>
+          <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-slate-400 text-[10px]">Heartbeat Interval</div>
+            <div class="text-white font-mono font-bold mt-0.5" id="hbInterval">60s</div>
+          </div>
+          <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+            <div class="text-slate-400 text-[10px]">Last Heartbeat</div>
+            <div class="text-slate-300 font-mono text-[11px] mt-0.5" id="hbLastBeat">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Survival Tiers Grid -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>🛡️</span> Capital Defense & Survival Tiers
+            </h3>
+            <p class="text-xs text-slate-400">Automaton self-adjusts trade sizing and restricts orders during drawdowns.</p>
+          </div>
+          <span id="activeTierPill" class="text-xs font-bold px-2.5 py-1 rounded-lg border bg-emerald-500/20 text-emerald-300 border-emerald-500/30">NORMAL</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs" id="survivalTiersGrid">
+          <!-- NORMAL -->
+          <div class="p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/20 transition" id="tierCard-NORMAL">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-emerald-400">Normal</span>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">1.0x Sizing</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">Equity healthy. Standard position sizing and target profit scaling permitted.</p>
+            <div class="text-slate-500 text-[10px] mt-3 pt-2 border-t border-slate-800/80">Drawdown &lt; 2%</div>
+          </div>
+          <!-- DEFENSIVE -->
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 transition" id="tierCard-DEFENSIVE">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-amber-400">Defensive</span>
+              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">0.5x Sizing</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">Drawdown 2%–5%. Position sizes halved, conviction score &ge; 70 required.</p>
+            <div class="text-slate-500 text-[10px] mt-3 pt-2 border-t border-slate-800/80">Drawdown 2% – 5%</div>
+          </div>
+          <!-- CRITICAL -->
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 transition" id="tierCard-CRITICAL">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-rose-400">Critical</span>
+              <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono">Locked</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">Capital preservation lock. New buys forbidden. Trailing stops tightened.</p>
+            <div class="text-slate-500 text-[10px] mt-3 pt-2 border-t border-slate-800/80">Drawdown &ge; 5% or Nifty &lt; -2.5%</div>
+          </div>
+          <!-- CIRCUIT BREAKER -->
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 transition" id="tierCard-CIRCUIT_BREAKER">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-red-500">Circuit Breaker</span>
+              <span class="text-[10px] bg-red-950 text-red-300 px-1.5 py-0.5 rounded font-mono">Halt</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">Daily loss limit hit. Full freeze on automated trade executions.</p>
+            <div class="text-slate-500 text-[10px] mt-3 pt-2 border-t border-slate-800/80">Daily Loss &ge; 6%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trading Constitution & Reflection Journal Columns -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Column 1: Trading Constitution -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>📜</span> Trading Constitution (Immutable Laws)
+            </h3>
+            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">5 Articles Locked</span>
+          </div>
+          <p class="text-xs text-slate-400">These hardcoded rules govern every scan, buy recommendation, and order placement.</p>
+
+          <div class="space-y-2.5 text-xs" id="constitutionArticlesList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Column 2: Autonomous Memory Journal -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>🧠</span> Autonomous Reflection Journal
+            </h3>
+            <button onclick="loadAutomatonState()" class="text-slate-400 hover:text-white text-xs">
+              ↻ Refresh
+            </button>
+          </div>
+          <p class="text-xs text-slate-400">Stream of heartbeat observations, setup evaluations, and trade self-critiques.</p>
+
+          <div class="space-y-3 text-xs max-h-[420px] overflow-y-auto pr-1" id="memoryJournalList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
   </main>
 
   <!-- Mobile Bottom Tab Bar -->
@@ -577,6 +720,10 @@ LIVE_EXECUTION_ENABLED=false
     <button onclick="switchTab('portfolio')" id="mobile-tab-portfolio" class="flex flex-col items-center text-slate-400 text-[10px] font-medium">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
       <span>Portfolio</span>
+    </button>
+    <button onclick="switchTab('automaton')" id="mobile-tab-automaton" class="flex flex-col items-center text-slate-400 text-[10px] font-medium">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      <span>Automaton</span>
     </button>
     <button onclick="switchTab('settings')" id="mobile-tab-settings" class="flex flex-col items-center text-slate-400 text-[10px] font-medium">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -724,7 +871,7 @@ LIVE_EXECUTION_ENABLED=false
     }
 
     function switchTab(tabId) {
-      ['research', 'backtest', 'watchlist', 'portfolio', 'settings'].forEach(t => {
+      ['research', 'backtest', 'watchlist', 'portfolio', 'automaton', 'settings'].forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         if (el) el.classList.add('hidden');
         
@@ -1162,6 +1309,125 @@ LIVE_EXECUTION_ENABLED=false
     }
     function hideMobileAccessModal() {
       document.getElementById('mobileModal').classList.add('hidden');
+    }
+
+
+    async function loadAutomatonState() {
+      try {
+        const res = await fetch('/api/agent/state');
+        const data = await res.json();
+        
+        const hb = data.heartbeat || {};
+        const tier = data.survival_tier || {};
+        
+        // Heartbeat stats
+        const hbEl = document.getElementById('hbStatus');
+        if (hbEl) {
+          hbEl.innerHTML = hb.is_running 
+            ? <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Active 
+            : <span class="w-2 h-2 rounded-full bg-slate-500"></span> Idle;
+        }
+        if (document.getElementById('hbCycles')) document.getElementById('hbCycles').textContent = hb.cycle_count || 0;
+        if (document.getElementById('hbInterval')) document.getElementById('hbInterval').textContent = ${hb.interval_seconds || 60}s;
+        if (document.getElementById('hbLastBeat')) document.getElementById('hbLastBeat').textContent = hb.last_beat_time || 'Just now';
+        if (document.getElementById('autoObservationText')) document.getElementById('autoObservationText').textContent = hb.last_observation || 'Operating normally.';
+
+        const sessBadge = document.getElementById('autoSessionBadge');
+        if (sessBadge) {
+          sessBadge.textContent = hb.market_session || 'UNKNOWN';
+          sessBadge.className = hb.market_session === 'MARKET_OPEN' 
+            ? 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+            : 'text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700';
+        }
+
+        // Active Survival Tier Badge & Cards
+        const activeTier = tier.tier || 'NORMAL';
+        const pill = document.getElementById('activeTierPill');
+        if (pill) {
+          pill.textContent = ${activeTier} (x Sizing);
+          pill.style.borderColor = tier.badge_color || '#10b981';
+          pill.style.color = tier.badge_color || '#10b981';
+        }
+
+        // Highlight active tier card
+        ['NORMAL', 'DEFENSIVE', 'CRITICAL', 'CIRCUIT_BREAKER'].forEach(t => {
+          const card = document.getElementById(	ierCard-);
+          if (!card) return;
+          if (t === activeTier) {
+            card.className = 'p-4 rounded-xl border border-emerald-500/60 bg-emerald-950/30 ring-1 ring-emerald-500/40 transition';
+          } else {
+            card.className = 'p-4 rounded-xl border border-slate-800 bg-slate-950/60 opacity-60 transition';
+          }
+        });
+
+        // Constitution Articles
+        const constList = document.getElementById('constitutionArticlesList');
+        if (constList && data.constitution) {
+          constList.innerHTML = '';
+          data.constitution.forEach(art => {
+            const div = document.createElement('div');
+            div.className = 'bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 space-y-1';
+            div.innerHTML = 
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-200">Article : </span>
+                <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">ACTIVE</span>
+              </div>
+              <p class="text-slate-400 text-[11px] leading-relaxed"></p>
+            ;
+            constList.appendChild(div);
+          });
+        }
+
+        // Memory Journal
+        const jList = document.getElementById('memoryJournalList');
+        if (jList && data.recent_journal) {
+          jList.innerHTML = '';
+          data.recent_journal.forEach(entry => {
+            const div = document.createElement('div');
+            const catColors = {
+              'HEARTBEAT': 'bg-sky-500/10 text-sky-400 border-sky-500/30',
+              'CONSTITUTION': 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+              'EXECUTION': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+              'REFLECTION': 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+              'GENESIS': 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+            };
+            const colClass = catColors[entry.category] || 'bg-slate-800 text-slate-300 border-slate-700';
+            
+            div.className = 'bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-1';
+            div.innerHTML = 
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="px-1.5 py-0.5 rounded font-mono font-bold border "></span>
+                <span class="text-slate-500 font-mono"></span>
+              </div>
+              <div class="font-semibold text-slate-200 text-xs mt-1"></div>
+              <p class="text-slate-400 text-[11px] leading-relaxed"></p>
+            ;
+            jList.appendChild(div);
+          });
+        }
+
+      } catch (err) {
+        console.error('Failed to load automaton state', err);
+      }
+    }
+
+    async function triggerAutonomousBeat() {
+      const btn = document.getElementById('triggerBeatBtn');
+      if (btn) {
+        btn.classList.add('opacity-50', 'pointer-events-none');
+        btn.innerHTML = <span>Executing Cycle...</span>;
+      }
+      try {
+        await fetch('/api/agent/heartbeat/trigger', { method: 'POST' });
+        await loadAutomatonState();
+      } catch (e) {
+        console.error('Trigger cycle failed', e);
+      } finally {
+        if (btn) {
+          btn.classList.remove('opacity-50', 'pointer-events-none');
+          btn.innerHTML = <span>⚡ Trigger Cycle Now</span>;
+        }
+      }
     }
 
     window.onload = init;

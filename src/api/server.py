@@ -1,5 +1,7 @@
-import socket
+﻿import socket
 import os
+import asyncio
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,8 +24,23 @@ from src.analysis.technical import analyze_technical_indicators
 from src.analysis.fundamental import evaluate_fundamentals
 from src.agents.research_team import run_multi_agent_research, get_llm_client
 from src.broker.angel_one import angel_client
+from src.engine import (
+    agent_heartbeat,
+    evaluate_survival_tier,
+    SurvivalTier,
+    validate_order_against_constitution,
+    get_constitution_articles,
+    memory_journal
+)
 
-app = FastAPI(title="Bharat Trade Agent", version="1.3.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    agent_heartbeat.start()
+    asyncio.create_task(agent_heartbeat.execute_cycle())
+    yield
+    agent_heartbeat.stop()
+
+app = FastAPI(title="Bharat Trade Agent", version="2.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,6 +75,8 @@ class OrderRequest(BaseModel):
     transaction_type: str = "BUY"
     order_type: str = "MARKET"
     price: Optional[float] = 0.0
+    stop_loss: Optional[float] = None
+    target_price: Optional[float] = None
 
 class TelegramAlertRequest(BaseModel):
     trade_data: Dict[str, Any]
@@ -66,6 +85,7 @@ class TelegramAlertRequest(BaseModel):
 def get_system_status():
     provider, _ = get_llm_client()
     local_ip = get_local_network_ip()
+    hb = agent_heartbeat.get_status()
     return {
         "status": "online",
         "local_ip": local_ip,
@@ -73,8 +93,38 @@ def get_system_status():
         "llm_provider": provider or "rule_based_engine",
         "angel_one_mode": angel_client.mode,
         "angel_one_configured": angel_client.is_configured,
-        "telegram_configured": bool(os.getenv("TELEGRAM_BOT_TOKEN") and os.getenv("TELEGRAM_CHAT_ID"))
+        "telegram_configured": bool(os.getenv("TELEGRAM_BOT_TOKEN") and os.getenv("TELEGRAM_CHAT_ID")),
+        "survival_tier": hb.get("survival_tier", {}).get("tier", "NORMAL"),
+        "market_session": hb.get("market_session", "UNKNOWN")
     }
+
+@app.get("/api/agent/state")
+def get_agent_state():
+    status = agent_heartbeat.get_status()
+    return {
+        "heartbeat": status,
+        "survival_tier": status.get("survival_tier"),
+        "constitution": get_constitution_articles(),
+        "recent_journal": memory_journal.get_recent_entries(limit=10)
+    }
+
+@app.post("/api/agent/heartbeat/trigger")
+async def trigger_heartbeat():
+    res = await agent_heartbeat.execute_cycle()
+    return res
+
+@app.post("/api/agent/constitution/validate")
+def validate_trade_setup(data: Dict[str, Any]):
+    portfolio = angel_client.get_portfolio_summary()
+    equity = portfolio.get("net_liquidation_value", 125000.0)
+    return validate_order_against_constitution(
+        symbol=data.get("symbol", ""),
+        price=float(data.get("price", 0.0)),
+        stop_loss=float(data.get("stop_loss", 0.0)) if data.get("stop_loss") else None,
+        target_price=float(data.get("target_price", 0.0)) if data.get("target_price") else None,
+        quantity=int(data.get("quantity", 1)),
+        portfolio_equity=equity
+    )
 
 @app.get("/api/recommendations")
 def get_recommendations():
@@ -161,13 +211,54 @@ def get_portfolio():
 
 @app.post("/api/order")
 def place_order(order: OrderRequest):
-    return angel_client.place_order(
+    tier_info = agent_heartbeat.get_status().get("survival_tier", {})
+    if order.transaction_type == "BUY" and not tier_info.get("trading_allowed", True):
+        raise HTTPException(
+            status_code=403, 
+            detail=f"Order blocked by Survival Tier [{tier_info.get('tier')}]: {tier_info.get('description')}"
+        )
+        
+    portfolio = angel_client.get_portfolio_summary()
+    equity = portfolio.get("net_liquidation_value", 125000.0)
+    
+    order_price = order.price or 0.0
+    if order_price <= 0:
+        try:
+            q = get_stock_quote(order.symbol)
+            order_price = float(q.get("price", 0.0))
+        except Exception:
+            order_price = 100.0
+
+    if order.transaction_type == "BUY" and order.stop_loss is not None:
+        val_res = validate_order_against_constitution(
+            symbol=order.symbol,
+            price=order_price,
+            stop_loss=order.stop_loss,
+            target_price=order.target_price,
+            quantity=order.quantity,
+            portfolio_equity=equity
+        )
+        if not val_res["allowed"]:
+            raise HTTPException(
+                status_code=400,
+                detail={"message": "Order violates Trading Constitution", "violations": val_res["violations"]}
+            )
+
+    res = angel_client.place_order(
         symbol=order.symbol,
         quantity=order.quantity,
         transaction_type=order.transaction_type,
         order_type=order.order_type,
-        price=order.price or 0.0
+        price=order_price
     )
+    
+    memory_journal.record_entry(
+        category="EXECUTION",
+        title=f"Order Executed: {order.transaction_type} {order.quantity}x {order.symbol}",
+        content=f"Executed at INR {order_price:.2f}. Status: {res.get('status', 'OK')}.",
+        metadata={"symbol": order.symbol, "qty": order.quantity, "type": order.transaction_type, "price": order_price}
+    )
+    return res
 
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):

@@ -1,0 +1,36 @@
+[
+  {
+    "id": 1,
+    "timestamp": "2026-09-09 20:10:59 IST",
+    "category": "GENESIS",
+    "title": "Automaton Protocol Initialized",
+    "content": "Autonomous trading agent activated with capital preservation laws and dynamic survival tiers.",
+    "metadata": {
+      "version": "2.0.0",
+      "capital": 125000.0
+    }
+  },
+  {
+    "id": 2,
+    "timestamp": "2026-09-09 20:10:59 IST",
+    "category": "CONSTITUTION",
+    "title": "Trading Laws Ratified",
+    "content": "5 articles locked: 1.5% max risk per trade, mandatory hard stop-loss, macro trend alignment, minimum 1:1.5 R:R, and immutable logging.",
+    "metadata": {
+      "articles_count": 5
+    }
+  },
+  {
+    "id": 3,
+    "timestamp": "2026-09-09 20:13:10 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_CLOSED",
+    "content": "Heartbeat #1: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.86
+    }
+  }
+]
