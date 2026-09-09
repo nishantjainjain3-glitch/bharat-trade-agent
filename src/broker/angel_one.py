@@ -9,6 +9,7 @@ class AngelOneClient:
         self.client_code = os.getenv("ANGEL_CLIENT_CODE", "")
         self.pin = os.getenv("ANGEL_PIN", "")
         self.totp_key = os.getenv("ANGEL_TOTP_KEY", "")
+        self.public_ip = os.getenv("ANGEL_CLIENT_PUBLIC_IP", "152.59.151.52")
         
         self.jwt_token: Optional[str] = None
         self.refresh_token: Optional[str] = None
@@ -35,7 +36,7 @@ class AngelOneClient:
                 "X-UserType": "USER",
                 "X-SourceID": "WEB",
                 "X-ClientLocalIP": "127.0.0.1",
-                "X-ClientPublicIP": "127.0.0.1",
+                "X-ClientPublicIP": self.public_ip,
                 "X-MACAddress": "MAC_ADDRESS",
                 "X-PrivateKey": self.api_key
             }
