@@ -4,6 +4,14 @@ from typing import Dict, Any, List, Optional
 
 def get_llm_client():
     """Detects if any working external LLM provider is explicitly enabled."""
+    groq_key = os.getenv("GROQ_API_KEY", "")
+    if groq_key:
+        try:
+            from openai import OpenAI
+            return "groq", OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1", timeout=4.0)
+        except Exception:
+            pass
+
     openai_key = os.getenv("OPENAI_API_KEY", "")
     openai_base = os.getenv("OPENAI_BASE_URL", "")
     gemini_key = os.getenv("GEMINI_API_KEY", "")
@@ -53,8 +61,9 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
 
     news_headlines = [n.get("title", "") for n in news[:4] if n.get("title")]
 
-    if client and provider == "openai":
+    if client and provider in ("openai", "groq"):
         try:
+            model_name = "groq/compound-mini" if provider == "groq" else "gpt-4o-mini"
             prompt = (
                 f"Analyze {name} ({symbol}) at INR {price}.\n"
                 f"Technicals: {technicals}\n"
@@ -63,16 +72,16 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
                 "Conduct full research synthesis. Return valid JSON with keys: verdict, conviction (1-10), time_horizon, entry_range, target_price, stop_loss, risk_reward_ratio, technical_summary, fundamental_summary, bull_case, bear_case, executive_summary."
             )
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=model_name,
                 messages=[
                     {"role": "system", "content": "You are a quantitative and sentiment equity research analyst for Indian markets. Return valid JSON only."},
                     {"role": "user", "content": prompt}
                 ],
                 response_format={"type": "json_object"},
-                timeout=4.0
+                timeout=5.0
             )
             data = json.loads(response.choices[0].message.content)
-            data["provider"] = "openai"
+            data["provider"] = provider
             return data
         except Exception:
             pass
