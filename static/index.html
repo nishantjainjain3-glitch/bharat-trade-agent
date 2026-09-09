@@ -1291,18 +1291,21 @@ LIVE_EXECUTION_ENABLED=false
           badge.textContent = "Active";
           badge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono";
         }
+        if (data.llm_provider && document.getElementById('llmProviderName')) {
+          document.getElementById('llmProviderName').textContent = data.llm_provider.toUpperCase();
+        }
       } catch (err) {
         console.error("Status check error", err);
       }
 
-      loadMacro();
-      loadSectorHeatmap();
-      loadSectorRotation();
-      loadRecommendations();
-      quickAnalyze('NTPC');
-      loadWatchlist();
-      loadPortfolio();
-      loadMacroCatalysts();
+      loadPortfolio().catch(e => console.error("Portfolio error", e));
+      loadMacro().catch(e => console.error("Macro error", e));
+      loadSectorHeatmap().catch(e => console.error("Heatmap error", e));
+      loadSectorRotation().catch(e => console.error("Rotation error", e));
+      loadRecommendations().catch(e => console.error("Recommendations error", e));
+      loadWatchlist().catch(e => console.error("Watchlist error", e));
+      loadMacroCatalysts().catch(e => console.error("Catalysts error", e));
+      quickAnalyze('NTPC').catch(e => console.error("Quick analyze error", e));
     }
 
     async function loadMacro() {
@@ -1487,6 +1490,12 @@ LIVE_EXECUTION_ENABLED=false
         activeMobBtn.classList.add('text-emerald-400');
         activeMobBtn.classList.remove('text-slate-400');
       }
+
+      if (tabId === 'portfolio') {
+        loadPortfolio();
+      } else if (tabId === 'automaton') {
+        loadAutomatonState();
+      }
     }
 
     async function handleSearch(e) {
@@ -1567,9 +1576,17 @@ LIVE_EXECUTION_ENABLED=false
         verdictBadge.className = "px-4 py-1.5 rounded-lg text-lg font-black tracking-wider uppercase bg-amber-500 text-slate-950 shadow-md";
       }
 
-      const stars = '★'.repeat(r.conviction || 5) + '☆'.repeat(10 - (r.conviction || 5));
+      let numConv = 5;
+      if (typeof r.conviction === 'number') {
+        numConv = Math.round(r.conviction);
+      } else if (typeof r.conviction === 'string') {
+        const parsed = parseInt(r.conviction);
+        numConv = isNaN(parsed) ? 6 : parsed;
+      }
+      numConv = Math.max(1, Math.min(10, numConv));
+      const stars = '★'.repeat(numConv) + '☆'.repeat(10 - numConv);
       document.getElementById('starRating').textContent = stars;
-      document.getElementById('convictionScore').textContent = `${r.conviction || 5} / 10`;
+      document.getElementById('convictionScore').textContent = `${numConv} / 10`;
       document.getElementById('timeHorizon').textContent = r.time_horizon || 'Swing';
       
       document.getElementById('entryRange').textContent = r.entry_range || 'N/A';
@@ -1870,6 +1887,16 @@ LIVE_EXECUTION_ENABLED=false
         const res = await fetch('/api/portfolio');
         const data = await res.json();
 
+        if (document.getElementById('angelAccountId')) {
+          document.getElementById('angelAccountId').textContent = data.account_id || 'LIVE';
+        }
+        if (document.getElementById('angelModeBadge')) {
+          document.getElementById('angelModeBadge').textContent = data.mode || 'LIVE';
+          if (data.mode === 'LIVE') {
+            document.getElementById('angelModeBadge').className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-mono";
+          }
+        }
+
         document.getElementById('availCash').textContent = `₹${(data.available_cash || 0).toLocaleString('en-IN')}`;
         document.getElementById('investedVal').textContent = `₹${(data.invested_amount || 0).toLocaleString('en-IN')}`;
         document.getElementById('totalPortVal').textContent = `₹${(data.total_portfolio_value || 0).toLocaleString('en-IN')}`;
@@ -1887,18 +1914,22 @@ LIVE_EXECUTION_ENABLED=false
         }
 
         data.holdings.forEach(h => {
-          const hPos = (h.pnl || 0) >= 0;
+          const sym = h.tradingsymbol || h.symbol || 'STOCK';
+          const pnlVal = h.profitandloss !== undefined ? h.profitandloss : (h.pnl !== undefined ? h.pnl : 0);
+          const pnlPct = h.pnlpercentage !== undefined ? h.pnlpercentage : (h.pnl_pct !== undefined ? h.pnl_pct : 0);
+          const hPos = pnlVal >= 0;
           const tr = document.createElement('tr');
+          tr.className = 'border-b border-slate-800/60 hover:bg-slate-950/40 transition';
           tr.innerHTML = `
-            <td class="py-2.5 px-3 font-medium text-white">${h.symbol || h.tradingsymbol}</td>
+            <td class="py-2.5 px-3 font-medium text-white">${sym}</td>
             <td class="py-2.5 px-3 text-slate-300 font-mono">${h.quantity}</td>
             <td class="py-2.5 px-3 text-slate-300">₹${h.averageprice}</td>
             <td class="py-2.5 px-3 text-slate-300">₹${h.ltp}</td>
             <td class="py-2.5 px-3 ${hPos ? 'text-emerald-400' : 'text-rose-400'} font-semibold">
-              ${hPos ? '+' : ''}₹${h.pnl} (${hPos ? '+' : ''}${h.pnl_pct || 0}%)
+              ${hPos ? '+' : ''}₹${pnlVal.toFixed(2)} (${hPos ? '+' : ''}${pnlPct.toFixed(2)}%)
             </td>
             <td class="py-2.5 px-3 text-right">
-              <button onclick="quickAnalyze('${h.symbol || h.tradingsymbol}')" class="text-xs text-indigo-400 hover:text-indigo-300">
+              <button onclick="quickAnalyze('${sym.replace('-EQ', '')}')" class="text-xs text-indigo-400 hover:text-indigo-300 px-2 py-1 bg-slate-800 rounded">
                 Analyze
               </button>
             </td>
@@ -1930,11 +1961,11 @@ LIVE_EXECUTION_ENABLED=false
         const hbEl = document.getElementById('hbStatus');
         if (hbEl) {
           hbEl.innerHTML = hb.is_running 
-            ? <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Active 
-            : <span class="w-2 h-2 rounded-full bg-slate-500"></span> Idle;
+            ? '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Active' 
+            : '<span class="w-2 h-2 rounded-full bg-slate-500"></span> Idle';
         }
         if (document.getElementById('hbCycles')) document.getElementById('hbCycles').textContent = hb.cycle_count || 0;
-        if (document.getElementById('hbInterval')) document.getElementById('hbInterval').textContent = ${hb.interval_seconds || 60}s;
+        if (document.getElementById('hbInterval')) document.getElementById('hbInterval').textContent = (hb.interval_seconds || 60) + 's';
         if (document.getElementById('hbLastBeat')) document.getElementById('hbLastBeat').textContent = hb.last_beat_time || 'Just now';
         if (document.getElementById('autoObservationText')) document.getElementById('autoObservationText').textContent = hb.last_observation || 'Operating normally.';
 
@@ -1950,14 +1981,14 @@ LIVE_EXECUTION_ENABLED=false
         const activeTier = tier.tier || 'NORMAL';
         const pill = document.getElementById('activeTierPill');
         if (pill) {
-          pill.textContent = ${activeTier} (x Sizing);
+          pill.textContent = `${activeTier} (${tier.position_size_multiplier || 1}x Sizing)`;
           pill.style.borderColor = tier.badge_color || '#10b981';
           pill.style.color = tier.badge_color || '#10b981';
         }
 
         // Highlight active tier card
         ['NORMAL', 'DEFENSIVE', 'CRITICAL', 'CIRCUIT_BREAKER'].forEach(t => {
-          const card = document.getElementById(	ierCard-);
+          const card = document.getElementById('tierCard-' + t);
           if (!card) return;
           if (t === activeTier) {
             card.className = 'p-4 rounded-xl border border-emerald-500/60 bg-emerald-950/30 ring-1 ring-emerald-500/40 transition';
@@ -1973,13 +2004,13 @@ LIVE_EXECUTION_ENABLED=false
           data.constitution.forEach(art => {
             const div = document.createElement('div');
             div.className = 'bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 space-y-1';
-            div.innerHTML = 
+            div.innerHTML = `
               <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-200">Article : </span>
+                <span class="font-bold text-slate-200">Article ${art.number || ''}: ${art.title || ''}</span>
                 <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">ACTIVE</span>
               </div>
-              <p class="text-slate-400 text-[11px] leading-relaxed"></p>
-            ;
+              <p class="text-slate-400 text-[11px] leading-relaxed">${art.description || art.content || ''}</p>
+            `;
             constList.appendChild(div);
           });
         }
@@ -2000,14 +2031,14 @@ LIVE_EXECUTION_ENABLED=false
             const colClass = catColors[entry.category] || 'bg-slate-800 text-slate-300 border-slate-700';
             
             div.className = 'bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-1';
-            div.innerHTML = 
+            div.innerHTML = `
               <div class="flex items-center justify-between text-[10px]">
-                <span class="px-1.5 py-0.5 rounded font-mono font-bold border "></span>
-                <span class="text-slate-500 font-mono"></span>
+                <span class="px-1.5 py-0.5 rounded font-mono font-bold border ${colClass}">${entry.category}</span>
+                <span class="text-slate-500 font-mono">${entry.timestamp || ''}</span>
               </div>
-              <div class="font-semibold text-slate-200 text-xs mt-1"></div>
-              <p class="text-slate-400 text-[11px] leading-relaxed"></p>
-            ;
+              <div class="font-semibold text-slate-200 text-xs mt-1">${entry.title || ''}</div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">${entry.content || ''}</p>
+            `;
             jList.appendChild(div);
           });
         }
@@ -2021,7 +2052,7 @@ LIVE_EXECUTION_ENABLED=false
       const btn = document.getElementById('triggerBeatBtn');
       if (btn) {
         btn.classList.add('opacity-50', 'pointer-events-none');
-        btn.innerHTML = <span>Executing Cycle...</span>;
+        btn.innerHTML = '<span>Executing Cycle...</span>';
       }
       try {
         await fetch('/api/agent/heartbeat/trigger', { method: 'POST' });
@@ -2031,7 +2062,7 @@ LIVE_EXECUTION_ENABLED=false
       } finally {
         if (btn) {
           btn.classList.remove('opacity-50', 'pointer-events-none');
-          btn.innerHTML = <span>⚡ Trigger Cycle Now</span>;
+          btn.innerHTML = '<span>⚡ Trigger Cycle Now</span>';
         }
       }
     }
@@ -2044,21 +2075,21 @@ LIVE_EXECUTION_ENABLED=false
         const bar = document.getElementById('sectorHeatmapBar');
         if (!bar || !data.sectors) return;
 
-        bar.innerHTML = 
+        bar.innerHTML = `
           <div class="flex items-center gap-1.5 text-slate-400 font-bold uppercase tracking-wider text-[10px] mr-1">
             <span>📊</span> <span>Sectors:</span>
           </div>
-        ;
+        `;
 
         data.sectors.forEach(s => {
           const isPos = s.is_positive;
           const div = document.createElement('div');
-          div.className = lex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs cursor-pointer transition hover:scale-105 ;
-          div.title = Leader:  | Laggard: ;
-          div.innerHTML = 
-            <span class="font-semibold text-slate-200"></span>
-            <span class="font-mono font-bold">%</span>
-          ;
+          div.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs cursor-pointer transition hover:scale-105';
+          div.title = `Leader: ${s.top_stock || ''} | Laggard: ${s.worst_stock || ''}`;
+          div.innerHTML = `
+            <span class="font-semibold text-slate-200">${s.sector}</span>
+            <span class="font-mono font-bold ${isPos ? 'text-emerald-400' : 'text-rose-400'}">${isPos ? '+' : ''}${s.change_pct}%</span>
+          `;
           bar.appendChild(div);
         });
       } catch (err) {
@@ -2072,50 +2103,50 @@ LIVE_EXECUTION_ENABLED=false
       const g = personas.graham || {};
       const l = personas.lynch || {};
 
-      document.getElementById('buffettScore').textContent = ${b.score || '--'} / 100;
+      document.getElementById('buffettScore').textContent = `${b.score || '--'} / 100`;
       document.getElementById('buffettBadge').textContent = b.badge || '--';
       document.getElementById('buffettKeyMetric').textContent = b.key_metric || '--';
       document.getElementById('buffettRationale').textContent = b.rationale || '--';
 
-      document.getElementById('grahamScore').textContent = ${g.score || '--'} / 100;
+      document.getElementById('grahamScore').textContent = `${g.score || '--'} / 100`;
       document.getElementById('grahamBadge').textContent = g.badge || '--';
       document.getElementById('grahamKeyMetric').textContent = g.key_metric || '--';
       document.getElementById('grahamRationale').textContent = g.rationale || '--';
 
-      document.getElementById('lynchScore').textContent = ${l.score || '--'} / 100;
+      document.getElementById('lynchScore').textContent = `${l.score || '--'} / 100`;
       document.getElementById('lynchBadge').textContent = l.badge || '--';
       document.getElementById('lynchKeyMetric').textContent = l.key_metric || '--';
       document.getElementById('lynchRationale').textContent = l.rationale || '--';
 
       const pill = document.getElementById('guruConsensusPill');
       if (pill) {
-        pill.textContent = Score:  / 100;
+        pill.textContent = `Score: ${personas.composite_score || '--'} / 100`;
       }
       document.getElementById('guruConsensusSummary').textContent = personas.consensus_summary || 'Analysis complete.';
     }
 
     function renderFinancialHistory(fin) {
       if (!fin) return;
-      document.getElementById('fin3YGrowth').textContent = ${fin.revenue_growth_3y_pct || 0}%;
+      document.getElementById('fin3YGrowth').textContent = `${fin.revenue_growth_3y_pct || 0}%`;
       document.getElementById('finMarginTrend').textContent = fin.margin_trend || 'STABLE';
 
       const tbody = document.getElementById('financialsTableBody');
       tbody.innerHTML = '';
       if (!fin.annual_reports || fin.annual_reports.length === 0) {
-        tbody.innerHTML = <tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">No historical filing data found.</td></tr>;
+        tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">No historical filing data found.</td></tr>';
         return;
       }
 
       fin.annual_reports.forEach(r => {
         const tr = document.createElement('tr');
-        tr.innerHTML = 
-          <td class="py-2.5 px-3 font-semibold text-white"></td>
-          <td class="py-2.5 px-3 text-slate-300">₹</td>
-          <td class="py-2.5 px-3 text-slate-300">₹</td>
-          <td class="py-2.5 px-3 text-emerald-400 font-bold">%</td>
-          <td class="py-2.5 px-3 text-slate-300">₹</td>
-          <td class="py-2.5 px-3 text-slate-300">₹</td>
-        ;
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-semibold text-white">${r.fiscal_year || ''}</td>
+          <td class="py-2.5 px-3 text-slate-300">₹${r.revenue_cr || ''}</td>
+          <td class="py-2.5 px-3 text-slate-300">₹${r.net_profit_cr || ''}</td>
+          <td class="py-2.5 px-3 text-emerald-400 font-bold">${r.operating_margin_pct || ''}%</td>
+          <td class="py-2.5 px-3 text-slate-300">₹${r.total_assets_cr || ''}</td>
+          <td class="py-2.5 px-3 text-slate-300">₹${r.net_worth_cr || ''}</td>
+        `;
         tbody.appendChild(tr);
       });
     }
