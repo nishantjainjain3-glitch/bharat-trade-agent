@@ -21,6 +21,28 @@ def get_llm_client():
 
     return None, None
 
+def calculate_sentiment_velocity(news_headlines: List[str]) -> str:
+    """Calculates directional shift between recent and older news sentiment."""
+    bullish_keywords = ["surge", "jump", "rally", "gain", "profit", "order", "contract", "record", "growth", "high", "upgrade", "outperform", "dividend", "approval", "beat"]
+    bearish_keywords = ["drop", "fall", "slump", "loss", "decline", "probe", "investigation", "penalty", "downgrade", "debt", "fraud", "scam", "notice", "plunge", "miss"]
+
+    recent_sent = 0
+    older_sent = 0
+    for i, h in enumerate(news_headlines):
+        h_lower = h.lower()
+        score = sum(1 for w in bullish_keywords if w in h_lower) - sum(1 for w in bearish_keywords if w in h_lower)
+        if i < 2:
+            recent_sent += score
+        else:
+            older_sent += score
+
+    if recent_sent > older_sent and recent_sent > 0:
+        return "ACCELERATING_BULLISH (Fresh positive media catalysts)"
+    elif recent_sent < older_sent and recent_sent < 0:
+        return "DETERIORATING (Emerging negative media sentiment)"
+    else:
+        return "STABLE (Neutral / Steady media coverage)"
+
 def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], fundamentals: Dict[str, Any], news: List[Dict[str, Any]] = None) -> Dict[str, Any]:
     symbol = quote["symbol"]
     name = quote.get("name", symbol)
@@ -98,7 +120,9 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
     reward_amount = max(1.0, target_val - price)
     rr_ratio = f"1 : {round(reward_amount / risk_amount, 1)}"
 
-    # News catalyst integration
+    # News catalyst and sentiment velocity integration
+    sentiment_velocity = calculate_sentiment_velocity(news_headlines)
+
     news_snippet = f" Latest market news: '{news_headlines[0]}'." if news_headlines else ""
 
     bull_summary = (
@@ -135,5 +159,6 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
         "bear_case": bear_summary,
         "executive_summary": exec_summary,
         "news_headlines": news_headlines,
+        "sentiment_velocity": sentiment_velocity,
         "provider": "quantitative_agent_engine"
     }

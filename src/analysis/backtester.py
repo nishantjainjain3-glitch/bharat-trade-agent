@@ -324,70 +324,121 @@ def run_parameter_sweep(symbol: str, period: str = "6mo", initial_capital: float
     if len(df) < 35:
         raise ValueError("Insufficient historical bars for parameter optimization (minimum 35 required)")
 
-    close = df['Close']
-    close_pct_change = close.pct_change().fillna(0)
+    # 70% In-Sample (Optimization) and 30% Out-of-Sample (Validation)
+    split_idx = max(25, int(len(df) * 0.70))
+    in_sample_df = df.iloc[:split_idx].copy()
+    out_sample_df = df.iloc[split_idx:].copy()
+
+    close_is = in_sample_df['Close']
+    close_pct_change_is = close_is.pct_change().fillna(0)
 
     fast_periods = [9, 15, 20]
     slow_periods = [30, 50, 100]
 
     grid_results = []
 
+    def simulate_ema_strategy(data_df, fast, slow, capital):
+        close_s = data_df['Close']
+        pct_change_s = close_s.pct_change().fillna(0)
+        ema_fast = close_s.ewm(span=fast, adjust=False).mean()
+        ema_slow = close_s.ewm(span=slow, adjust=False).mean()
+        signal = np.where(ema_fast > ema_slow, 1, 0)
+        position = pd.Series(signal, index=data_df.index).shift(1).fillna(0)
+        strat_returns = position * pct_change_s
+
+        in_trade = False
+        entry_price = 0.0
+        shares = 0
+        trades_count = 0
+        wins = 0
+        current_portfolio = capital
+
+        for i in range(len(data_df)):
+            pos = position.iloc[i]
+            price = float(close_s.iloc[i])
+
+            if pos == 1 and not in_trade:
+                in_trade = True
+                entry_price = price
+                shares = int(current_portfolio / price) if price > 0 else 0
+            elif pos == 0 and in_trade:
+                trades_count += 1
+                buy_val = shares * entry_price
+                sell_val = shares * price
+                gross_pnl = sell_val - buy_val
+                charges = calculate_indian_trade_charges(buy_val, sell_val, slippage_pct=0.0005)
+                net_pnl = gross_pnl - charges["total_charges"]
+                if net_pnl > 0:
+                    wins += 1
+                current_portfolio += net_pnl
+                in_trade = False
+
+        win_rate = round((wins / trades_count) * 100.0, 1) if trades_count > 0 else 0.0
+        net_ret_pct = round(((current_portfolio - capital) / capital) * 100.0, 2)
+        risk_metrics = calculate_risk_adjusted_ratios(strat_returns, risk_free_rate_annual=0.07)
+        sharpe = risk_metrics.get("sharpe_ratio", 0.0)
+
+        return {
+            "net_return_pct": net_ret_pct,
+            "win_rate_pct": win_rate,
+            "total_trades": trades_count,
+            "sharpe_ratio": sharpe,
+            "final_portfolio": round(current_portfolio, 2)
+        }
+
+    # In-Sample Parameter Grid Sweep
     for fast in fast_periods:
-        ema_fast = close.ewm(span=fast, adjust=False).mean()
         for slow in slow_periods:
             if slow <= fast:
                 continue
-            ema_slow = close.ewm(span=slow, adjust=False).mean()
-            signal = np.where(ema_fast > ema_slow, 1, 0)
-            position = pd.Series(signal, index=df.index).shift(1).fillna(0)
-            strat_returns = position * close_pct_change
-
-            # Simulate trades & statutory Indian costs
-            in_trade = False
-            entry_price = 0.0
-            shares = 0
-            trades_count = 0
-            wins = 0
-            current_portfolio = initial_capital
-            
-            for i in range(len(df)):
-                pos = position.iloc[i]
-                price = float(close.iloc[i])
-
-                if pos == 1 and not in_trade:
-                    in_trade = True
-                    entry_price = price
-                    shares = int(current_portfolio / price) if price > 0 else 0
-                elif pos == 0 and in_trade:
-                    trades_count += 1
-                    buy_val = shares * entry_price
-                    sell_val = shares * price
-                    gross_pnl = sell_val - buy_val
-                    charges = calculate_indian_trade_charges(buy_val, sell_val)
-                    net_pnl = gross_pnl - charges["total_charges"]
-                    if net_pnl > 0:
-                        wins += 1
-                    current_portfolio += net_pnl
-                    in_trade = False
-
-            win_rate = round((wins / trades_count) * 100.0, 1) if trades_count > 0 else 0.0
-            net_return_pct = round(((current_portfolio - initial_capital) / initial_capital) * 100.0, 2)
-            risk_metrics = calculate_risk_adjusted_ratios(strat_returns, risk_free_rate_annual=0.07)
-            sharpe = risk_metrics.get("sharpe_ratio", 0.0)
-
+            res_is = simulate_ema_strategy(in_sample_df, fast, slow, initial_capital)
             grid_results.append({
                 "fast_ema": fast,
                 "slow_ema": slow,
                 "combo_label": f"{fast} / {slow} EMA",
-                "net_return_pct": net_return_pct,
-                "win_rate_pct": win_rate,
-                "total_trades": trades_count,
-                "sharpe_ratio": sharpe
+                "net_return_pct": res_is["net_return_pct"],
+                "win_rate_pct": res_is["win_rate_pct"],
+                "total_trades": res_is["total_trades"],
+                "sharpe_ratio": res_is["sharpe_ratio"]
             })
 
     # Sort grid by Sharpe descending, then net return
     grid_results.sort(key=lambda x: (x["sharpe_ratio"], x["net_return_pct"]), reverse=True)
     best = grid_results[0] if grid_results else {}
+
+    # Out-of-Sample Validation on unseen data
+    best_fast = best.get("fast_ema", 9)
+    best_slow = best.get("slow_ema", 30)
+    oos_res = simulate_ema_strategy(out_sample_df, best_fast, best_slow, initial_capital) if len(out_sample_df) >= 10 else {}
+
+    is_ret = best.get("net_return_pct", 0.0)
+    oos_ret = oos_res.get("net_return_pct", 0.0)
+
+    if is_ret > 0:
+        robustness_ratio = round(oos_ret / is_ret, 2)
+    else:
+        robustness_ratio = 1.0 if oos_ret >= 0 else 0.0
+
+    if oos_ret > 0 and robustness_ratio >= 0.5:
+        wf_verdict = "ROBUST (Strategy maintains edge on unseen data)"
+    elif oos_ret > 0:
+        wf_verdict = "MODERATE (Profitable out-of-sample with performance decay)"
+    else:
+        wf_verdict = "OVERFITTED (Strategy degraded into losses on unseen test data)"
+
+    walk_forward = {
+        "in_sample_period_bars": len(in_sample_df),
+        "out_of_sample_period_bars": len(out_sample_df),
+        "in_sample_return_pct": is_ret,
+        "out_of_sample_return_pct": oos_ret,
+        "out_of_sample_win_rate_pct": oos_res.get("win_rate_pct", 0.0),
+        "out_of_sample_trades": oos_res.get("total_trades", 0),
+        "robustness_ratio": robustness_ratio,
+        "verdict": wf_verdict,
+        "walk_forward_verdict": "ROBUST" if "ROBUST" in wf_verdict else ("MODERATE" if "MODERATE" in wf_verdict else "OVERFITTED"),
+        "slippage_per_leg_pct": 0.05,
+        "summary": f"In-sample return: {is_ret}%, Out-of-sample return: {oos_ret}%. Status: {wf_verdict}."
+    }
 
     return {
         "symbol": norm_symbol,
@@ -395,6 +446,8 @@ def run_parameter_sweep(symbol: str, period: str = "6mo", initial_capital: float
         "initial_capital": initial_capital,
         "total_combinations_tested": len(grid_results),
         "best_combination": best,
+        "walk_forward_validation": walk_forward,
         "grid_results": grid_results,
-        "summary": f"Optimal parameter set for {norm_symbol}: {best.get('combo_label')} delivering {best.get('net_return_pct')}% net return and {best.get('sharpe_ratio')} Sharpe ratio after all Indian regulatory fees."
+        "summary": f"Optimal parameter set for {norm_symbol}: {best.get('combo_label')} delivering {best.get('net_return_pct')}% in-sample return and {oos_ret}% out-of-sample return. Status: {wf_verdict}."
     }
+

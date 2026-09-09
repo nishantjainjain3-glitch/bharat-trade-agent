@@ -20,11 +20,13 @@ NIFTY_50_POPULAR = [
 
 def normalize_indian_symbol(symbol: str) -> str:
     sym = symbol.strip().upper()
-    if sym in ["NIFTY", "NIFTY50", "NIFTY 50", "^NSEI"]:
+    if sym.startswith("^"):
+        return sym
+    if sym in ["NIFTY", "NIFTY50", "NIFTY 50"]:
         return "^NSEI"
-    if sym in ["BANKNIFTY", "BANK NIFTY", "^NSEBANK"]:
+    if sym in ["BANKNIFTY", "BANK NIFTY"]:
         return "^NSEBANK"
-    if sym in ["SENSEX", "^BSESN"]:
+    if sym in ["SENSEX"]:
         return "^BSESN"
     if not (sym.endswith(".NS") or sym.endswith(".BO")):
         return f"{sym}.NS"

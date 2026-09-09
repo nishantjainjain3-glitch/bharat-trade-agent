@@ -133,9 +133,95 @@
           </button>
         </div>
 
+        <!-- Strategy Preset Filters -->
+        <div class="flex items-center gap-2 mb-3 overflow-x-auto hide-scrollbar text-xs">
+          <span class="text-slate-400 font-medium shrink-0">Strategy Filter:</span>
+          <button onclick="setScreenerPreset('ALL')" id="preset-ALL" class="px-3 py-1 bg-emerald-600 text-white rounded-lg font-semibold transition border border-emerald-500 shadow-sm shrink-0">
+            All Setups
+          </button>
+          <button onclick="setScreenerPreset('BREAKOUT')" id="preset-BREAKOUT" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg font-medium transition border border-slate-700 shrink-0">
+            ⚡ Momentum Breakout (52W / RVOL)
+          </button>
+          <button onclick="setScreenerPreset('OVERSOLD')" id="preset-OVERSOLD" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg font-medium transition border border-slate-700 shrink-0">
+            🎯 Oversold Dip (RSI &lt; 40 / Fibonacci)
+          </button>
+          <button onclick="setScreenerPreset('VALUE')" id="preset-VALUE" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg font-medium transition border border-slate-700 shrink-0">
+            💎 High-Moat Value (Low PE / Solvency)
+          </button>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="recommendationCards">
           <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs col-span-full py-8">
             Scanning Nifty stocks for high-conviction buy setups...
+          </div>
+        </div>
+      </div>
+
+      <!-- NIFTY SECTOR ROTATION & RELATIVE STRENGTH (RRG) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🔄</span>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider">Nifty Sector Rotation Matrix (RRG)</h3>
+              <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">Benchmark: NIFTY 50</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Tracks institutional capital rotation across 6 NSE key sectors via 30-day RS-Ratio and 10-day RS-Momentum.</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="text-slate-400">Leading: <strong id="sectorLeadBadge" class="text-emerald-400 font-mono">--</strong></span>
+            <span class="text-slate-400">Lagging: <strong id="sectorLagBadge" class="text-rose-400 font-mono">--</strong></span>
+            <button onclick="loadSectorRotation()" class="text-[11px] text-slate-400 hover:text-white px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs" id="sectorRotationGrid">
+          <!-- Leading Quadrant -->
+          <div class="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-400 uppercase text-[11px] flex items-center gap-1">🟢 Leading</span>
+              <span class="text-[10px] text-emerald-300/80 font-mono">RS > 100 &bull; Mom > 100</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Outperforming & accelerating. Prime zone for long breakouts.</p>
+            <div id="rrgLeadingSectors" class="space-y-1.5 pt-1">
+              <span class="text-slate-500 text-[11px]">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Weakening Quadrant -->
+          <div class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-amber-400 uppercase text-[11px] flex items-center gap-1">🟠 Weakening</span>
+              <span class="text-[10px] text-amber-300/80 font-mono">RS > 100 &bull; Mom &lt; 100</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Outperforming but decelerating. Tighten trailing stops.</p>
+            <div id="rrgWeakeningSectors" class="space-y-1.5 pt-1">
+              <span class="text-slate-500 text-[11px]">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Improving Quadrant -->
+          <div class="bg-sky-950/20 border border-sky-500/30 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sky-400 uppercase text-[11px] flex items-center gap-1">🟡 Improving</span>
+              <span class="text-[10px] text-sky-300/80 font-mono">RS &lt; 100 &bull; Mom > 100</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Lagging but gaining momentum. Look for early dip buys.</p>
+            <div id="rrgImprovingSectors" class="space-y-1.5 pt-1">
+              <span class="text-slate-500 text-[11px]">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Lagging Quadrant -->
+          <div class="bg-rose-950/20 border border-rose-500/30 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-rose-400 uppercase text-[11px] flex items-center gap-1">🔴 Lagging</span>
+              <span class="text-[10px] text-rose-300/80 font-mono">RS &lt; 100 &bull; Mom &lt; 100</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Underperforming Nifty. Avoid fresh long exposure.</p>
+            <div id="rrgLaggingSectors" class="space-y-1.5 pt-1">
+              <span class="text-slate-500 text-[11px]">Loading...</span>
+            </div>
           </div>
         </div>
       </div>
@@ -655,6 +741,28 @@
           <div class="flex items-center gap-2 text-xs">
             <span class="text-slate-400">Best Combo:</span>
             <span id="optBestBadge" class="font-mono font-bold px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">--</span>
+          </div>
+        </div>
+
+        <!-- Walk-Forward Validation Badge & Robustness Ratio -->
+        <div id="walkForwardCard" class="hidden bg-slate-950/70 p-3.5 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-slate-200">Walk-Forward Validation:</span>
+              <span id="wfVerdictBadge" class="font-mono font-bold px-2 py-0.5 rounded text-[10px]">--</span>
+              <span class="text-[10px] text-slate-400 font-mono" id="wfRatioText">Ratio: --</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1" id="wfSummaryText">Evaluated with 70% In-Sample optimization & 30% Out-of-Sample test + 0.05% slippage/leg.</p>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-mono shrink-0">
+            <div>
+              <span class="text-slate-500 text-[10px] block">In-Sample (70%)</span>
+              <span id="wfInSample" class="font-bold text-emerald-400">--</span>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[10px] block">Out-of-Sample (30%)</span>
+              <span id="wfOutOfSample" class="font-bold text-white">--</span>
+            </div>
           </div>
         </div>
 
@@ -1189,6 +1297,7 @@ LIVE_EXECUTION_ENABLED=false
 
       loadMacro();
       loadSectorHeatmap();
+      loadSectorRotation();
       loadRecommendations();
       quickAnalyze('NTPC');
       loadWatchlist();
@@ -1217,19 +1326,38 @@ LIVE_EXECUTION_ENABLED=false
       }
     }
 
-    async function loadRecommendations() {
+    let currentScreenerPreset = 'ALL';
+
+    function setScreenerPreset(preset) {
+      currentScreenerPreset = preset;
+      ['ALL', 'BREAKOUT', 'OVERSOLD', 'VALUE'].forEach(p => {
+        const btn = document.getElementById(`preset-${p}`);
+        if (!btn) return;
+        if (p === preset) {
+          btn.className = "px-3 py-1 bg-emerald-600 text-white rounded-lg font-semibold transition border border-emerald-500 shadow-sm shrink-0";
+        } else {
+          btn.className = "px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg font-medium transition border border-slate-700 shrink-0";
+        }
+      });
+      loadRecommendations(preset);
+    }
+
+    async function loadRecommendations(preset) {
+      if (!preset) preset = currentScreenerPreset;
+      else currentScreenerPreset = preset;
+
       const container = document.getElementById('recommendationCards');
       const rescanBtn = document.getElementById('rescanBtn');
       rescanBtn.classList.add('opacity-50', 'pointer-events-none');
       rescanBtn.innerHTML = `<span>Scanning...</span>`;
 
       try {
-        const res = await fetch('/api/recommendations');
+        const res = await fetch(`/api/recommendations?preset=${preset}`);
         const picks = await res.json();
         container.innerHTML = '';
 
         if (!picks || picks.length === 0) {
-          container.innerHTML = `<div class="col-span-full py-4 text-center text-slate-500 text-xs">No clear buy setups meeting criteria right now. Check back at next market update.</div>`;
+          container.innerHTML = `<div class="col-span-full py-4 text-center text-slate-500 text-xs">No clear buy setups meeting criteria for this filter right now. Try "All Setups" or check back later.</div>`;
           return;
         }
 
@@ -1247,9 +1375,14 @@ LIVE_EXECUTION_ENABLED=false
                   ${p.verdict}
                 </span>
               </div>
-              <div class="flex items-baseline justify-between mb-2">
+              <div class="flex items-baseline justify-between mb-1.5">
                 <span class="text-xs font-mono text-slate-400">${p.symbol}</span>
                 <span class="text-xs font-extrabold text-white">₹${p.price.toLocaleString('en-IN')}</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                ${p.candlestick_pattern ? `<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">🕯️ ${p.candlestick_pattern}</span>` : ''}
+                ${p.dist_52w_high_pct !== undefined && p.dist_52w_high_pct !== null ? `<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">${p.dist_52w_high_pct}% to 52W H</span>` : ''}
+                ${p.relative_volume ? `<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">${p.relative_volume}x Vol</span>` : ''}
               </div>
               <div class="bg-slate-900/90 p-2 rounded-lg text-[11px] space-y-1 mb-2.5 border border-slate-800/60">
                 <div class="flex justify-between">
@@ -1279,6 +1412,46 @@ LIVE_EXECUTION_ENABLED=false
       } finally {
         rescanBtn.classList.remove('opacity-50', 'pointer-events-none');
         rescanBtn.innerHTML = `<span>⚡ Rescan Market</span>`;
+      }
+    }
+
+    async function loadSectorRotation() {
+      try {
+        const res = await fetch('/api/sectors/rotation');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        const lead = document.getElementById('sectorLeadBadge');
+        if (lead) lead.textContent = data.leading_sector || '--';
+        const lag = document.getElementById('sectorLagBadge');
+        if (lag) lag.textContent = data.lagging_sector || '--';
+
+        const matrix = data.quadrant_matrix || {};
+        
+        const renderQuadrantList = (id, items, colorClass) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (!items || items.length === 0) {
+            el.innerHTML = '<span class="text-slate-600 text-[10px] italic">No sectors currently in this quadrant</span>';
+            return;
+          }
+          el.innerHTML = items.map(s => `
+            <div class="flex items-center justify-between p-1.5 rounded bg-slate-950/70 border border-slate-800/80">
+              <div>
+                <span class="font-bold text-slate-200 text-xs block">${s.sector}</span>
+                <span class="text-[10px] text-slate-400 font-mono">RS: ${s.rs_ratio} &bull; Mom: ${s.rs_momentum}</span>
+              </div>
+              <span class="text-[10px] font-mono font-bold ${colorClass}">${s.action}</span>
+            </div>
+          `).join('');
+        };
+
+        renderQuadrantList('rrgLeadingSectors', matrix.LEADING, 'text-emerald-400');
+        renderQuadrantList('rrgWeakeningSectors', matrix.WEAKENING, 'text-amber-400');
+        renderQuadrantList('rrgImprovingSectors', matrix.IMPROVING, 'text-sky-400');
+        renderQuadrantList('rrgLaggingSectors', matrix.LAGGING, 'text-rose-400');
+      } catch (err) {
+        console.error("Sector rotation fetch error", err);
       }
     }
 
@@ -2077,6 +2250,36 @@ LIVE_EXECUTION_ENABLED=false
       document.getElementById('optSummaryText').textContent = data.summary || 'Parameter grid results.';
       const best = data.best_combination || {};
       document.getElementById('optBestBadge').textContent = best.combo_label || '--';
+
+      const wf = data.walk_forward_validation;
+      const wfCard = document.getElementById('walkForwardCard');
+      if (wf && wfCard) {
+        wfCard.classList.remove('hidden');
+        const verdictBadge = document.getElementById('wfVerdictBadge');
+        if (verdictBadge) {
+          verdictBadge.textContent = wf.walk_forward_verdict;
+          if (wf.walk_forward_verdict === 'ROBUST') {
+            verdictBadge.className = "font-mono font-bold px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+          } else if (wf.walk_forward_verdict === 'MODERATE') {
+            verdictBadge.className = "font-mono font-bold px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30";
+          } else {
+            verdictBadge.className = "font-mono font-bold px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30";
+          }
+        }
+        const ratioEl = document.getElementById('wfRatioText');
+        if (ratioEl) ratioEl.textContent = `Robustness Ratio: ${wf.robustness_ratio}`;
+        const sumEl = document.getElementById('wfSummaryText');
+        if (sumEl) sumEl.textContent = `${wf.summary} (Includes ${wf.slippage_per_leg_pct}% slippage/leg + STT/GST taxes)`;
+        const inSamEl = document.getElementById('wfInSample');
+        if (inSamEl) inSamEl.textContent = `${wf.in_sample_return_pct >= 0 ? '+' : ''}${wf.in_sample_return_pct}%`;
+        const outSamEl = document.getElementById('wfOutOfSample');
+        if (outSamEl) {
+          outSamEl.textContent = `${wf.out_of_sample_return_pct >= 0 ? '+' : ''}${wf.out_of_sample_return_pct}%`;
+          outSamEl.className = `font-bold ${wf.out_of_sample_return_pct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+        }
+      } else if (wfCard) {
+        wfCard.classList.add('hidden');
+      }
 
       const tbody = document.getElementById('optGridTableBody');
       tbody.innerHTML = '';

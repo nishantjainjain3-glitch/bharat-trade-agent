@@ -72,6 +72,16 @@ def scan_single_stock(item: Dict[str, str]) -> Dict[str, Any]:
         elif "Fundamental strength:" in catalyst:
             catalyst = catalyst.split("Fundamental strength:")[1].split(".")[0].strip()
 
+        year_high = float(quote.get("year_high") or price)
+        dist_52w_high_pct = round(((year_high - price) / year_high) * 100.0, 1) if year_high > 0 else 0.0
+        rvol = technicals.get("volume", {}).get("rvol_20d", 1.0)
+        candlestick_patterns = technicals.get("candlestick_patterns", [])
+        f_metrics = funds.get("metrics", {})
+        roe = float(f_metrics.get("roe_pct") or 0.0)
+        debt_to_equity = float(f_metrics.get("debt_to_equity") or 0.0)
+        ema_50 = technicals.get("emas", {}).get("ema_50", 0.0)
+        ema_200 = technicals.get("emas", {}).get("ema_200", 0.0)
+
         return {
             "symbol": quote["clean_symbol"],
             "full_symbol": symbol,
@@ -89,12 +99,29 @@ def scan_single_stock(item: Dict[str, str]) -> Dict[str, Any]:
             "risk_reward_ratio": research["risk_reward_ratio"],
             "key_catalyst": catalyst or "Constructive consolidation above support with favorable risk-reward.",
             "rsi": technicals["rsi"],
-            "trend": technicals["trend"]
+            "trend": technicals["trend"],
+            "dist_52w_high_pct": dist_52w_high_pct,
+            "rvol": rvol,
+            "relative_volume": rvol,
+            "candlestick_patterns": candlestick_patterns,
+            "candlestick_pattern": candlestick_patterns[0] if candlestick_patterns else "",
+            "fund_score": f_score,
+            "roe": roe,
+            "debt_to_equity": debt_to_equity,
+            "ema_50": ema_50,
+            "ema_200": ema_200
         }
     except Exception as e:
         return None
 
-def get_top_buy_recommendations(limit: int = 4) -> List[Dict[str, Any]]:
+def get_preset_screener_recommendations(preset: str = "ALL", limit: int = 4) -> List[Dict[str, Any]]:
+    """
+    Scans the Indian large-cap universe against preset strategy filters:
+    - MOMENTUM_BREAKOUT (Minervini template): Within 15% of 52W high, price > 50 & 200 EMA, RVOL >= 1.1x
+    - OVERSOLD_PULLBACK: RSI <= 48, price > 200 EMA (healthy secular uptrend on a pullback)
+    - VALUE_COMPOUNDER: Strong fundamentals (score >= 1, ROE >= 12%, upside >= 5%)
+    - ALL: Composite opportunity score
+    """
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
         futures = [executor.submit(scan_single_stock, item) for item in UNIVERSE_TICKERS]
@@ -103,9 +130,43 @@ def get_top_buy_recommendations(limit: int = 4) -> List[Dict[str, Any]]:
             if res:
                 results.append(res)
 
-    # Filter out AVOID / SELL
-    candidates = [r for r in results if r["verdict"] in ["BUY", "ACCUMULATE"]]
+    p_norm = preset.strip().upper()
     
-    # Sort descending by score & conviction
-    candidates.sort(key=lambda x: (x["verdict"] == "BUY", x["score"], x["conviction"]), reverse=True)
+    if p_norm in ["BREAKOUT", "MOMENTUM", "MOMENTUM_BREAKOUT"]:
+        candidates = [
+            r for r in results 
+            if r["dist_52w_high_pct"] <= 15.0 
+            and (r["price"] >= r["ema_50"] or r["price"] >= r["ema_200"])
+            and r["verdict"] != "AVOID"
+        ]
+        candidates.sort(key=lambda x: (x["dist_52w_high_pct"], -x["rvol"], -x["score"]))
+    elif p_norm in ["OVERSOLD", "DIP", "OVERSOLD_PULLBACK"]:
+        candidates = [
+            r for r in results 
+            if r["rsi"] <= 50.0 
+            and r["price"] >= (r["ema_200"] * 0.96)
+            and r["verdict"] != "AVOID"
+        ]
+        candidates.sort(key=lambda x: (x["rsi"], -x["upside_pct"], -x["score"]))
+    elif p_norm in ["VALUE", "MOAT", "VALUE_COMPOUNDER"]:
+        candidates = [
+            r for r in results 
+            if r["fund_score"] >= 1 
+            and r["upside_pct"] >= 5.0
+            and r["verdict"] != "AVOID"
+        ]
+        candidates.sort(key=lambda x: (-x["fund_score"], -x["upside_pct"], -x["score"]))
+    else:
+        # Default 'ALL' filter
+        candidates = [r for r in results if r["verdict"] in ["BUY", "ACCUMULATE"]]
+        candidates.sort(key=lambda x: (x["verdict"] == "BUY", x["score"], x["conviction"]), reverse=True)
+
+    # Fallback to general candidates if strict filter returns empty
+    if not candidates:
+        candidates = [r for r in results if r["verdict"] in ["BUY", "ACCUMULATE"]]
+        candidates.sort(key=lambda x: (x["verdict"] == "BUY", x["score"], x["conviction"]), reverse=True)
+
     return candidates[:limit]
+
+def get_top_buy_recommendations(limit: int = 4) -> List[Dict[str, Any]]:
+    return get_preset_screener_recommendations(preset="ALL", limit=limit)
