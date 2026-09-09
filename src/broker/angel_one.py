@@ -29,7 +29,7 @@ class AngelOneClient:
             
         try:
             totp = pyotp.TOTP(self.totp_key).now()
-            url = "https://apiconnect.angelbroking.com/rest/auth/partner/v1/loginByPassword"
+            url = "https://apiconnect.angelone.in/rest/auth/angelbroking/user/v1/loginByPassword"
             headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
@@ -58,6 +58,13 @@ class AngelOneClient:
             return {"status": False, "mode": "SIMULATION", "message": f"Connection error: {str(e)}"}
 
     def get_portfolio_summary(self) -> Dict[str, Any]:
+        if not self.is_configured or not self.jwt_token:
+            # Attempt login first if credentials exist but token expired
+            if self.is_configured and not self.jwt_token:
+                login_res = self.login()
+                if not login_res.get("status"):
+                    pass
+
         if not self.is_configured or not self.jwt_token:
             # Return realistic simulated portfolio for paper trading
             return {
@@ -93,7 +100,6 @@ class AngelOneClient:
             
         # If live credentials exist and authenticated, fetch via Angel One API
         try:
-            url = "https://apiconnect.angelbroking.com/rest/secure/angelbroking/portfolio/v1/getAllHolding"
             headers = {
                 "Authorization": f"Bearer {self.jwt_token}",
                 "Content-Type": "application/json",
@@ -101,16 +107,38 @@ class AngelOneClient:
                 "X-UserType": "USER",
                 "X-SourceID": "WEB",
                 "X-ClientLocalIP": "127.0.0.1",
-                "X-ClientPublicIP": "127.0.0.1",
+                "X-ClientPublicIP": self.public_ip,
                 "X-MACAddress": "MAC_ADDRESS",
                 "X-PrivateKey": self.api_key
             }
-            res = requests.get(url, headers=headers, timeout=10)
+
+            # 1. Fetch live available funds / RMS
+            cash_val = 0.0
+            try:
+                funds_url = "https://apiconnect.angelone.in/rest/secure/angelbroking/user/v1/getRMS"
+                funds_res = requests.get(funds_url, headers=headers, timeout=8)
+                funds_data = funds_res.json()
+                if funds_data.get("status"):
+                    cash_val = float(funds_data.get("data", {}).get("net", 0.0))
+            except Exception:
+                pass
+
+            # 2. Fetch live holdings
+            holdings_url = "https://apiconnect.angelone.in/rest/secure/angelbroking/portfolio/v1/getAllHolding"
+            res = requests.get(holdings_url, headers=headers, timeout=10)
             data = res.json()
             holdings = data.get("data", {}).get("holdings", []) if data.get("status") else []
+            total_invested = sum(float(h.get("invested", 0.0) or (float(h.get("averageprice", 0.0)) * int(h.get("quantity", 0)))) for h in holdings)
+            total_pnl = sum(float(h.get("pnl", 0.0) or 0.0) for h in holdings)
+
             return {
                 "mode": "LIVE",
                 "account_id": self.client_code,
+                "available_cash": round(cash_val, 2),
+                "invested_amount": round(total_invested, 2),
+                "total_portfolio_value": round(cash_val + total_invested + total_pnl, 2),
+                "overall_pnl": round(total_pnl, 2),
+                "overall_pnl_pct": round((total_pnl / total_invested * 100.0), 2) if total_invested > 0 else 0.0,
                 "holdings": holdings,
                 "status": "connected"
             }
