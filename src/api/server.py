@@ -16,10 +16,14 @@ from src.data.market_data import (
     normalize_indian_symbol,
     get_corporate_financial_history
 )
-from src.data.macro_data import get_indian_macro_indicators, get_nse_sector_heatmap
+from src.data.macro_data import (
+    get_indian_macro_indicators, 
+    get_nse_sector_heatmap,
+    get_indian_macro_event_probabilities
+)
 from src.data.news_data import get_indian_stock_news
 from src.analysis.screener import get_top_buy_recommendations
-from src.analysis.backtester import backtest_strategy
+from src.analysis.backtester import backtest_strategy, run_parameter_sweep
 from src.notifications.telegram import send_telegram_trade_alert
 from src.analysis.technical import analyze_technical_indicators
 from src.analysis.fundamental import evaluate_fundamentals
@@ -71,6 +75,11 @@ class BacktestRequest(BaseModel):
     symbol: str
     strategy: str = "EMA_CROSS"
     period: str = "2y"
+    initial_capital: float = 100000.0
+
+class OptimizeRequest(BaseModel):
+    symbol: str
+    period: str = "6mo"
     initial_capital: float = 100000.0
 
 class OrderRequest(BaseModel):
@@ -141,6 +150,10 @@ def get_recommendations():
 @app.get("/api/macro")
 def get_macro():
     return get_indian_macro_indicators()
+
+@app.get("/api/macro/catalysts")
+def get_macro_catalysts():
+    return get_indian_macro_event_probabilities()
 
 @app.get("/api/news/{symbol}")
 def get_news(symbol: str):
@@ -219,6 +232,17 @@ def run_backtest_endpoint(req: BacktestRequest):
         return backtest_strategy(
             symbol=req.symbol,
             strategy_name=req.strategy,
+            period=req.period,
+            initial_capital=req.initial_capital
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/backtest/optimize")
+def optimize_backtest_endpoint(req: OptimizeRequest):
+    try:
+        return run_parameter_sweep(
+            symbol=req.symbol,
             period=req.period,
             initial_capital=req.initial_capital
         )

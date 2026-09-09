@@ -158,3 +158,76 @@ def get_nse_sector_heatmap() -> Dict[str, Any]:
         "top_losing_sector": top_loser["sector"] if top_loser else "N/A",
         "market_breadth": f"{len([s for s in sector_results if s['is_positive']])} Advancing / {len([s for s in sector_results if not s['is_positive']])} Declining"
     }
+
+def get_indian_macro_event_probabilities() -> Dict[str, Any]:
+    """Polymarket-inspired binary event probability tracker for Indian macroeconomic catalysts."""
+    catalysts = [
+        {
+            "id": "rbi_mpc_rate_cut",
+            "title": "RBI MPC Repo Rate Stance",
+            "question": "Will RBI cut the benchmark repo rate (current 6.50%) by 25 bps at the next MPC meeting?",
+            "category": "Monetary Policy",
+            "implied_probability_pct": 35.0,
+            "consensus_outcome": "HOLD (65% Probability)",
+            "impact_level": "HIGH",
+            "impact_sectors": ["Banking", "Auto", "Real Estate"],
+            "uncertainty_rating": "MODERATE",
+            "implication": "Repo rate hold maintains healthy Net Interest Margins (NIM) for private banks while keeping bond yields steady."
+        },
+        {
+            "id": "union_budget_fiscal_deficit",
+            "title": "Fiscal Deficit Consolidation",
+            "question": "Will the Central Government maintain the fiscal deficit target at or below 4.9% of GDP?",
+            "category": "Fiscal Policy",
+            "implied_probability_pct": 78.0,
+            "consensus_outcome": "MAINTAIN <= 4.9% (78% Probability)",
+            "impact_level": "HIGH",
+            "impact_sectors": ["Infrastructure", "PSU Banks", "Capital Goods"],
+            "uncertainty_rating": "LOW",
+            "implication": "Fiscal consolidation supports India sovereign credit profile and foreign portfolio debt inflows (JP Morgan Index inclusion)."
+        },
+        {
+            "id": "us_fed_rate_spillover",
+            "title": "US Fed Rate Cut Spillover & INR Stability",
+            "question": "Will US Federal Reserve rate decisions trigger persistent net FII equity inflows into NSE?",
+            "category": "Global Central Banks",
+            "implied_probability_pct": 62.0,
+            "consensus_outcome": "NET FII INFLOWS (62% Probability)",
+            "impact_level": "MEDIUM",
+            "impact_sectors": ["IT Services", "Pharma", "Large Cap Nifty 50"],
+            "uncertainty_rating": "MODERATE",
+            "implication": "Moderation in US 10-year Treasury yields provides room for FII allocation to Indian large caps."
+        },
+        {
+            "id": "nifty_earnings_momentum",
+            "title": "Nifty 50 EPS Growth Expansion",
+            "question": "Will aggregate Nifty 50 quarterly earnings growth exceed 12.0% YoY?",
+            "category": "Corporate Earnings",
+            "implied_probability_pct": 48.0,
+            "consensus_outcome": "TIGHT CONTEST (48% Yes / 52% No)",
+            "impact_level": "VERY_HIGH",
+            "impact_sectors": ["Nifty 50 All Index Constituents"],
+            "uncertainty_rating": "HIGH",
+            "implication": "Earnings beats are required to sustain current forward P/E multiples above 22x historical medians."
+        }
+    ]
+
+    # Evaluate Macro Risk State
+    high_uncertainty_events = [c for c in catalysts if c["uncertainty_rating"] == "HIGH" or (40.0 <= c["implied_probability_pct"] <= 60.0 and c["impact_level"] in ["HIGH", "VERY_HIGH"])]
+    
+    if len(high_uncertainty_events) >= 2:
+        macro_risk_state = "ELEVATED_VOLATILITY_GUARD"
+        guidance = "Multiple binary catalysts show 50/50 uncertainty. Reduce position sizing and avoid holding unhedged momentum overnight."
+    elif len(high_uncertainty_events) == 1:
+        macro_risk_state = "MODERATE_CATALYST_WATCH"
+        guidance = f"Watch '{high_uncertainty_events[0]['title']}'. Elevated binary uncertainty may cause sector-specific gap openings."
+    else:
+        macro_risk_state = "STABLE_MACRO_REGIME"
+        guidance = "Macroeconomic catalysts show decisive consensus trends. Favorable environment for standard swing trading rules."
+
+    return {
+        "macro_risk_state": macro_risk_state,
+        "catalyst_guidance": guidance,
+        "high_uncertainty_count": len(high_uncertainty_events),
+        "catalysts": catalysts
+    }

@@ -316,3 +316,85 @@ def backtest_strategy(
         "recent_trades": trades[-8:],
         "equity_curve": chart_series
     }
+
+def run_parameter_sweep(symbol: str, period: str = "6mo", initial_capital: float = 100000.0) -> Dict[str, Any]:
+    norm_symbol = normalize_indian_symbol(symbol)
+    df = get_historical_bars(norm_symbol, period=period, interval="1d")
+    
+    if len(df) < 35:
+        raise ValueError("Insufficient historical bars for parameter optimization (minimum 35 required)")
+
+    close = df['Close']
+    close_pct_change = close.pct_change().fillna(0)
+
+    fast_periods = [9, 15, 20]
+    slow_periods = [30, 50, 100]
+
+    grid_results = []
+
+    for fast in fast_periods:
+        ema_fast = close.ewm(span=fast, adjust=False).mean()
+        for slow in slow_periods:
+            if slow <= fast:
+                continue
+            ema_slow = close.ewm(span=slow, adjust=False).mean()
+            signal = np.where(ema_fast > ema_slow, 1, 0)
+            position = pd.Series(signal, index=df.index).shift(1).fillna(0)
+            strat_returns = position * close_pct_change
+
+            # Simulate trades & statutory Indian costs
+            in_trade = False
+            entry_price = 0.0
+            shares = 0
+            trades_count = 0
+            wins = 0
+            current_portfolio = initial_capital
+            
+            for i in range(len(df)):
+                pos = position.iloc[i]
+                price = float(close.iloc[i])
+
+                if pos == 1 and not in_trade:
+                    in_trade = True
+                    entry_price = price
+                    shares = int(current_portfolio / price) if price > 0 else 0
+                elif pos == 0 and in_trade:
+                    trades_count += 1
+                    buy_val = shares * entry_price
+                    sell_val = shares * price
+                    gross_pnl = sell_val - buy_val
+                    charges = calculate_indian_trade_charges(buy_val, sell_val)
+                    net_pnl = gross_pnl - charges["total_charges"]
+                    if net_pnl > 0:
+                        wins += 1
+                    current_portfolio += net_pnl
+                    in_trade = False
+
+            win_rate = round((wins / trades_count) * 100.0, 1) if trades_count > 0 else 0.0
+            net_return_pct = round(((current_portfolio - initial_capital) / initial_capital) * 100.0, 2)
+            risk_metrics = calculate_risk_adjusted_ratios(strat_returns, risk_free_rate_annual=0.07)
+            sharpe = risk_metrics.get("sharpe_ratio", 0.0)
+
+            grid_results.append({
+                "fast_ema": fast,
+                "slow_ema": slow,
+                "combo_label": f"{fast} / {slow} EMA",
+                "net_return_pct": net_return_pct,
+                "win_rate_pct": win_rate,
+                "total_trades": trades_count,
+                "sharpe_ratio": sharpe
+            })
+
+    # Sort grid by Sharpe descending, then net return
+    grid_results.sort(key=lambda x: (x["sharpe_ratio"], x["net_return_pct"]), reverse=True)
+    best = grid_results[0] if grid_results else {}
+
+    return {
+        "symbol": norm_symbol,
+        "period": period,
+        "initial_capital": initial_capital,
+        "total_combinations_tested": len(grid_results),
+        "best_combination": best,
+        "grid_results": grid_results,
+        "summary": f"Optimal parameter set for {norm_symbol}: {best.get('combo_label')} delivering {best.get('net_return_pct')}% net return and {best.get('sharpe_ratio')} Sharpe ratio after all Indian regulatory fees."
+    }
