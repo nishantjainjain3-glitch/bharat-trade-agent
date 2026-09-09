@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import numpy as np
 from typing import Dict, Any, List
 from src.data.market_data import get_historical_bars, normalize_indian_symbol
@@ -257,6 +257,17 @@ def backtest_strategy(
     net_losses = abs(sum([t["net_pnl_inr"] for t in trades if not t["is_win"]]))
     profit_factor = round(net_gains / net_losses, 2) if net_losses > 0 else (round(net_gains, 2) if net_gains > 0 else 1.0)
 
+    # Trade Expectancy & Edge Calculation (Freqtrade Expectancy Model)
+    win_rate = (winning_trades / total_trades) if total_trades > 0 else 0.0
+    losing_trades = total_trades - winning_trades
+    loss_rate = (losing_trades / total_trades) if total_trades > 0 else 0.0
+    avg_win_inr = round(net_gains / winning_trades, 2) if winning_trades > 0 else 0.0
+    avg_loss_inr = round(net_losses / losing_trades, 2) if losing_trades > 0 else 0.0
+    
+    trade_expectancy_inr = round((win_rate * avg_win_inr) - (loss_rate * avg_loss_inr), 2)
+    expectancy_ratio = round(trade_expectancy_inr / avg_loss_inr, 2) if avg_loss_inr > 0 else (1.0 if trade_expectancy_inr > 0 else 0.0)
+    edge_status = "POSITIVE_EDGE" if trade_expectancy_inr > 0 else "NEGATIVE_EDGE"
+
     # Risk-Adjusted Ratios (Sharpe & Sortino)
     risk_ratios = calculate_risk_adjusted_ratios(df['Strategy_Pct_Change'], risk_free_rate_annual=0.07)
 
@@ -291,8 +302,13 @@ def backtest_strategy(
         "win_rate_pct": win_rate_pct,
         "total_trades": total_trades,
         "winning_trades": winning_trades,
-        "losing_trades": total_trades - winning_trades,
+        "losing_trades": losing_trades,
         "profit_factor": profit_factor,
+        "trade_expectancy_inr": trade_expectancy_inr,
+        "expectancy_ratio": expectancy_ratio,
+        "edge_status": edge_status,
+        "avg_win_inr": avg_win_inr,
+        "avg_loss_inr": avg_loss_inr,
         "sharpe_ratio": risk_ratios["sharpe_ratio"],
         "sortino_ratio": risk_ratios["sortino_ratio"],
         "annualized_volatility_pct": risk_ratios["annualized_volatility_pct"],

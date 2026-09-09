@@ -1,4 +1,5 @@
 from typing import Dict, Any, List
+from src.engine.exit_manager import get_default_exit_rules
 
 def generate_tactical_battle_plan(
     quote: Dict[str, Any],
@@ -184,6 +185,7 @@ def generate_tactical_battle_plan(
             "status": vol_badge,
             "interpretation": vol_interpretation
         },
+        "exit_rules": get_default_exit_rules(),
         "position_sizing": sizing_guide,
         "pre_trade_checklist": checklist
     }

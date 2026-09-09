@@ -35,6 +35,7 @@ from src.engine import (
     get_constitution_articles,
     memory_journal
 )
+from src.engine.exit_manager import get_default_exit_rules
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -128,6 +129,10 @@ def validate_trade_setup(data: Dict[str, Any]):
         quantity=int(data.get("quantity", 1)),
         portfolio_equity=equity
     )
+
+@app.get("/api/agent/exit-rules")
+def get_exit_rules():
+    return get_default_exit_rules()
 
 @app.get("/api/recommendations")
 def get_recommendations():

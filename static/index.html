@@ -384,6 +384,52 @@
               </div>
             </div>
           </div>
+
+          <!-- Freqtrade Trade Management: Positive Trailing Stop & Time-Decay Exit Ladder -->
+          <div class="bg-slate-950/70 p-4 rounded-xl border border-indigo-500/20 space-y-3 pt-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">⚡ Dynamic Exit Protocol</span>
+                <span class="text-[9px] font-mono bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30">Freqtrade Core</span>
+              </div>
+              <span class="text-[11px] text-slate-400">Positive Trailing Stop + Time-Decaying Profit Targets</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <!-- Trailing Stop Rule -->
+              <div class="bg-slate-900/90 p-3 rounded-lg border border-slate-800 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-slate-200">Positive Trailing Stop</span>
+                  <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">+1.5% Activation</span>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Stop-loss stays fixed at trade entry. Trailing engages <strong>1.0% below peak</strong> only after position reaches <strong>+1.5% profit</strong>, avoiding early noise shakeouts.
+                </p>
+              </div>
+
+              <!-- Time-Decay ROI Table -->
+              <div class="bg-slate-900/90 p-3 rounded-lg border border-slate-800 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-slate-200">Minimal ROI Exit Ladder</span>
+                  <span class="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">Holding Time Decay</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 text-center font-mono text-[11px] pt-1">
+                  <div class="bg-slate-950 p-1.5 rounded border border-slate-800/80">
+                    <span class="text-[9px] text-slate-500 block font-sans">Days 0-1</span>
+                    <strong class="text-emerald-400">+4.0%</strong>
+                  </div>
+                  <div class="bg-slate-950 p-1.5 rounded border border-slate-800/80">
+                    <span class="text-[9px] text-slate-500 block font-sans">Days 2-4</span>
+                    <strong class="text-amber-400">+2.5%</strong>
+                  </div>
+                  <div class="bg-slate-950 p-1.5 rounded border border-slate-800/80">
+                    <span class="text-[9px] text-slate-500 block font-sans">Day 5+</span>
+                    <strong class="text-sky-400">+1.2%</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Interactive Price Chart -->
@@ -595,7 +641,7 @@
       <!-- Backtest Results Card -->
       <div id="btResultCard" class="hidden space-y-6">
         <!-- Stat Cards Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
           <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
             <span class="text-[11px] text-slate-400 block">Net Strategy Return</span>
             <span id="btTotalReturn" class="text-base font-extrabold text-emerald-400 mt-1 block">--</span>
@@ -615,6 +661,14 @@
             <span class="text-[11px] text-slate-400 block">Profit Factor</span>
             <span id="btProfitFactor" class="text-base font-extrabold text-amber-300 mt-1 block">--</span>
             <span class="text-[10px] text-slate-500 block">Net Wins / Losses</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+            <span class="text-[11px] text-slate-400 block">Trade Expectancy</span>
+            <span id="btExpectancy" class="text-base font-extrabold text-white mt-1 block">--</span>
+            <div class="flex items-center gap-1 mt-0.5">
+              <span id="btEdgeBadge" class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Edge</span>
+              <span class="text-[10px] text-slate-500 truncate" id="btExpectancyRatio">--</span>
+            </div>
           </div>
           <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
             <span class="text-[11px] text-slate-400 block">Sharpe Ratio</span>
@@ -1385,6 +1439,24 @@ LIVE_EXECUTION_ENABLED=false
       document.getElementById('btMaxDrawdown').textContent = `-${data.max_drawdown_pct}%`;
       document.getElementById('btProfitFactor').textContent = data.profit_factor;
       document.getElementById('btEquityFinal').textContent = `Final Capital: ₹${data.final_capital.toLocaleString('en-IN')}`;
+
+      // Freqtrade Expectancy & Edge
+      const expVal = data.trade_expectancy_inr !== undefined ? data.trade_expectancy_inr : 0;
+      const isExpPos = expVal >= 0;
+      const expEl = document.getElementById('btExpectancy');
+      if (expEl) {
+        expEl.textContent = `${isExpPos ? '+' : ''}₹${expVal.toLocaleString('en-IN')}`;
+        expEl.className = isExpPos ? "text-base font-extrabold text-emerald-400 mt-1 block" : "text-base font-extrabold text-rose-400 mt-1 block";
+      }
+      const edgeEl = document.getElementById('btEdgeBadge');
+      if (edgeEl) {
+        edgeEl.textContent = isExpPos ? 'EDGE +' : 'NO EDGE';
+        edgeEl.className = isExpPos ? "text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300" : "text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300";
+      }
+      const expRatioEl = document.getElementById('btExpectancyRatio');
+      if (expRatioEl) {
+        expRatioEl.textContent = `Ratio: ${data.expectancy_ratio || 0}`;
+      }
 
       // Render Equity Curve
       const ctx = document.getElementById('btChart').getContext('2d');
