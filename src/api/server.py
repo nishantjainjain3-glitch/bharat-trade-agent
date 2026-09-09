@@ -24,6 +24,7 @@ from src.notifications.telegram import send_telegram_trade_alert
 from src.analysis.technical import analyze_technical_indicators
 from src.analysis.fundamental import evaluate_fundamentals
 from src.analysis.personas import evaluate_all_investor_personas
+from src.analysis.battle_plan import generate_tactical_battle_plan
 from src.agents.research_team import run_multi_agent_research, get_llm_client
 from src.broker.angel_one import angel_client
 from src.engine import (
@@ -190,6 +191,9 @@ def analyze_stock(req: AnalyzeRequest):
         research = run_multi_agent_research(quote, technicals, fundamentals, news)
         personas = evaluate_all_investor_personas(quote, fundamentals)
         financials = get_corporate_financial_history(req.symbol)
+        hb_status = agent_heartbeat.get_status()
+        tier_name = hb_status.get("survival_tier", {}).get("tier", "NORMAL")
+        battle_plan = generate_tactical_battle_plan(quote, technicals, fundamentals, research, survival_tier=tier_name)
         
         return {
             "quote": quote,
@@ -198,7 +202,8 @@ def analyze_stock(req: AnalyzeRequest):
             "news": news,
             "research": research,
             "personas": personas,
-            "financials": financials
+            "financials": financials,
+            "battle_plan": battle_plan
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

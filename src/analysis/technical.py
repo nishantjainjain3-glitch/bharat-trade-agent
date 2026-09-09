@@ -76,10 +76,25 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
     atr_series = calculate_atr(df, 14)
     current_atr = float(atr_series.iloc[-1]) if not pd.isna(atr_series.iloc[-1]) else (current_price * 0.02)
     
-    # Volume spike
-    avg_vol_20 = float(df['Volume'].rolling(20).mean().iloc[-1]) if 'Volume' in df else 0
-    current_vol = float(df['Volume'].iloc[-1]) if 'Volume' in df else 0
-    volume_surge = (current_vol > 1.5 * avg_vol_20) if avg_vol_20 > 0 else False
+    # Volume analysis & Relative Volume (RVOL)
+    avg_vol_20 = float(df['Volume'].rolling(20).mean().iloc[-1]) if 'Volume' in df and len(df) >= 20 else float(df['Volume'].mean()) if 'Volume' in df else 0.0
+    current_vol = float(df['Volume'].iloc[-1]) if 'Volume' in df else 0.0
+    rvol_20d = round(current_vol / avg_vol_20, 2) if avg_vol_20 > 0 else 1.0
+    
+    if rvol_20d >= 2.0:
+        volume_status = "SURGE"
+        volume_meaning = "High volume surge (> 2.0x 20-day average) indicating institutional activity"
+    elif rvol_20d >= 1.3:
+        volume_status = "ABOVE_AVERAGE"
+        volume_meaning = "Above average volume indicating healthy participation"
+    elif rvol_20d >= 0.8:
+        volume_status = "NORMAL"
+        volume_meaning = "Normal volume matching historical trading baseline"
+    else:
+        volume_status = "LOW"
+        volume_meaning = "Low volume below 20-day average indicating low participation or consolidation"
+
+    volume_surge = rvol_20d >= 1.5
     
     # Pivot points (Support / Resistance from last 20 sessions)
     recent_high = float(df['High'].tail(20).max())
@@ -158,6 +173,13 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
             "recent_high_20d": round(recent_high, 2),
             "recent_low_20d": round(recent_low, 2),
             "atr": round(current_atr, 2)
+        },
+        "volume": {
+            "current_volume": int(current_vol),
+            "avg_volume_20d": int(avg_vol_20),
+            "rvol_20d": rvol_20d,
+            "status": volume_status,
+            "meaning": volume_meaning
         },
         "bullish_factors": bullish_factors,
         "bearish_factors": bearish_factors
