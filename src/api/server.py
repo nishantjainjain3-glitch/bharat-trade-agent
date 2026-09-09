@@ -1,0 +1,174 @@
+import socket
+import os
+from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional, Dict, Any
+
+from src.data.market_data import (
+    get_stock_quote, 
+    get_historical_bars, 
+    get_company_fundamentals, 
+    get_watchlist_snapshots,
+    normalize_indian_symbol
+)
+from src.data.macro_data import get_indian_macro_indicators
+from src.data.news_data import get_indian_stock_news
+from src.analysis.screener import get_top_buy_recommendations
+from src.analysis.backtester import backtest_strategy
+from src.notifications.telegram import send_telegram_trade_alert
+from src.analysis.technical import analyze_technical_indicators
+from src.analysis.fundamental import evaluate_fundamentals
+from src.agents.research_team import run_multi_agent_research, get_llm_client
+from src.broker.angel_one import angel_client
+
+app = FastAPI(title="Bharat Trade Agent", version="1.3.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+def get_local_network_ip() -> str:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+class AnalyzeRequest(BaseModel):
+    symbol: str
+
+class BacktestRequest(BaseModel):
+    symbol: str
+    strategy: str = "EMA_CROSS"
+    period: str = "2y"
+    initial_capital: float = 100000.0
+
+class OrderRequest(BaseModel):
+    symbol: str
+    quantity: int
+    transaction_type: str = "BUY"
+    order_type: str = "MARKET"
+    price: Optional[float] = 0.0
+
+class TelegramAlertRequest(BaseModel):
+    trade_data: Dict[str, Any]
+
+@app.get("/api/status")
+def get_system_status():
+    provider, _ = get_llm_client()
+    local_ip = get_local_network_ip()
+    return {
+        "status": "online",
+        "local_ip": local_ip,
+        "mobile_access_url": f"http://{local_ip}:8000",
+        "llm_provider": provider or "rule_based_engine",
+        "angel_one_mode": angel_client.mode,
+        "angel_one_configured": angel_client.is_configured,
+        "telegram_configured": bool(os.getenv("TELEGRAM_BOT_TOKEN") and os.getenv("TELEGRAM_CHAT_ID"))
+    }
+
+@app.get("/api/recommendations")
+def get_recommendations():
+    return get_top_buy_recommendations(limit=4)
+
+@app.get("/api/macro")
+def get_macro():
+    return get_indian_macro_indicators()
+
+@app.get("/api/news/{symbol}")
+def get_news(symbol: str):
+    return get_indian_stock_news(symbol)
+
+@app.get("/api/watchlist")
+def get_watchlist():
+    return get_watchlist_snapshots()
+
+@app.get("/api/quote/{symbol}")
+def get_quote(symbol: str):
+    try:
+        return get_stock_quote(symbol)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/history/{symbol}")
+def get_history(symbol: str, period: str = "6mo", interval: str = "1d"):
+    try:
+        df = get_historical_bars(symbol, period=period, interval=interval)
+        df['DateStr'] = df['Date'].dt.strftime('%Y-%m-%d')
+        bars = []
+        for _, row in df.iterrows():
+            bars.append({
+                "time": row['DateStr'],
+                "open": round(float(row['Open']), 2),
+                "high": round(float(row['High']), 2),
+                "low": round(float(row['Low']), 2),
+                "close": round(float(row['Close']), 2),
+                "volume": int(row.get('Volume', 0))
+            })
+        return {"symbol": normalize_indian_symbol(symbol), "bars": bars}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/analyze")
+def analyze_stock(req: AnalyzeRequest):
+    try:
+        quote = get_stock_quote(req.symbol)
+        df = get_historical_bars(req.symbol, period="6mo", interval="1d")
+        technicals = analyze_technical_indicators(df)
+        raw_fundamentals = get_company_fundamentals(req.symbol)
+        fundamentals = evaluate_fundamentals(raw_fundamentals)
+        news = get_indian_stock_news(req.symbol, quote.get("name", ""))
+        research = run_multi_agent_research(quote, technicals, fundamentals, news)
+        
+        return {
+            "quote": quote,
+            "technicals": technicals,
+            "fundamentals": fundamentals,
+            "news": news,
+            "research": research
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/backtest")
+def run_backtest_endpoint(req: BacktestRequest):
+    try:
+        return backtest_strategy(
+            symbol=req.symbol,
+            strategy_name=req.strategy,
+            period=req.period,
+            initial_capital=req.initial_capital
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/notify/telegram")
+def notify_telegram(req: TelegramAlertRequest):
+    return send_telegram_trade_alert(req.trade_data)
+
+@app.get("/api/portfolio")
+def get_portfolio():
+    return angel_client.get_portfolio_summary()
+
+@app.post("/api/order")
+def place_order(order: OrderRequest):
+    return angel_client.place_order(
+        symbol=order.symbol,
+        quantity=order.quantity,
+        transaction_type=order.transaction_type,
+        order_type=order.order_type,
+        price=order.price or 0.0
+    )
+
+static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
+if os.path.exists(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")

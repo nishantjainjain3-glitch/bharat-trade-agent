@@ -1,0 +1,14 @@
+# Secret credentials (CRITICAL: NEVER COMMIT THIS)
+.env
+*.env
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Local binaries
+cloudflared.exe
+*.log
