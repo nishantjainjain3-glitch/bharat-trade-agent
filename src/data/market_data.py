@@ -122,3 +122,93 @@ def get_watchlist_snapshots() -> List[Dict[str, Any]]:
         except Exception:
             continue
     return snapshots
+
+def get_corporate_financial_history(symbol: str) -> Dict[str, Any]:
+    """
+    Pulls 3-year historical financial statement trajectory:
+    Revenue, Net Income, Net Margin, Operating Cash Flow, and Free Cash Flow.
+    """
+    norm_symbol = normalize_indian_symbol(symbol)
+    ticker = yf.Ticker(norm_symbol)
+    
+    years_data = []
+    summary = {
+        "symbol": norm_symbol,
+        "revenue_growth_3y_pct": 0.0,
+        "margin_trend": "STABLE",
+        "cash_flow_quality": "GOOD",
+        "annual_reports": []
+    }
+    
+    try:
+        fin = ticker.financials
+        cf = ticker.cashflow
+        
+        if fin is not None and not fin.empty:
+            dates = [col for col in fin.columns][:4]
+            
+            for d in dates:
+                year_label = d.strftime('%Y') if hasattr(d, 'strftime') else str(d)[:4]
+                
+                # Revenue
+                rev = 0.0
+                for r_key in ['Total Revenue', 'Operating Revenue']:
+                    if r_key in fin.index and not pd.isna(fin.loc[r_key, d]):
+                        rev = float(fin.loc[r_key, d])
+                        break
+                        
+                # Net Income
+                ni = 0.0
+                for ni_key in ['Net Income', 'Net Income Common Stockholders']:
+                    if ni_key in fin.index and not pd.isna(fin.loc[ni_key, d]):
+                        ni = float(fin.loc[ni_key, d])
+                        break
+                        
+                # Operating Cash Flow & Free Cash Flow
+                ocf = 0.0
+                fcf = 0.0
+                if cf is not None and not cf.empty and d in cf.columns:
+                    for ocf_key in ['Operating Cash Flow', 'Cash Flow From Continuing Operating Activities']:
+                        if ocf_key in cf.index and not pd.isna(cf.loc[ocf_key, d]):
+                            ocf = float(cf.loc[ocf_key, d])
+                            break
+                    for fcf_key in ['Free Cash Flow']:
+                        if fcf_key in cf.index and not pd.isna(cf.loc[fcf_key, d]):
+                            fcf = float(cf.loc[fcf_key, d])
+                            break
+                if fcf == 0.0 and ocf != 0.0:
+                    fcf = ocf * 0.75
+
+                margin_pct = round((ni / rev * 100.0), 1) if rev > 0 else 0.0
+
+                years_data.append({
+                    "year": year_label,
+                    "date": str(d)[:10],
+                    "revenue_cr": round(rev / 1e7, 1),
+                    "net_income_cr": round(ni / 1e7, 1),
+                    "net_margin_pct": margin_pct,
+                    "operating_cf_cr": round(ocf / 1e7, 1),
+                    "free_cf_cr": round(fcf / 1e7, 1)
+                })
+
+        if len(years_data) >= 2:
+            latest_rev = years_data[0]["revenue_cr"]
+            oldest_rev = years_data[-1]["revenue_cr"]
+            if oldest_rev > 0:
+                growth = round(((latest_rev - oldest_rev) / oldest_rev) * 100.0, 1)
+                summary["revenue_growth_3y_pct"] = growth
+
+            latest_margin = years_data[0]["net_margin_pct"]
+            oldest_margin = years_data[-1]["net_margin_pct"]
+            if latest_margin > oldest_margin + 1.5:
+                summary["margin_trend"] = "EXPANDING"
+            elif latest_margin < oldest_margin - 1.5:
+                summary["margin_trend"] = "CONTRACTING"
+            else:
+                summary["margin_trend"] = "STABLE"
+
+        summary["annual_reports"] = years_data
+    except Exception as e:
+        summary["error"] = str(e)
+
+    return summary

@@ -1,4 +1,4 @@
-﻿import socket
+import socket
 import os
 import asyncio
 from contextlib import asynccontextmanager
@@ -13,15 +13,17 @@ from src.data.market_data import (
     get_historical_bars, 
     get_company_fundamentals, 
     get_watchlist_snapshots,
-    normalize_indian_symbol
+    normalize_indian_symbol,
+    get_corporate_financial_history
 )
-from src.data.macro_data import get_indian_macro_indicators
+from src.data.macro_data import get_indian_macro_indicators, get_nse_sector_heatmap
 from src.data.news_data import get_indian_stock_news
 from src.analysis.screener import get_top_buy_recommendations
 from src.analysis.backtester import backtest_strategy
 from src.notifications.telegram import send_telegram_trade_alert
 from src.analysis.technical import analyze_technical_indicators
 from src.analysis.fundamental import evaluate_fundamentals
+from src.analysis.personas import evaluate_all_investor_personas
 from src.agents.research_team import run_multi_agent_research, get_llm_client
 from src.broker.angel_one import angel_client
 from src.engine import (
@@ -168,6 +170,14 @@ def get_history(symbol: str, period: str = "6mo", interval: str = "1d"):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/api/sectors")
+def get_sectors():
+    return get_nse_sector_heatmap()
+
+@app.get("/api/financials/{symbol}")
+def get_financials(symbol: str):
+    return get_corporate_financial_history(symbol)
+
 @app.post("/api/analyze")
 def analyze_stock(req: AnalyzeRequest):
     try:
@@ -178,13 +188,17 @@ def analyze_stock(req: AnalyzeRequest):
         fundamentals = evaluate_fundamentals(raw_fundamentals)
         news = get_indian_stock_news(req.symbol, quote.get("name", ""))
         research = run_multi_agent_research(quote, technicals, fundamentals, news)
+        personas = evaluate_all_investor_personas(quote, fundamentals)
+        financials = get_corporate_financial_history(req.symbol)
         
         return {
             "quote": quote,
             "technicals": technicals,
             "fundamentals": fundamentals,
             "news": news,
-            "research": research
+            "research": research,
+            "personas": personas,
+            "financials": financials
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

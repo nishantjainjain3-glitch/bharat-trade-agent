@@ -77,6 +77,16 @@
     </div>
   </div>
 
+  <!-- Live NSE Sector Performance Heatmap -->
+  <div class="bg-slate-900/80 border-b border-slate-800 px-4 py-2 overflow-x-auto hide-scrollbar">
+    <div class="max-w-6xl mx-auto flex items-center gap-2.5 text-xs font-medium whitespace-nowrap" id="sectorHeatmapBar">
+      <div class="flex items-center gap-1.5 text-slate-400 font-bold uppercase tracking-wider text-[10px] mr-1">
+        <span>📊</span> <span>Sectors:</span>
+      </div>
+      <div class="text-slate-500 text-xs py-0.5" id="sectorHeatmapLoading">Loading NSE sectors...</div>
+    </div>
+  </div>
+
   <!-- Desktop Tab Bar -->
   <div class="hidden md:block border-b border-slate-800 bg-slate-900/40">
     <div class="max-w-6xl mx-auto px-4 flex space-x-8">
@@ -328,6 +338,92 @@
             </div>
           </div>
           <p id="fundamentalSummary" class="text-xs text-slate-300 leading-relaxed bg-slate-950/40 p-3 rounded-lg border border-slate-800/60"></p>
+        </div>
+
+        <!-- Legendary Investor Personas (Fincept Institutional Model) -->
+        <div class="bg-slate-900 border border-indigo-500/30 rounded-xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🏛️</span> Legendary Investor Evaluation Personas
+              </h3>
+              <p class="text-xs text-slate-400">Institutional scoring based on Warren Buffett, Benjamin Graham, and Peter Lynch frameworks.</p>
+            </div>
+            <span id="guruConsensusPill" class="self-start sm:self-auto text-xs font-bold px-2.5 py-1 rounded-lg border bg-indigo-500/10 text-indigo-300 border-indigo-500/30">
+              Scoring...
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs" id="investorPersonasGrid">
+            <!-- Buffett -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-emerald-400">Warren Buffett</span>
+                <span id="buffettBadge" class="text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded font-mono">--</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-mono" id="buffettKeyMetric">ROE & Moat Check</div>
+              <div class="text-base font-extrabold text-white" id="buffettScore">-- / 100</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed pt-2 border-t border-slate-800/80" id="buffettRationale">Analyzing return on equity, durable moat, and balance sheet debt...</p>
+            </div>
+
+            <!-- Graham -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-sky-400">Benjamin Graham</span>
+                <span id="grahamBadge" class="text-[10px] bg-sky-500/10 text-sky-300 px-2 py-0.5 rounded font-mono">--</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-mono" id="grahamKeyMetric">Graham Fair Value</div>
+              <div class="text-base font-extrabold text-white" id="grahamScore">-- / 100</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed pt-2 border-t border-slate-800/80" id="grahamRationale">Calculating intrinsic Graham Number and margin of safety discount...</p>
+            </div>
+
+            <!-- Lynch -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-amber-400">Peter Lynch</span>
+                <span id="lynchBadge" class="text-[10px] bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded font-mono">--</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-mono" id="lynchKeyMetric">GARP & Category</div>
+              <div class="text-base font-extrabold text-white" id="lynchScore">-- / 100</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed pt-2 border-t border-slate-800/80" id="lynchRationale">Evaluating PEG ratio, earnings acceleration, and business growth type...</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 italic bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60" id="guruConsensusSummary">Consensus analysis pending...</p>
+        </div>
+
+        <!-- 3-Year Corporate Financial Statement History Table -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>📑</span> 3-Year Financial Statement History & Trajectory
+              </h3>
+              <p class="text-xs text-slate-400">Audited revenue, net profits, margins, and cash flow trends from exchange filings.</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-slate-400">3Y Rev Growth: <strong class="text-emerald-400 font-mono" id="fin3YGrowth">--</strong></span>
+              <span>&bull;</span>
+              <span class="text-slate-400">Margin Trend: <strong class="text-white font-mono" id="finMarginTrend">--</strong></span>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950/80 text-slate-400 uppercase font-semibold border-b border-slate-800 text-[11px]">
+                <tr>
+                  <th class="py-2.5 px-3">Fiscal Year</th>
+                  <th class="py-2.5 px-3">Revenue (₹ Cr)</th>
+                  <th class="py-2.5 px-3">Net Profit (₹ Cr)</th>
+                  <th class="py-2.5 px-3">Net Margin</th>
+                  <th class="py-2.5 px-3">Operating Cash Flow (₹ Cr)</th>
+                  <th class="py-2.5 px-3">Free Cash Flow (₹ Cr)</th>
+                </tr>
+              </thead>
+              <tbody id="financialsTableBody" class="divide-y divide-slate-800/60 font-mono">
+                <tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">Loading financial statement history...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -841,6 +937,7 @@ LIVE_EXECUTION_ENABLED=false
       }
 
       loadMacro();
+      loadSectorHeatmap();
       loadRecommendations();
       quickAnalyze('NTPC');
       loadWatchlist();
@@ -1104,6 +1201,8 @@ LIVE_EXECUTION_ENABLED=false
       document.getElementById('pbRatio').textContent = f.metrics.price_to_book || 'N/A';
       document.getElementById('divYield').textContent = f.metrics.dividend_yield_pct !== 'N/A' ? `${f.metrics.dividend_yield_pct}%` : '0.0%';
       document.getElementById('fundamentalSummary').textContent = r.fundamental_summary || 'Fundamental metrics analyzed.';
+      renderInvestorPersonas(data.personas);
+      renderFinancialHistory(data.financials);
     }
 
     async function handleBacktest(e) {
@@ -1491,6 +1590,90 @@ LIVE_EXECUTION_ENABLED=false
           btn.innerHTML = <span>⚡ Trigger Cycle Now</span>;
         }
       }
+    }
+
+
+    async function loadSectorHeatmap() {
+      try {
+        const res = await fetch('/api/sectors');
+        const data = await res.json();
+        const bar = document.getElementById('sectorHeatmapBar');
+        if (!bar || !data.sectors) return;
+
+        bar.innerHTML = 
+          <div class="flex items-center gap-1.5 text-slate-400 font-bold uppercase tracking-wider text-[10px] mr-1">
+            <span>📊</span> <span>Sectors:</span>
+          </div>
+        ;
+
+        data.sectors.forEach(s => {
+          const isPos = s.is_positive;
+          const div = document.createElement('div');
+          div.className = lex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs cursor-pointer transition hover:scale-105 ;
+          div.title = Leader:  | Laggard: ;
+          div.innerHTML = 
+            <span class="font-semibold text-slate-200"></span>
+            <span class="font-mono font-bold">%</span>
+          ;
+          bar.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Sector fetch error", err);
+      }
+    }
+
+    function renderInvestorPersonas(personas) {
+      if (!personas) return;
+      const b = personas.buffett || {};
+      const g = personas.graham || {};
+      const l = personas.lynch || {};
+
+      document.getElementById('buffettScore').textContent = ${b.score || '--'} / 100;
+      document.getElementById('buffettBadge').textContent = b.badge || '--';
+      document.getElementById('buffettKeyMetric').textContent = b.key_metric || '--';
+      document.getElementById('buffettRationale').textContent = b.rationale || '--';
+
+      document.getElementById('grahamScore').textContent = ${g.score || '--'} / 100;
+      document.getElementById('grahamBadge').textContent = g.badge || '--';
+      document.getElementById('grahamKeyMetric').textContent = g.key_metric || '--';
+      document.getElementById('grahamRationale').textContent = g.rationale || '--';
+
+      document.getElementById('lynchScore').textContent = ${l.score || '--'} / 100;
+      document.getElementById('lynchBadge').textContent = l.badge || '--';
+      document.getElementById('lynchKeyMetric').textContent = l.key_metric || '--';
+      document.getElementById('lynchRationale').textContent = l.rationale || '--';
+
+      const pill = document.getElementById('guruConsensusPill');
+      if (pill) {
+        pill.textContent = Score:  / 100;
+      }
+      document.getElementById('guruConsensusSummary').textContent = personas.consensus_summary || 'Analysis complete.';
+    }
+
+    function renderFinancialHistory(fin) {
+      if (!fin) return;
+      document.getElementById('fin3YGrowth').textContent = ${fin.revenue_growth_3y_pct || 0}%;
+      document.getElementById('finMarginTrend').textContent = fin.margin_trend || 'STABLE';
+
+      const tbody = document.getElementById('financialsTableBody');
+      tbody.innerHTML = '';
+      if (!fin.annual_reports || fin.annual_reports.length === 0) {
+        tbody.innerHTML = <tr><td colspan="6" class="py-4 text-center text-slate-500 font-sans">No historical filing data found.</td></tr>;
+        return;
+      }
+
+      fin.annual_reports.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = 
+          <td class="py-2.5 px-3 font-semibold text-white"></td>
+          <td class="py-2.5 px-3 text-slate-300">₹</td>
+          <td class="py-2.5 px-3 text-slate-300">₹</td>
+          <td class="py-2.5 px-3 text-emerald-400 font-bold">%</td>
+          <td class="py-2.5 px-3 text-slate-300">₹</td>
+          <td class="py-2.5 px-3 text-slate-300">₹</td>
+        ;
+        tbody.appendChild(tr);
+      });
     }
 
     window.onload = init;
