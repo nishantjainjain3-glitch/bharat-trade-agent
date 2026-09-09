@@ -41,13 +41,20 @@ from src.engine import (
     memory_journal
 )
 from src.engine.exit_manager import get_default_exit_rules
+from src.analysis.order_flow import analyze_order_flow
+from src.analysis.volatility_regimes import analyze_volatility_regime
+from src.broker.execution_algos import execution_engine
+from src.notifications.telegram_listener import telegram_listener
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     agent_heartbeat.start()
     asyncio.create_task(agent_heartbeat.execute_cycle())
+    if telegram_listener.is_configured():
+        asyncio.create_task(telegram_listener.start())
     yield
     agent_heartbeat.stop()
+    telegram_listener.stop()
 
 app = FastAPI(title="Bharat Trade Agent", version="2.0.0", lifespan=lifespan)
 
@@ -316,6 +323,84 @@ def place_order(order: OrderRequest):
         metadata={"symbol": order.symbol, "qty": order.quantity, "type": order.transaction_type, "price": order_price}
     )
     return res
+
+class AlgoOrderRequest(BaseModel):
+    symbol: str
+    quantity: int
+    transaction_type: str = "BUY"
+    duration_minutes: int = 60
+    slice_interval_minutes: int = 5
+    max_slippage_pct: float = 0.50
+
+@app.get("/api/analysis/order-flow/{symbol}")
+def get_order_flow_endpoint(symbol: str):
+    try:
+        df = get_historical_bars(symbol, period="6mo", interval="1d")
+        return {"symbol": normalize_indian_symbol(symbol), "order_flow": analyze_order_flow(df)}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/analysis/volatility/{symbol}")
+def get_volatility_endpoint(symbol: str):
+    try:
+        df = get_historical_bars(symbol, period="6mo", interval="1d")
+        return {"symbol": normalize_indian_symbol(symbol), "volatility": analyze_volatility_regime(df)}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/order/twap")
+def execute_twap_endpoint(req: AlgoOrderRequest):
+    try:
+        q = get_stock_quote(req.symbol)
+        ref_price = float(q.get("price", 100.0))
+        slices = execution_engine.generate_twap_schedule(
+            total_quantity=req.quantity,
+            duration_minutes=req.duration_minutes,
+            slice_interval_minutes=req.slice_interval_minutes
+        )
+        res = execution_engine.simulate_execution(
+            symbol=req.symbol,
+            transaction_type=req.transaction_type,
+            slices=slices,
+            reference_price=ref_price,
+            max_slippage_pct=req.max_slippage_pct
+        )
+        memory_journal.record_entry(
+            category="ALGO_EXECUTION",
+            title=f"TWAP Slicing: {req.transaction_type} {req.quantity}x {req.symbol}",
+            content=f"Filled: {res.get('total_filled_qty')}/{req.quantity} @ ₹{res.get('average_execution_price')}. Slippage: {res.get('slippage_basis_points')} bps.",
+            metadata=res
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/order/vwap")
+def execute_vwap_endpoint(req: AlgoOrderRequest):
+    try:
+        q = get_stock_quote(req.symbol)
+        ref_price = float(q.get("price", 100.0))
+        num_sl = max(4, min(12, req.duration_minutes // 15))
+        slices = execution_engine.generate_vwap_schedule(
+            total_quantity=req.quantity,
+            num_slices=num_sl
+        )
+        res = execution_engine.simulate_execution(
+            symbol=req.symbol,
+            transaction_type=req.transaction_type,
+            slices=slices,
+            reference_price=ref_price,
+            max_slippage_pct=req.max_slippage_pct
+        )
+        memory_journal.record_entry(
+            category="ALGO_EXECUTION",
+            title=f"VWAP Slicing: {req.transaction_type} {req.quantity}x {req.symbol}",
+            content=f"Filled: {res.get('total_filled_qty')}/{req.quantity} @ ₹{res.get('average_execution_price')}. Slippage: {res.get('slippage_basis_points')} bps.",
+            metadata=res
+        )
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):

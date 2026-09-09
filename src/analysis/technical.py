@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, List
+from src.analysis.order_flow import analyze_order_flow
+from src.analysis.volatility_regimes import analyze_volatility_regime
 
 def calculate_rsi(series: pd.Series, period: int = 14) -> pd.Series:
     delta = series.diff()
@@ -235,6 +237,30 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
     elif current_price > 0 and abs(current_price - fib_500) / current_price <= 0.018:
         bullish_factors.append(f"Price at Fibonacci 50.0% median retracement support (INR {fib_500})")
         
+    # Order Flow & Smart Money Concepts
+    order_flow = analyze_order_flow(df)
+    volatility_regime = analyze_volatility_regime(df)
+
+    if order_flow.get("verdict") == "ACCUMULATION":
+        bullish_factors.append(f"Order Flow: Institutional accumulation detected (Score: {order_flow.get('order_flow_score')}/100)")
+    elif order_flow.get("verdict") == "DISTRIBUTION":
+        bearish_factors.append(f"Order Flow: Institutional distribution detected (Score: {order_flow.get('order_flow_score')}/100)")
+
+    ttm = volatility_regime.get("ttm_squeeze", {})
+    if ttm.get("squeeze_fired"):
+        if "BULLISH" in ttm.get("momentum_direction", ""):
+            bullish_factors.append("TTM Squeeze FIRED with Bullish Expansion")
+        else:
+            bearish_factors.append("TTM Squeeze FIRED with Bearish Expansion")
+    elif ttm.get("squeeze_on"):
+        bullish_factors.append("TTM Squeeze ON (Energy compression coiling)")
+
+    st = volatility_regime.get("supertrend", {})
+    if st.get("direction") == "BULLISH":
+        bullish_factors.append(f"Supertrend BULLISH (Trailing Stop: INR {st.get('supertrend_price')})")
+    elif st.get("direction") == "BEARISH":
+        bearish_factors.append(f"Supertrend BEARISH (Resistance: INR {st.get('supertrend_price')})")
+
     score = len(bullish_factors) - len(bearish_factors)
     if score >= 2:
         trend = "BULLISH"
@@ -281,6 +307,8 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
             "status": volume_status,
             "meaning": volume_meaning
         },
+        "order_flow": order_flow,
+        "volatility_regime": volatility_regime,
         "bullish_factors": bullish_factors,
         "bearish_factors": bearish_factors
     }
