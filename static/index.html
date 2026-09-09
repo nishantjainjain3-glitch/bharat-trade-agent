@@ -370,27 +370,90 @@
 
       <!-- Backtest Results Card -->
       <div id="btResultCard" class="hidden space-y-6">
-        <!-- Stat Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-            <span class="text-xs text-slate-400 block">Total Strategy Return</span>
-            <span id="btTotalReturn" class="text-lg font-extrabold text-emerald-400 mt-1 block">--</span>
-            <span class="text-[10px] text-slate-500" id="btBenchmarkReturn">vs Benchmark: --</span>
+        <!-- Stat Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+            <span class="text-[11px] text-slate-400 block">Net Strategy Return</span>
+            <span id="btTotalReturn" class="text-base font-extrabold text-emerald-400 mt-1 block">--</span>
+            <span class="text-[10px] text-slate-500 block truncate" id="btGrossDrag">Gross: --</span>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-            <span class="text-xs text-slate-400 block">Win Rate</span>
-            <span id="btWinRate" class="text-lg font-extrabold text-white mt-1 block">--</span>
-            <span class="text-[10px] text-slate-500" id="btTradesCount">Trades: --</span>
+          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+            <span class="text-[11px] text-slate-400 block">Win Rate</span>
+            <span id="btWinRate" class="text-base font-extrabold text-white mt-1 block">--</span>
+            <span class="text-[10px] text-slate-500 block" id="btTradesCount">Trades: --</span>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-            <span class="text-xs text-slate-400 block">Max Drawdown</span>
-            <span id="btMaxDrawdown" class="text-lg font-extrabold text-rose-400 mt-1 block">--</span>
-            <span class="text-[10px] text-slate-500">Peak-to-trough risk</span>
+          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+            <span class="text-[11px] text-slate-400 block">Max Drawdown</span>
+            <span id="btMaxDrawdown" class="text-base font-extrabold text-rose-400 mt-1 block">--</span>
+            <span class="text-[10px] text-slate-500 block">Peak-to-trough</span>
           </div>
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-            <span class="text-xs text-slate-400 block">Profit Factor</span>
-            <span id="btProfitFactor" class="text-lg font-extrabold text-amber-300 mt-1 block">--</span>
-            <span class="text-[10px] text-slate-500">Gross Wins / Gross Losses</span>
+          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+            <span class="text-[11px] text-slate-400 block">Profit Factor</span>
+            <span id="btProfitFactor" class="text-base font-extrabold text-amber-300 mt-1 block">--</span>
+            <span class="text-[10px] text-slate-500 block">Net Wins / Losses</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+            <span class="text-[11px] text-slate-400 block">Sharpe Ratio</span>
+            <span id="btSharpe" class="text-base font-extrabold text-sky-400 mt-1 block">--</span>
+            <span class="text-[10px] text-slate-500 block">7.0% Indian Rf</span>
+          </div>
+          <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+            <span class="text-[11px] text-slate-400 block">Sortino Ratio</span>
+            <span id="btSortino" class="text-base font-extrabold text-indigo-400 mt-1 block">--</span>
+            <span class="text-[10px] text-slate-500 block">Downside Vol</span>
+          </div>
+        </div>
+
+        <!-- Monte Carlo & Indian Taxation Box -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Monte Carlo Stress Test Card -->
+          <div class="bg-slate-900 border border-indigo-500/30 p-4 rounded-xl space-y-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                <span>🎲</span> Monte Carlo Stress Test (500 Runs)
+              </h4>
+              <span class="text-[10px] bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded font-mono">Permuted Paths</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Randomizes trade sequences 500 times to uncover path-dependent drawdown and ruin risk.
+            </p>
+            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-xs">
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-500 block">95% Worst DD</span>
+                <span id="btMonteCarloVaR" class="font-bold text-rose-400 text-sm mt-0.5 block">--</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-500 block">Median DD</span>
+                <span id="btMonteCarloMedian" class="font-bold text-amber-400 text-sm mt-0.5 block">--</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-500 block">Risk of Ruin</span>
+                <span id="btRiskOfRuin" class="font-bold text-emerald-400 text-sm mt-0.5 block">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Indian Taxation & Friction Card -->
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                <span>🏛️</span> Indian Statutory Charges & Slippage
+              </h4>
+              <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-mono">NSE Modeling</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Includes STT (0.1%), Brokerage (₹20/leg), Exchange fees, SEBI charges, Stamp duty, 18% GST & 0.05% slippage.
+            </p>
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-xs">
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-500 block">Total Fees Paid</span>
+                <span id="btTotalCharges" class="font-bold text-rose-400 text-sm mt-0.5 block">--</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+                <span class="text-[10px] text-slate-500 block">Take-Home Capital</span>
+                <span id="btNetCapital" class="font-bold text-emerald-400 text-sm mt-0.5 block">--</span>
+              </div>
+            </div>
           </div>
         </div>
 
