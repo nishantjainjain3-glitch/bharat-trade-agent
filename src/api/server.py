@@ -25,7 +25,7 @@ from src.data.news_data import get_indian_stock_news
 from src.analysis.screener import get_top_buy_recommendations, get_preset_screener_recommendations
 from src.analysis.sector_rotation import get_nifty_sector_rotation
 from src.analysis.backtester import backtest_strategy, run_parameter_sweep
-from src.notifications.telegram import send_telegram_trade_alert
+from src.notifications.telegram import send_telegram_trade_alert, send_telegram_text
 from src.analysis.technical import analyze_technical_indicators
 from src.analysis.fundamental import evaluate_fundamentals
 from src.analysis.personas import evaluate_all_investor_personas
@@ -112,6 +112,28 @@ class OrderRequest(BaseModel):
 
 class TelegramAlertRequest(BaseModel):
     trade_data: Dict[str, Any]
+
+class WebhookTradeAlert(BaseModel):
+    ticker: Optional[str] = None
+    symbol: Optional[str] = None
+    action: str = "BUY"
+    price: Optional[float] = None
+    stop_loss: Optional[float] = None
+    target_price: Optional[float] = None
+    target: Optional[float] = None
+    quantity: Optional[int] = None
+    strategy: Optional[str] = "TradingView Alert"
+    timeframe: Optional[str] = "15m"
+    message: Optional[str] = None
+
+@app.get("/health")
+@app.get("/api/health")
+def get_health_status():
+    return {
+        "status": "ok",
+        "service": "bharat-trade-agent",
+        "version": "2.0.0"
+    }
 
 @app.get("/api/status")
 def get_system_status():
@@ -334,6 +356,115 @@ def place_order(order: OrderRequest):
         metadata={"symbol": order.symbol, "qty": order.quantity, "type": order.transaction_type, "price": order_price}
     )
     return res
+
+@app.post("/api/webhook/trade")
+@app.post("/api/webhook/tradingview")
+def receive_webhook_trade(alert: WebhookTradeAlert):
+    raw_sym = alert.ticker or alert.symbol or ""
+    if not raw_sym:
+        raise HTTPException(status_code=400, detail="Missing symbol or ticker in webhook payload")
+    
+    clean_sym = normalize_indian_symbol(raw_sym)
+    action = alert.action.upper()
+    if action not in ["BUY", "SELL"]:
+        action = "BUY"
+        
+    portfolio = angel_client.get_portfolio_summary()
+    equity = float(portfolio.get("total_portfolio_value", portfolio.get("net_liquidation_value", 50000.0)))
+    cash = float(portfolio.get("available_cash", 50000.0))
+    
+    ref_price = alert.price or 0.0
+    if ref_price <= 0:
+        try:
+            q = get_stock_quote(clean_sym)
+            ref_price = float(q.get("price", 0.0))
+        except Exception:
+            ref_price = 100.0
+
+    sl = alert.stop_loss
+    tgt = alert.target_price or alert.target
+    qty = alert.quantity
+    
+    if not qty or qty <= 0:
+        try:
+            from src.engine.position_sizer import calculate_volatility_parity_position_size
+            from src.analysis.technical import calculate_atr
+            df = get_historical_bars(clean_sym, period="1mo", interval="1d")
+            atr_val = float(calculate_atr(df, 14).iloc[-1])
+            sizing = calculate_volatility_parity_position_size(
+                stock_price=ref_price,
+                atr_14=atr_val,
+                account_equity=equity,
+                available_cash=cash,
+                risk_pct=0.01
+            )
+            qty = max(1, sizing.get("quantity", 1))
+            if not sl:
+                sl = sizing.get("stop_loss")
+            if not tgt:
+                tgt = sizing.get("target")
+        except Exception:
+            qty = 1
+
+    if action == "BUY" and sl is not None:
+        val = validate_order_against_constitution(
+            symbol=clean_sym,
+            price=ref_price,
+            stop_loss=sl,
+            target_price=tgt,
+            quantity=qty,
+            portfolio_equity=equity
+        )
+        if not val.get("allowed", True):
+            violations = val.get("violations", [])
+            msg = f"⚠️ *WEBHOOK ALERT BLOCKED BY CONSTITUTION*\nSymbol: `{clean_sym}`\nReason: {', '.join(violations)}"
+            send_telegram_text(msg)
+            return {
+                "status": "BLOCKED",
+                "symbol": clean_sym,
+                "violations": violations
+            }
+
+    order_res = angel_client.place_order(
+        symbol=clean_sym,
+        quantity=qty,
+        transaction_type=action,
+        order_type="MARKET",
+        price=ref_price
+    )
+    
+    strat = alert.strategy or "Webhook Signal"
+    is_locked = angel_client.is_trade_locked()
+    paper_tag = "[PAPER SIMULATION] " if is_locked else "[LIVE] "
+    sl_str = f"₹{sl:.2f}" if sl else "N/A"
+    tgt_str = f"₹{tgt:.2f}" if tgt else "N/A"
+    telegram_msg = (
+        f"🎯 *{paper_tag}WEBHOOK SIGNAL*\n"
+        f"Strategy: *{strat}* ({alert.timeframe})\n"
+        f"Action: *{action} {qty}x {clean_sym}*\n"
+        f"Price: ₹{ref_price:.2f} | SL: {sl_str} | Tgt: {tgt_str}\n"
+        f"Order Result: {order_res.get('message', 'Processed')}"
+    )
+    send_telegram_text(telegram_msg)
+    
+    memory_journal.record_entry(
+        category="WEBHOOK_SIGNAL",
+        title=f"Webhook Alert: {action} {qty}x {clean_sym} [{strat}]",
+        content=f"Price: ₹{ref_price:.2f}, SL: {sl_str}, Target: {tgt_str}. Result: {order_res.get('status')}",
+        metadata={"symbol": clean_sym, "qty": qty, "price": ref_price, "strategy": strat, "result": order_res}
+    )
+    
+    return {
+        "status": "SUCCESS",
+        "symbol": clean_sym,
+        "action": action,
+        "quantity": qty,
+        "price": ref_price,
+        "stop_loss": sl,
+        "target": tgt,
+        "strategy": strat,
+        "execution": order_res
+    }
 
 class AlgoOrderRequest(BaseModel):
     symbol: str

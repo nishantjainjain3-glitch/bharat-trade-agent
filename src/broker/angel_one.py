@@ -68,6 +68,11 @@ class AngelOneClient:
         self.is_configured = bool(self.api_key and self.client_code and self.pin and self.totp_key)
         self.mode = "LIVE" if self.is_configured else "SIMULATION"
 
+    def is_trade_locked(self) -> bool:
+        locked = os.getenv("TRADE_EXECUTION_LOCKED", "true").lower() in ("true", "1", "yes")
+        live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "false").lower() in ("true", "1", "yes")
+        return locked or (not live_enabled)
+
     def login(self) -> Dict[str, Any]:
         if not self.is_configured:
             return {
