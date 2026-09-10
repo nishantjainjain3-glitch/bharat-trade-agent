@@ -178,7 +178,7 @@ class AngelOneClient:
             data = res.json()
             holdings = data.get("data", {}).get("holdings", []) if data.get("status") else []
             total_invested = sum(float(h.get("invested", 0.0) or (float(h.get("averageprice", 0.0)) * int(h.get("quantity", 0)))) for h in holdings)
-            total_pnl = sum(float(h.get("pnl", 0.0) or 0.0) for h in holdings)
+            total_pnl = sum(float(h.get("profitandloss", h.get("pnl", 0.0)) or 0.0) for h in holdings)
 
             return {
                 "mode": "LIVE",
@@ -196,10 +196,11 @@ class AngelOneClient:
 
     def place_order(self, symbol: str, quantity: int, transaction_type: str = "BUY", order_type: str = "MARKET", price: float = 0.0) -> Dict[str, Any]:
         live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "false").lower() in ("true", "1")
+        trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "true").lower() in ("true", "1")
         clean_sym = symbol.replace(".NS", "").replace(".BO", "").replace("-EQ", "").upper()
         trading_sym = f"{clean_sym}-EQ"
         
-        if not self.is_configured or not live_enabled:
+        if trade_locked or not self.is_configured or not live_enabled:
             # Paper execution (default safe mode)
             sim_id = f"SIM-{pyotp.random_base32()[:8]}"
             return {
@@ -211,7 +212,7 @@ class AngelOneClient:
                 "transaction_type": transaction_type,
                 "order_type": order_type,
                 "price": price,
-                "message": f"Paper trade executed: {transaction_type} {quantity} shares of {clean_sym} at INR {price:.2f}."
+                "message": f"Trade execution locked per user safety instructions. Paper simulated {transaction_type} {quantity} shares of {clean_sym} at INR {price:.2f}."
             }
 
         # Real Live Order Execution on Angel One SmartAPI
