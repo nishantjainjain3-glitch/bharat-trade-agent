@@ -3,6 +3,37 @@ import pyotp
 import requests
 from typing import Dict, Any, List, Optional
 
+NSE_SYMBOL_TOKENS = {
+    "RELIANCE": "2885",
+    "TCS": "11536",
+    "INFY": "1594",
+    "HDFCBANK": "1333",
+    "ICICIBANK": "4963",
+    "SBIN": "3045",
+    "BHARTIARTL": "10604",
+    "ITC": "1660",
+    "KOTAKBANK": "1922",
+    "LT": "11483",
+    "AXISBANK": "5900",
+    "HINDUNILVR": "1394",
+    "BAJFINANCE": "317",
+    "MARUTI": "10999",
+    "TATAMOTORS": "3456",
+    "TATASTEEL": "3499",
+    "SUNPHARMA": "3351",
+    "NTPC": "11630",
+    "ONGC": "2475",
+    "POWERGRID": "14977",
+    "TITAN": "3506",
+    "ASIANPAINT": "236",
+    "WIPRO": "3787",
+    "HCLTECH": "7229",
+    "ADANIENT": "25",
+    "ADANIPORTS": "15083",
+    "COALINDIA": "20374",
+    "JSWSTEEL": "11723"
+}
+
 class AngelOneClient:
     def __init__(self):
         self.api_key = os.getenv("ANGEL_API_KEY", "")
@@ -146,22 +177,79 @@ class AngelOneClient:
             return {"mode": "ERROR", "message": str(e), "holdings": []}
 
     def place_order(self, symbol: str, quantity: int, transaction_type: str = "BUY", order_type: str = "MARKET", price: float = 0.0) -> Dict[str, Any]:
-        if not self.is_configured:
-            # Paper execution
+        live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "false").lower() in ("true", "1")
+        clean_sym = symbol.replace(".NS", "").replace(".BO", "").replace("-EQ", "").upper()
+        trading_sym = f"{clean_sym}-EQ"
+        
+        if not self.is_configured or not live_enabled:
+            # Paper execution (default safe mode)
+            sim_id = f"SIM-{pyotp.random_base32()[:8]}"
             return {
                 "status": True,
                 "mode": "SIMULATION",
-                "order_id": f"SIM-{pyotp.random_base32()[:8]}",
-                "symbol": symbol,
+                "order_id": sim_id,
+                "symbol": clean_sym,
                 "quantity": quantity,
                 "transaction_type": transaction_type,
-                "message": f"Paper trade executed: {transaction_type} {quantity} shares of {symbol}."
+                "order_type": order_type,
+                "price": price,
+                "message": f"Paper trade executed: {transaction_type} {quantity} shares of {clean_sym} at INR {price:.2f}."
             }
-            
-        # Guarded Live Execution
-        return {
-            "status": False,
-            "message": "Live order placement safety gate enabled. Verify credentials and enable LIVE_EXECUTION_ENABLED=true in .env."
+
+        # Real Live Order Execution on Angel One SmartAPI
+        if not self.jwt_token:
+            self.login()
+
+        token = NSE_SYMBOL_TOKENS.get(clean_sym, "2885")
+        url = "https://apiconnect.angelone.in/rest/secure/angelbroking/order/v1/placeOrder"
+        headers = {
+            "Authorization": f"Bearer {self.jwt_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-UserType": "USER",
+            "X-SourceID": "WEB",
+            "X-ClientLocalIP": "127.0.0.1",
+            "X-ClientPublicIP": self.public_ip,
+            "X-MACAddress": "MAC_ADDRESS",
+            "X-PrivateKey": self.api_key
         }
+        payload = {
+            "variety": "NORMAL",
+            "tradingsymbol": trading_sym,
+            "symboltoken": token,
+            "transactiontype": transaction_type.upper(),
+            "exchange": "NSE",
+            "ordertype": order_type.upper(),
+            "producttype": "DELIVERY",
+            "duration": "DAY",
+            "price": str(round(price, 2)) if order_type.upper() == "LIMIT" else "0.0",
+            "squareoff": "0",
+            "stoploss": "0",
+            "quantity": str(quantity)
+        }
+        try:
+            res = requests.post(url, json=payload, headers=headers, timeout=10)
+            data = res.json()
+            if data.get("status"):
+                order_id = data.get("data", {}).get("orderid", "LIVE-ORDER")
+                return {
+                    "status": True,
+                    "mode": "LIVE",
+                    "order_id": order_id,
+                    "symbol": clean_sym,
+                    "quantity": quantity,
+                    "transaction_type": transaction_type,
+                    "price": price,
+                    "message": f"LIVE order executed on Angel One! Order ID: {order_id}"
+                }
+            else:
+                return {
+                    "status": False,
+                    "mode": "LIVE_ERROR",
+                    "message": data.get("message", "Angel One order rejected"),
+                    "errorcode": data.get("errorcode")
+                }
+        except Exception as e:
+            return {"status": False, "mode": "LIVE_ERROR", "message": f"Order placement failed: {str(e)}"}
 
 angel_client = AngelOneClient()

@@ -1,13 +1,15 @@
-﻿import asyncio
+import asyncio
 import os
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Optional
 
 from src.engine.risk_tiers import evaluate_survival_tier, SurvivalTier
-from src.engine.constitution import get_constitution_articles
+from src.engine.constitution import get_constitution_articles, validate_order_against_constitution
 from src.engine.memory import memory_journal
 from src.data.macro_data import get_indian_macro_indicators
+from src.analysis.screener import get_top_buy_recommendations
 from src.broker.angel_one import angel_client
+from src.notifications.telegram import send_telegram_text
 
 IST = timezone(timedelta(hours=5, minutes=30))
 
@@ -92,6 +94,62 @@ class AutonomousHeartbeat:
                     "nifty_change": nifty_day_change
                 }
             )
+
+        # 4. ACT: Autonomous opportunistic order placement (if AUTOTRADE_ENABLED=true)
+        autotrade_enabled = os.getenv("AUTOTRADE_ENABLED", "false").lower() in ("true", "1")
+        if autotrade_enabled and self.market_session == "MARKET_OPEN" and self.current_tier.get("trading_allowed", True):
+            cash = float(portfolio.get("available_cash", 0.0))
+            if self.cycle_count % 5 == 0 and cash >= 50.0:
+                try:
+                    recs = get_top_buy_recommendations(limit=2)
+                    for rec in recs:
+                        sym = rec.get("symbol", "")
+                        price = float(rec.get("price", 0.0))
+                        conviction = int(rec.get("conviction", 0))
+
+                        if conviction >= 8 and 0 < price <= cash:
+                            qty = max(1, int(min(cash * 0.4, 25000.0) // price))
+                            sl = float(rec.get("stop_loss", price * 0.97))
+                            tp = float(rec.get("target_price", price * 1.05))
+
+                            val = validate_order_against_constitution(
+                                symbol=sym,
+                                price=price,
+                                stop_loss=sl,
+                                target_price=tp,
+                                quantity=qty,
+                                portfolio_equity=current_equity
+                            )
+                            if val.get("allowed"):
+                                order_res = angel_client.place_order(
+                                    symbol=sym,
+                                    quantity=qty,
+                                    transaction_type="BUY",
+                                    order_type="MARKET",
+                                    price=price
+                                )
+                                if order_res.get("status"):
+                                    mode = order_res.get("mode", "LIVE")
+                                    oid = order_res.get("order_id", "N/A")
+                                    msg = (
+                                        f"🤖 *AUTONOMOUS TRADE EXECUTED ({mode})*\n\n"
+                                        f"• Stock: *{sym}*\n"
+                                        f"• Action: *BUY {qty} shares* @ ₹{price:,.2f}\n"
+                                        f"• Stop-Loss: ₹{sl:,.2f} | Target: ₹{tp:,.2f}\n"
+                                        f"• Conviction: {conviction}/10\n"
+                                        f"• Order ID: `{oid}`\n\n"
+                                        f"_Validated by Constitution & Risk Tier: {self.current_tier['tier']}_"
+                                    )
+                                    send_telegram_text(msg)
+                                    memory_journal.record_entry(
+                                        category="EXECUTION",
+                                        title=f"Autonomous Trade: BUY {qty}x {sym}",
+                                        content=msg,
+                                        metadata=order_res
+                                    )
+                                    break
+                except Exception:
+                    pass
 
         return self.get_status()
 

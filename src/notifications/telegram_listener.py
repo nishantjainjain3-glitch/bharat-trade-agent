@@ -9,6 +9,8 @@ from src.data.market_data import get_stock_quote, get_historical_bars, normalize
 from src.analysis.order_flow import analyze_order_flow
 from src.analysis.volatility_regimes import analyze_volatility_regime
 from src.notifications.telegram import send_telegram_text
+from src.engine.constitution import validate_order_against_constitution
+from src.engine.memory import memory_journal
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +99,9 @@ class TelegramBotListener:
                 "• `/quote <SYM>` — Live price & day change (e.g. `/quote RELIANCE`)\n"
                 "• `/analyze <SYM>` — Smart Money FVG & TTM Squeeze quant breakdown\n"
                 "• `/scan` — Scan Nifty watchlist for active squeezes and breakouts\n"
+                "• `/buy <SYM> <QTY>` — Place an order directly (e.g. `/buy TCS 1`)\n"
+                "• `/sell <SYM> <QTY>` — Place a sell order (e.g. `/sell TCS 1`)\n"
+                "• `/autotrade on/off` — Toggle autonomous opportunistic trading\n"
                 "• `/kill` — Emergency freeze trading automaton\n"
                 "• `/help` — Show this guide"
             )
@@ -252,5 +257,111 @@ class TelegramBotListener:
                 "• Safe cash mode retained."
             )
             send_telegram_text(reply, chat_id)
+
+        elif cmd == "/autotrade":
+            sub = args[0].lower() if args else "status"
+            if sub in ("on", "enable", "start"):
+                os.environ["AUTOTRADE_ENABLED"] = "true"
+                os.environ["LIVE_EXECUTION_ENABLED"] = "true"
+                reply = (
+                    "🟢 *AUTONOMOUS TRADING ENABLED*\n\n"
+                    "• The agent will now automatically execute high-conviction (≥8/10) setups during market hours.\n"
+                    "• Constitution limits strictly enforced (max 50% cash per trade, mandatory stop loss).\n"
+                    "• You will receive an instant Telegram alert on every execution.\n"
+                    "• Send `/autotrade off` anytime to return to manual mode."
+                )
+            elif sub in ("off", "disable", "stop"):
+                os.environ["AUTOTRADE_ENABLED"] = "false"
+                reply = "🔴 *AUTONOMOUS TRADING DISABLED*\n\nThe agent is back in manual recommendation mode."
+            else:
+                current = os.getenv("AUTOTRADE_ENABLED", "false").lower() in ("true", "1")
+                state = "🟢 ENABLED" if current else "🔴 DISABLED"
+                reply = f"🤖 *Autonomous Trading Status:* {state}\n\nUse `/autotrade on` or `/autotrade off` to toggle."
+            send_telegram_text(reply, chat_id)
+
+        elif cmd == "/buy":
+            if len(args) < 1:
+                send_telegram_text("⚠️ Usage: `/buy <SYMBOL> [QUANTITY]` (e.g. `/buy TCS 1`)", chat_id)
+                return
+            sym = args[0].upper()
+            qty = int(args[1]) if len(args) > 1 and args[1].isdigit() else 1
+            send_telegram_text(f"⏳ Validating & executing BUY order for {qty} shares of *{sym}*...", chat_id)
+            try:
+                q = get_stock_quote(sym)
+                price = float(q.get("price", 0.0))
+                summary = angel_client.get_portfolio_summary()
+                equity = summary.get("net_liquidation_value", 125000.0)
+                sl = round(price * 0.97, 2)
+                tp = round(price * 1.05, 2)
+
+                val = validate_order_against_constitution(
+                    symbol=sym,
+                    price=price,
+                    stop_loss=sl,
+                    target_price=tp,
+                    quantity=qty,
+                    portfolio_equity=equity
+                )
+                if not val.get("allowed"):
+                    reasons = "\n".join(f"• {v}" for v in val.get("violations", []))
+                    send_telegram_text(f"🛑 *Order Blocked by Trading Constitution:*\n\n{reasons}", chat_id)
+                    return
+
+                res = angel_client.place_order(
+                    symbol=sym,
+                    quantity=qty,
+                    transaction_type="BUY",
+                    order_type="MARKET",
+                    price=price
+                )
+                if res.get("status"):
+                    mode = res.get("mode", "LIVE")
+                    oid = res.get("order_id", "N/A")
+                    reply = (
+                        f"✅ *ORDER SUBMITTED ({mode})*\n\n"
+                        f"• Stock: *{sym}*\n"
+                        f"• Action: *BUY {qty} shares*\n"
+                        f"• Price: *₹{price:,.2f}*\n"
+                        f"• Target: ₹{tp:,.2f} | Stop-Loss: ₹{sl:,.2f}\n"
+                        f"• Order ID: `{oid}`"
+                    )
+                else:
+                    reply = f"❌ *Order Rejected:* {res.get('message', 'Unknown error')}"
+                send_telegram_text(reply, chat_id)
+            except Exception as e:
+                send_telegram_text(f"❌ Execution error: {str(e)}", chat_id)
+
+        elif cmd == "/sell":
+            if len(args) < 1:
+                send_telegram_text("⚠️ Usage: `/sell <SYMBOL> [QUANTITY]` (e.g. `/sell TCS 1`)", chat_id)
+                return
+            sym = args[0].upper()
+            qty = int(args[1]) if len(args) > 1 and args[1].isdigit() else 1
+            send_telegram_text(f"⏳ Executing SELL order for {qty} shares of *{sym}*...", chat_id)
+            try:
+                q = get_stock_quote(sym)
+                price = float(q.get("price", 0.0))
+                res = angel_client.place_order(
+                    symbol=sym,
+                    quantity=qty,
+                    transaction_type="SELL",
+                    order_type="MARKET",
+                    price=price
+                )
+                if res.get("status"):
+                    mode = res.get("mode", "LIVE")
+                    oid = res.get("order_id", "N/A")
+                    reply = (
+                        f"✅ *SELL ORDER SUBMITTED ({mode})*\n\n"
+                        f"• Stock: *{sym}*\n"
+                        f"• Action: *SELL {qty} shares*\n"
+                        f"• Price: *₹{price:,.2f}*\n"
+                        f"• Order ID: `{oid}`"
+                    )
+                else:
+                    reply = f"❌ *Sell Order Rejected:* {res.get('message', 'Unknown error')}"
+                send_telegram_text(reply, chat_id)
+            except Exception as e:
+                send_telegram_text(f"❌ Sell execution error: {str(e)}", chat_id)
 
 telegram_listener = TelegramBotListener()

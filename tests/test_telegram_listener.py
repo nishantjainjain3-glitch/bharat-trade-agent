@@ -45,5 +45,22 @@ class TestTelegramListener(unittest.TestCase):
         args, _ = mock_send.call_args
         self.assertIn("Portfolio", args[0])
 
+    @patch("src.notifications.telegram_listener.send_telegram_text")
+    def test_handle_autotrade_command(self, mock_send):
+        asyncio.run(self.listener.handle_command("12345678", "/autotrade on"))
+        mock_send.assert_called_once()
+        args, _ = mock_send.call_args
+        self.assertIn("AUTONOMOUS TRADING ENABLED", args[0])
+
+        asyncio.run(self.listener.handle_command("12345678", "/autotrade off"))
+        self.assertEqual(mock_send.call_count, 2)
+
+    @patch("src.notifications.telegram_listener.send_telegram_text")
+    def test_handle_buy_command_usage(self, mock_send):
+        asyncio.run(self.listener.handle_command("12345678", "/buy"))
+        mock_send.assert_called_once()
+        args, _ = mock_send.call_args
+        self.assertIn("Usage", args[0])
+
 if __name__ == "__main__":
     unittest.main()
