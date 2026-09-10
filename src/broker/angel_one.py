@@ -31,8 +31,26 @@ NSE_SYMBOL_TOKENS = {
     "ADANIENT": "25",
     "ADANIPORTS": "15083",
     "COALINDIA": "20374",
-    "JSWSTEEL": "11723"
+    "JSWSTEEL": "11723",
+    "NIFTYBEES": "10576",
+    "BANKBEES": "10577",
+    "GOLDBEES": "10578",
+    "SILVERBEES": "10579"
 }
+
+TOKENS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "angel_tokens.json")
+DYNAMIC_TOKENS: Dict[str, str] = {}
+if os.path.exists(TOKENS_FILE):
+    try:
+        import json
+        with open(TOKENS_FILE, "r", encoding="utf-8") as f:
+            DYNAMIC_TOKENS = json.load(f)
+    except Exception:
+        DYNAMIC_TOKENS = {}
+
+def get_symbol_token(symbol: str) -> Optional[str]:
+    clean = symbol.replace(".NS", "").replace(".BO", "").replace("-EQ", "").strip().upper()
+    return DYNAMIC_TOKENS.get(clean) or NSE_SYMBOL_TOKENS.get(clean)
 
 class AngelOneClient:
     def __init__(self):
@@ -200,7 +218,14 @@ class AngelOneClient:
         if not self.jwt_token:
             self.login()
 
-        token = NSE_SYMBOL_TOKENS.get(clean_sym, "2885")
+        token = get_symbol_token(clean_sym)
+        if not token:
+            return {
+                "status": False,
+                "mode": "LIVE_ERROR",
+                "message": f"Order rejected: Unknown token for '{clean_sym}'. Symbol not found in Angel One instrument master."
+            }
+
         url = "https://apiconnect.angelone.in/rest/secure/angelbroking/order/v1/placeOrder"
         headers = {
             "Authorization": f"Bearer {self.jwt_token}",
