@@ -23,6 +23,7 @@ class AutonomousHeartbeat:
         self.market_session: str = "INITIALIZING"
         self.current_tier: Dict[str, Any] = {}
         self.last_observation: str = "Heartbeat initialized. Awaiting first cycle."
+        self.peak_equity: float = 0.0
         self._task: Optional[asyncio.Task] = None
 
     def get_market_session(self) -> str:
@@ -50,8 +51,10 @@ class AutonomousHeartbeat:
 
         # 1. THINK: Inspect portfolio and macro benchmarks
         portfolio = angel_client.get_portfolio_summary()
-        current_equity = portfolio.get("net_liquidation_value", 125000.0)
-        peak_equity = 125000.0
+        current_equity = float(portfolio.get("total_portfolio_value") or portfolio.get("net_liquidation_value") or 50000.0)
+        if self.peak_equity <= 0 or current_equity > self.peak_equity:
+            self.peak_equity = current_equity
+        peak_equity = self.peak_equity
         
         try:
             macro = get_indian_macro_indicators()
