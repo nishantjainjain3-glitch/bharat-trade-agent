@@ -912,6 +912,42 @@
 
     <!-- TAB 3: WATCHLIST -->
     <div id="tab-watchlist" class="hidden space-y-4">
+
+      <!-- NIFTY 500 MOMENTUM & BREAKOUT SCANNER -->
+      <div class="bg-gradient-to-r from-indigo-950/40 via-slate-900 to-emerald-950/40 border border-indigo-500/30 rounded-2xl p-5 shadow-lg space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🚀</span>
+              <h2 class="text-base font-bold text-white">Nifty 500 Market Scanner</h2>
+              <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">501 Stocks</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Multi-threaded institutional volume surge & breakout scanner with 1% ATR volatility parity sizing</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="nifty500SectorSelect" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+              <option value="">All Sectors</option>
+              <option value="Financial Services">Financial Services</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Automobile and Auto Components">Automobile</option>
+              <option value="Healthcare">Healthcare & Pharma</option>
+              <option value="Oil, Gas & Consumable Fuels">Oil & Gas</option>
+              <option value="Metals & Mining">Metals & Mining</option>
+              <option value="Fast Moving Consumer Goods">FMCG</option>
+            </select>
+            <button onclick="runNifty500Scan()" id="scan500Btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5 shrink-0 shadow-md">
+              <span>⚡ Scan 500</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="nifty500ResultsContainer" class="space-y-3">
+          <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-center text-slate-500 text-xs py-6">
+            Click <strong class="text-indigo-400 font-semibold">⚡ Scan 500</strong> to sweep the 501 Nifty constituents for breakouts with institutional volume.
+          </div>
+        </div>
+      </div>
+
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -1879,6 +1915,74 @@ LIVE_EXECUTION_ENABLED=false
         });
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-rose-400">Failed to load watchlist</td></tr>`;
+      }
+    }
+
+    async function runNifty500Scan() {
+      const btn = document.getElementById('scan500Btn');
+      const sector = document.getElementById('nifty500SectorSelect').value;
+      const container = document.getElementById('nifty500ResultsContainer');
+      
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳ Scanning...</span>`;
+      container.innerHTML = `<div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-center text-slate-400 text-xs py-8">Multi-threaded sweep across Nifty 500 constituents (~7 seconds)...</div>`;
+
+      try {
+        let url = '/api/screener/nifty500?limit=50';
+        if (sector) url += `&sector=${encodeURIComponent(sector)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        btn.disabled = false;
+        btn.innerHTML = `<span>⚡ Scan 500</span>`;
+
+        const opps = data.opportunities || [];
+        if (opps.length === 0) {
+          container.innerHTML = `<div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-center text-slate-400 text-xs py-6">No volume breakouts currently active in this sector. Try another sector or "All Sectors".</div>`;
+          return;
+        }
+
+        let html = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">`;
+        opps.forEach(op => {
+          html += `
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-indigo-500/50 transition space-y-2.5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-white text-sm">${op.symbol}</span>
+                  <span class="text-[10px] text-slate-400 block">${op.company_name}</span>
+                </div>
+                <span class="text-xs font-mono font-bold text-emerald-400">₹${op.current_price}</span>
+              </div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-300">
+                <span class="bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-mono">RVOL: ${op.rvol_20d}x</span>
+                <span class="bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">RSI: ${op.rsi_14}</span>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800 text-[11px] space-y-1">
+                <div class="flex justify-between text-slate-400">
+                  <span>Rec. Qty (1% ATR):</span>
+                  <span class="font-mono font-bold text-white">${op.recommended_quantity} shares</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                  <span>Stop-Loss:</span>
+                  <span class="font-mono text-rose-400">₹${op.stop_loss}</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                  <span>Target (2R):</span>
+                  <span class="font-mono text-emerald-400">₹${op.target}</span>
+                </div>
+              </div>
+              <button onclick="switchTab('research'); quickAnalyze('${op.symbol}');" class="w-full bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-medium py-1.5 rounded-lg text-xs transition">
+                Deep AI Analyze →
+              </button>
+            </div>
+          `;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = `<span>⚡ Scan 500</span>`;
+        container.innerHTML = `<div class="p-4 bg-rose-950/40 rounded-xl border border-rose-800 text-center text-rose-300 text-xs py-6">Scan error: ${err.message}</div>`;
       }
     }
 
