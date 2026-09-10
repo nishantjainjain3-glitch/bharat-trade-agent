@@ -11,6 +11,7 @@ from src.analysis.volatility_regimes import analyze_volatility_regime
 from src.notifications.telegram import send_telegram_text
 from src.notifications.daily_briefings import build_morning_briefing, build_evening_report
 from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
+from src.analysis.nifty500_scanner import scan_nifty500_breakouts
 from src.engine.constitution import validate_order_against_constitution
 from src.engine.memory import memory_journal
 
@@ -99,6 +100,7 @@ class TelegramBotListener:
                 "• `/briefing` — Pre-market Morning Intelligence (08:45 AM preview)\n"
                 "• `/report` — Post-market Evening Performance Report (16:00 PM preview)\n"
                 "• `/multiasset` — Scan Indices, Commodities & Momentum Equities\n"
+                "• `/scan500 [sector]` — Full Nifty 500 breakout & volume surge sweep\n"
                 "• `/portfolio` or `/holdings` — Live Angel One portfolio & PnL\n"
                 "• `/funds` — Available trading cash & margin\n"
                 "• `/quote <SYM>` — Live price & day change (e.g. `/quote RELIANCE`)\n"
@@ -161,6 +163,41 @@ class TelegramBotListener:
                 send_telegram_text("\n".join(lines), chat_id)
             except Exception as e:
                 send_telegram_text(f"⚠️ Multi-asset scan error: {e}", chat_id)
+
+        elif cmd in ["/scan500", "/nifty500"]:
+            sector_arg = args[0] if args else None
+            status_note = f" across {sector_arg} sector" if sector_arg else ""
+            send_telegram_text(f"⏳ *Scanning Nifty 500 universe{status_note} for breakouts & volume surges...*", chat_id)
+            try:
+                summary = angel_client.get_portfolio_summary()
+                tot_val = float(summary.get("total_portfolio_value", 125000.0))
+                cash = float(summary.get("available_cash", 125000.0))
+                res = scan_nifty500_breakouts(limit_stocks=35, sector_filter=sector_arg, account_equity=tot_val, available_cash=cash)
+                opps = res.get("opportunities", [])
+                lines = [
+                    f"🚀 *Nifty 500 Market Scan Results*",
+                    f"• Universe: *{res.get('universe_size')} stocks*",
+                    f"• Screened: *{res.get('scanned_count')} | High-Conviction Hits: {len(opps)}*\n"
+                ]
+                if opps:
+                    for op in opps[:5]:
+                        sym = op.get("symbol")
+                        name = op.get("name", sym)
+                        price = op.get("price", 0.0)
+                        chg = op.get("day_chg_pct", 0.0)
+                        vol_s = op.get("vol_surge", 1.0)
+                        sl = op.get("stop_loss", 0.0)
+                        tp = op.get("target_price", 0.0)
+                        conv = op.get("conviction", 7)
+                        ps = op.get("position_sizing", {})
+                        qty = ps.get("quantity", 0)
+                        lines.append(f"• *{sym}* ({name[:18]}) @ ₹{price:,.1f} (+{chg}%)")
+                        lines.append(f"  _Vol: {vol_s}x | SL: ₹{sl:,.1f} | TP: ₹{tp:,.1f} | Sizing: {qty} shs | Conv: {conv}/10_")
+                else:
+                    lines.append("• _No stocks currently meeting strict 1.35x volume breakout criteria. Market consolidating._")
+                send_telegram_text("\n".join(lines), chat_id)
+            except Exception as e:
+                send_telegram_text(f"⚠️ Nifty 500 scan error: {e}", chat_id)
 
         elif cmd in ["/portfolio", "/holdings"]:
             summary = angel_client.get_portfolio_summary()

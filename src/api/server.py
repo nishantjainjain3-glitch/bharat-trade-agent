@@ -53,6 +53,7 @@ from src.notifications.daily_briefings import (
     build_evening_report
 )
 from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
+from src.analysis.nifty500_scanner import scan_nifty500_breakouts
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -443,6 +444,24 @@ def evening_report_endpoint(dispatch: bool = False):
         if dispatch:
             return send_evening_report()
         return {"report": build_evening_report()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/nifty500")
+def nifty500_screener_endpoint(limit: int = 50, sector: Optional[str] = None):
+    try:
+        portfolio = angel_client.get_portfolio_summary()
+        tot_val = float(portfolio.get("total_portfolio_value", 125000.0))
+        cash = float(portfolio.get("available_cash", 125000.0))
+        hb = agent_heartbeat.get_status()
+        tier_mult = float(hb.get("survival_tier", {}).get("position_size_multiplier", 1.0))
+        return scan_nifty500_breakouts(
+            limit_stocks=min(limit, 100),
+            sector_filter=sector,
+            account_equity=tot_val,
+            available_cash=cash,
+            tier_multiplier=tier_mult
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
