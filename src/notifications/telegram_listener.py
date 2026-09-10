@@ -8,6 +8,7 @@ from src.broker.angel_one import angel_client
 from src.data.market_data import get_stock_quote, get_historical_bars, normalize_indian_symbol
 from src.analysis.order_flow import analyze_order_flow
 from src.analysis.volatility_regimes import analyze_volatility_regime
+from src.analysis.technical import analyze_technical_indicators
 from src.notifications.telegram import send_telegram_text
 from src.notifications.daily_briefings import build_morning_briefing, build_evening_report
 from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
@@ -298,6 +299,18 @@ class TelegramBotListener:
                 st_dir = supertrend.get("direction", "NEUTRAL")
                 st_price = supertrend.get("supertrend_price", 0.0)
 
+                tech = analyze_technical_indicators(df)
+                adx = tech.get("adx", {})
+                cpr = tech.get("cpr", {})
+                stoch_rsi = tech.get("stoch_rsi", {})
+                patterns = tech.get("candlestick_patterns", [])
+                adx_str = f"{adx.get('adx', 20.0)} ({adx.get('trend_strength', 'NORMAL')})"
+                stoch_str = f"{stoch_rsi.get('status', 'NORMAL')} (%K: {stoch_rsi.get('k', 50.0)})"
+                cpr_pos = cpr.get("price_position", "INSIDE_CPR")
+                cpr_piv = cpr.get("pivot", 0.0)
+                cpr_reg = cpr.get("regime", "AVERAGE_CPR")
+                pat_str = ", ".join(patterns) if patterns else "No extreme pattern"
+
                 reply = (
                     f"🧠 *QUANT INTELLIGENCE REPORT: {sym}*\n"
                     f"LTP: *₹{cur_price:,.2f}*\n\n"
@@ -305,10 +318,15 @@ class TelegramBotListener:
                     f"• Flow Score: *{of_score}/100* ({of_verdict})\n"
                     f"• FVG Imbalance Bias: *{fvg_bias}*\n"
                     f"• Market Structure: *{trend}*\n\n"
-                    f"⚡ *Volatility & Momentum:*\n"
-                    f"• TTM Squeeze: *{sq_state}*\n"
-                    f"• Momentum Vector: *{mom_dir}*\n"
-                    f"• Supertrend: *{st_dir}* (Trailing SL: ₹{st_price:,.2f})\n\n"
+                    f"⚡ *Volatility, ADX & Momentum:*\n"
+                    f"• TTM Squeeze: *{sq_state}* | Vector: *{mom_dir}*\n"
+                    f"• Supertrend: *{st_dir}* (Trailing SL: ₹{st_price:,.2f})\n"
+                    f"• ADX Trend Strength: *{adx_str}*\n"
+                    f"• Stoch RSI: *{stoch_str}*\n\n"
+                    f"📐 *Central Pivot Range (CPR) & Candlesticks:*\n"
+                    f"• CPR Position: *{cpr_pos}* (Pivot: ₹{cpr_piv:,.2f})\n"
+                    f"• CPR Regime: *{cpr_reg}*\n"
+                    f"• Candlestick Signals: *{pat_str}*\n\n"
                     f"📌 *Takeaway:* " + (
                         "High conviction bullish setup with institutional accumulation." if of_score >= 65 and st_dir == "BULLISH"
                         else ("Distribution pressure detected. Preserve capital." if of_score <= 35

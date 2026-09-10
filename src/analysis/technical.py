@@ -104,23 +104,172 @@ def detect_candlestick_patterns(df: pd.DataFrame) -> List[str]:
     prev_close = float(prev['Close'])
     prev_body = abs(prev_close - prev_open)
     
-    # 1. Hammer: small upper body, lower shadow >= 2x body, small upper shadow
     if candle_range > 0 and body > 0:
         lower_shadow = min(open_p, close_p) - low_p
         upper_shadow = high_p - max(open_p, close_p)
-        if lower_shadow >= (1.8 * body) and upper_shadow <= (0.5 * body):
+        
+        # 1. Hammer: small upper body, lower shadow >= 1.8x body, small upper shadow
+        if lower_shadow >= (1.8 * body) and upper_shadow <= (0.25 * candle_range):
             patterns.append("Hammer (Bullish Reversal)")
             
-    # 2. Bullish Engulfing: prior candle red, current candle green and engulfs prior body
+        # 2. Shooting Star: small lower body, upper shadow >= 1.8x body, small lower shadow
+        if upper_shadow >= (1.8 * body) and lower_shadow <= (0.25 * candle_range):
+            patterns.append("Shooting Star (Bearish Reversal)")
+            
+    # 3. Bullish Engulfing: prior red, current green and engulfs prior body
     if prev_close < prev_open and close_p > open_p:
         if open_p <= prev_close and close_p >= prev_open and body >= prev_body:
             patterns.append("Bullish Engulfing")
+
+    # 4. Bearish Engulfing: prior green, current red and engulfs prior body
+    if prev_close > prev_open and close_p < open_p:
+        if open_p >= prev_close and close_p <= prev_open and body >= prev_body:
+            patterns.append("Bearish Engulfing")
             
-    # 3. Doji: body <= 10% of total candle range
+    # 5. Doji: body <= 10% of total candle range
     if candle_range > 0 and body <= (0.10 * candle_range):
         patterns.append("Doji (Absorption/Indecision)")
+
+    # 6. Multi-bar Morning Star & Evening Star (requires 3 bars)
+    if len(df) >= 3:
+        bar2_ago = df.iloc[-3]
+        b2_open = float(bar2_ago['Open'])
+        b2_close = float(bar2_ago['Close'])
+        b2_body = abs(b2_close - b2_open)
+        
+        # Morning Star: large red -> small body -> strong green recovering >= 50% of bar 2
+        if b2_close < b2_open and b2_body > 0:
+            if prev_body <= (0.4 * b2_body) and close_p > open_p:
+                if close_p >= (b2_close + 0.5 * b2_body):
+                    patterns.append("Morning Star (Bullish Reversal)")
+
+        # Evening Star: large green -> small body -> strong red piercing >= 50% of bar 2
+        if b2_close > b2_open and b2_body > 0:
+            if prev_body <= (0.4 * b2_body) and close_p < open_p:
+                if close_p <= (b2_close - 0.5 * b2_body):
+                    patterns.append("Evening Star (Bearish Reversal)")
         
     return patterns
+
+def calculate_adx(df: pd.DataFrame, period: int = 14) -> Dict[str, Any]:
+    if len(df) < (period * 2):
+        return {"adx": 20.0, "plus_di": 20.0, "minus_di": 20.0, "trend_strength": "WEAK", "is_trending": False, "directional_bias": "NEUTRAL"}
+
+    high = df['High']
+    low = df['Low']
+    close_prev = df['Close'].shift(1)
+
+    tr1 = high - low
+    tr2 = (high - close_prev).abs()
+    tr3 = (low - close_prev).abs()
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+
+    up_move = high.diff()
+    down_move = -low.diff()
+
+    plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
+    minus_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+
+    atr_smooth = tr.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+    plus_di = 100.0 * (pd.Series(plus_dm, index=df.index).ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean() / atr_smooth.replace(0, np.nan))
+    minus_di = 100.0 * (pd.Series(minus_dm, index=df.index).ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean() / atr_smooth.replace(0, np.nan))
+
+    dx = 100.0 * ((plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan))
+    adx = dx.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean().fillna(20.0)
+
+    curr_adx = float(adx.iloc[-1])
+    curr_plus_di = float(plus_di.iloc[-1])
+    curr_minus_di = float(minus_di.iloc[-1])
+
+    if curr_adx >= 35.0:
+        strength = "STRONG_TREND"
+    elif curr_adx >= 25.0:
+        strength = "TRENDING"
+    elif curr_adx >= 20.0:
+        strength = "MODERATE"
+    else:
+        strength = "WEAK_CHOP"
+
+    return {
+        "adx": round(curr_adx, 2),
+        "plus_di": round(curr_plus_di, 2),
+        "minus_di": round(curr_minus_di, 2),
+        "trend_strength": strength,
+        "is_trending": curr_adx >= 25.0,
+        "directional_bias": "BULLISH" if curr_plus_di > curr_minus_di else "BEARISH"
+    }
+
+def calculate_cpr(df: pd.DataFrame) -> Dict[str, Any]:
+    if len(df) < 2 or not all(col in df.columns for col in ['High', 'Low', 'Close']):
+        return {"pivot": 0.0, "tc": 0.0, "bc": 0.0, "width_pct": 0.0, "regime": "AVERAGE_CPR", "price_position": "INSIDE_CPR"}
+
+    prior = df.iloc[-2]
+    p_high = float(prior['High'])
+    p_low = float(prior['Low'])
+    p_close = float(prior['Close'])
+
+    pivot = (p_high + p_low + p_close) / 3.0
+    bc = (p_high + p_low) / 2.0
+    tc = (2.0 * pivot) - bc
+
+    top_cpr = max(tc, bc)
+    bottom_cpr = min(tc, bc)
+    width_pct = abs(tc - bc) / pivot * 100.0 if pivot > 0 else 0.0
+
+    curr_close = float(df['Close'].iloc[-1])
+
+    if width_pct <= 0.35:
+        cpr_type = "NARROW_CPR (Breakout Candidate)"
+    elif width_pct >= 0.90:
+        cpr_type = "WIDE_CPR (Range-bound Day Expected)"
+    else:
+        cpr_type = "AVERAGE_CPR"
+
+    if curr_close > top_cpr:
+        position = "ABOVE_CPR (Bullish Bias)"
+    elif curr_close < bottom_cpr:
+        position = "BELOW_CPR (Bearish Bias)"
+    else:
+        position = "INSIDE_CPR (Consolidation Zone)"
+
+    return {
+        "pivot": round(pivot, 2),
+        "tc": round(top_cpr, 2),
+        "bc": round(bottom_cpr, 2),
+        "width_pct": round(width_pct, 2),
+        "regime": cpr_type,
+        "price_position": position
+    }
+
+def calculate_stoch_rsi(series: pd.Series, rsi_period: int = 14, stoch_period: int = 14, k_period: int = 3, d_period: int = 3) -> Dict[str, Any]:
+    rsi = calculate_rsi(series, rsi_period)
+    rsi_low = rsi.rolling(window=stoch_period).min()
+    rsi_high = rsi.rolling(window=stoch_period).max()
+
+    denom = (rsi_high - rsi_low).replace(0, np.nan)
+    stoch = ((rsi - rsi_low) / denom) * 100.0
+    stoch = stoch.fillna(50.0)
+
+    k = stoch.rolling(window=k_period).mean().fillna(50.0)
+    d = k.rolling(window=d_period).mean().fillna(50.0)
+
+    curr_k = float(k.iloc[-1])
+    curr_d = float(d.iloc[-1])
+
+    if curr_k < 25.0 and curr_k > curr_d:
+        status = "OVERSOLD_BULLISH_CROSS"
+    elif curr_k > 75.0 and curr_k < curr_d:
+        status = "OVERBOUGHT_BEARISH_CROSS"
+    elif curr_k > 50.0:
+        status = "BULLISH_ZONE"
+    else:
+        status = "BEARISH_ZONE"
+
+    return {
+        "k": round(curr_k, 2),
+        "d": round(curr_d, 2),
+        "status": status
+    }
 
 def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
     if len(df) < 30:
@@ -220,8 +369,10 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
     # Candlestick patterns
     candlestick_patterns = detect_candlestick_patterns(df)
     for pat in candlestick_patterns:
-        if "Hammer" in pat or "Bullish Engulfing" in pat:
-            bullish_factors.append(f"Candlestick reversal signal: {pat}")
+        if "Hammer" in pat or "Bullish Engulfing" in pat or "Morning Star" in pat:
+            bullish_factors.append(f"Candlestick bullish reversal signal: {pat}")
+        elif "Shooting Star" in pat or "Bearish Engulfing" in pat or "Evening Star" in pat:
+            bearish_factors.append(f"Candlestick bearish reversal signal: {pat}")
             
     # Fibonacci Retracements (from 60-day or available swing)
     lookback_bars = min(len(df), 60)
@@ -236,6 +387,33 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
         bullish_factors.append(f"Price at Fibonacci 61.8% Golden Pocket support (INR {fib_618})")
     elif current_price > 0 and abs(current_price - fib_500) / current_price <= 0.018:
         bullish_factors.append(f"Price at Fibonacci 50.0% median retracement support (INR {fib_500})")
+
+    # ADX Trend Strength & Directional Movement
+    adx_info = calculate_adx(df, 14)
+    if adx_info.get("is_trending"):
+        if adx_info.get("directional_bias") == "BULLISH":
+            bullish_factors.append(f"ADX confirms trend strength ({adx_info['adx']}) with Bullish Directional Bias")
+        else:
+            bearish_factors.append(f"ADX confirms trend strength ({adx_info['adx']}) with Bearish Directional Bias")
+    elif adx_info.get("trend_strength") == "WEAK_CHOP":
+        bearish_factors.append(f"ADX signals low momentum chop ({adx_info['adx']}) - consolidation range")
+
+    # Central Pivot Range (CPR)
+    cpr_info = calculate_cpr(df)
+    if "ABOVE_CPR" in cpr_info.get("price_position", ""):
+        bullish_factors.append(f"Price above Central Pivot Range (CPR Pivot: INR {cpr_info['pivot']})")
+    elif "BELOW_CPR" in cpr_info.get("price_position", ""):
+        bearish_factors.append(f"Price below Central Pivot Range (CPR Pivot: INR {cpr_info['pivot']})")
+    
+    if "NARROW_CPR" in cpr_info.get("regime", ""):
+        bullish_factors.append(f"Narrow CPR detected ({cpr_info['width_pct']}%) - high breakout probability")
+
+    # Stochastic RSI
+    stoch_rsi = calculate_stoch_rsi(close, 14, 14, 3, 3)
+    if stoch_rsi.get("status") == "OVERSOLD_BULLISH_CROSS":
+        bullish_factors.append(f"Stochastic RSI oversold bullish crossover (%K: {stoch_rsi['k']})")
+    elif stoch_rsi.get("status") == "OVERBOUGHT_BEARISH_CROSS":
+        bearish_factors.append(f"Stochastic RSI overbought bearish crossover (%K: {stoch_rsi['k']})")
         
     # Order Flow & Smart Money Concepts
     order_flow = analyze_order_flow(df)
@@ -274,6 +452,9 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
         "trend": trend,
         "score": score,
         "rsi": round(current_rsi, 2),
+        "adx": adx_info,
+        "cpr": cpr_info,
+        "stoch_rsi": stoch_rsi,
         "macd": {
             "macd": round(current_macd, 2),
             "signal": round(current_signal, 2),
