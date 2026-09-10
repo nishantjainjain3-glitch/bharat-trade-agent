@@ -32,5 +32,38 @@
       "tier": "NORMAL",
       "nifty_change": -0.86
     }
+  },
+  {
+    "id": 4,
+    "timestamp": "2026-09-10 11:14:41 IST",
+    "category": "BRIEFING",
+    "title": "Morning Briefing Dispatched",
+    "content": "🌅 *BHARAT TRADE AGENT — MORNING BRIEFING*\n📅 _Thursday, 10 September 2026 | 11:14 IST_\n🛡️ *Broker Mode:* `SIMULATION` (Angel One)\n\n🌐 *Global & Benchmark Cues:*\n• Nifty 50 Prev Close: *+0.01%*\n• India VIX: *14.20* (Low/Calm)\n• Survival Tier: *NORMAL* (1.0x sizing multiplier)\n\n💼 *Account Snapshot:*\n• Total Equity: *₹208,450.00*\n• Available Cash: *₹125,000.00*\n• Invested Margin: *₹75,000.00*\n• Overall P&L: *🟢 ₹+8,450.00 (+4.22%)*\n\n📊 *Open Positions (2):*\n• *RELIANCE*: 15 qty @ ₹2,960.0 (🟢 ₹+1,650.0)\n• *TCS*: 8 qty @ ₹4,250.0 (🟢 ₹+1,200.0)\n\n🎯 *Multi-Asset Tactical Battle Plan:*\n• *Indices*: Watching NIFTYBEES / BANKBEES 15m Bollinger mean-reversion.\n• *Commodities*: GOLDBEES / SILVERBEES 4h 50 EMA trend support active.\n• *Equities*: Scanning 1h volume breakouts on momentum leaders.\n\n⚖️ _Risk Mandate: Strict 1% ATR Volatility-Parity sizing per trade._",
+    "metadata": {
+      "status": false,
+      "message": "Telegram not configured. Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID to .env."
+    }
+  },
+  {
+    "id": 5,
+    "timestamp": "2026-09-10 11:15:05 IST",
+    "category": "BRIEFING",
+    "title": "Morning Briefing Dispatched",
+    "content": "🌅 *BHARAT TRADE AGENT — MORNING BRIEFING*\n📅 _Thursday, 10 September 2026 | 11:14 IST_\n🛡️ *Broker Mode:* `LIVE` (Angel One)\n\n🌐 *Global & Benchmark Cues:*\n• Nifty 50 Prev Close: *+0.03%*\n• India VIX: *14.20* (Low/Calm)\n• Survival Tier: *CIRCUIT_BREAKER* (0.0x sizing multiplier)\n\n💼 *Account Snapshot:*\n• Total Equity: *₹50,165.09*\n• Available Cash: *₹64.66*\n• Invested Margin: *₹50,100.43*\n• Overall P&L: *🟢 ₹+0.00 (+0.00%)*\n\n📊 *Open Positions (15):*\n• *GOLDBEES*: 71 qty @ ₹126.7 (🔴 ₹-50.0)\n• *TEXMOPIPES*: 345 qty @ ₹60.8 (🔴 ₹-2,316.0)\n• *ONGC*: 1 qty @ ₹237.4 (🔴 ₹-64.0)\n• *MANAPPURAM*: 1 qty @ ₹325.3 (🟢 ₹+120.0)\n• *NHPC*: 1 qty @ ₹76.4 (🔴 ₹-17.0)\n\n🎯 *Multi-Asset Tactical Battle Plan:*\n• *Indices*: Watching NIFTYBEES / BANKBEES 15m Bollinger mean-reversion.\n• *Commodities*: GOLDBEES / SILVERBEES 4h 50 EMA trend support active.\n• *Equities*: Scanning 1h volume breakouts on momentum leaders.\n\n⚖️ _Risk Mandate: Strict 1% ATR Volatility-Parity sizing per trade._",
+    "metadata": {
+      "status": true,
+      "message": "Message sent successfully"
+    }
+  },
+  {
+    "id": 6,
+    "timestamp": "2026-09-10 11:15:31 IST",
+    "category": "BRIEFING",
+    "title": "Evening Report Dispatched",
+    "content": "🌇 *BHARAT TRADE AGENT — EVENING REPORT*\n📅 _Thursday, 10 September 2026 | 11:15 IST_\n🛡️ *Broker Mode:* `SIMULATION` (Angel One)\n\n📈 *Day Closing Financials:*\n• Total Portfolio Value: *₹208,450.00*\n• Available Cash Balance: *₹125,000.00*\n• Capital in Positions: *₹75,000.00*\n• Portfolio P&L: *🟢 ₹+8,450.00 (+4.22%)*\n\n💼 *Holdings Status (2 active):*\n• *RELIANCE*: 15 shares @ ₹2,960.0 | 🟢 ₹+1,650.0\n• *TCS*: 8 shares @ ₹4,250.0 | 🟢 ₹+1,200.0\n\n🤖 *System Status & Health:*\n• Execution Engine: *Online & Synced*\n• Telegram Command Center: *Active*\n• Volatility-Parity Position Guard: *Enforced*\n\n_Rest well. Tomorrow's morning briefing arrives at 08:45 AM IST._",
+    "metadata": {
+      "status": true,
+      "message": "Message sent successfully"
+    }
   }
 ]

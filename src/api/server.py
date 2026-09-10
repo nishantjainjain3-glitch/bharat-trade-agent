@@ -45,6 +45,14 @@ from src.analysis.order_flow import analyze_order_flow
 from src.analysis.volatility_regimes import analyze_volatility_regime
 from src.broker.execution_algos import execution_engine
 from src.notifications.telegram_listener import telegram_listener
+from src.notifications.daily_briefings import (
+    daily_briefing_scheduler,
+    send_morning_briefing,
+    send_evening_report,
+    build_morning_briefing,
+    build_evening_report
+)
+from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,9 +60,11 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(agent_heartbeat.execute_cycle())
     if telegram_listener.is_configured():
         asyncio.create_task(telegram_listener.start())
+        asyncio.create_task(daily_briefing_scheduler.start())
     yield
     agent_heartbeat.stop()
     telegram_listener.stop()
+    daily_briefing_scheduler.stop()
 
 app = FastAPI(title="Bharat Trade Agent", version="2.0.0", lifespan=lifespan)
 
@@ -401,6 +411,40 @@ def execute_vwap_endpoint(req: AlgoOrderRequest):
         return res
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/multi-asset/scan")
+def multi_asset_scan_endpoint():
+    try:
+        portfolio = angel_client.get_portfolio_summary()
+        tot_val = float(portfolio.get("total_portfolio_value", 125000.0))
+        cash = float(portfolio.get("available_cash", 125000.0))
+        hb = agent_heartbeat.get_status()
+        tier_mult = float(hb.get("survival_tier", {}).get("position_size_multiplier", 1.0))
+        return scan_multi_asset_opportunities(
+            account_equity=tot_val,
+            available_cash=cash,
+            tier_multiplier=tier_mult
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/briefing/morning")
+def morning_briefing_endpoint(dispatch: bool = False):
+    try:
+        if dispatch:
+            return send_morning_briefing()
+        return {"briefing": build_morning_briefing()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/briefing/evening")
+def evening_report_endpoint(dispatch: bool = False):
+    try:
+        if dispatch:
+            return send_evening_report()
+        return {"report": build_evening_report()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):

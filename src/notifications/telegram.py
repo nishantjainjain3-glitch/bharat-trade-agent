@@ -1,6 +1,9 @@
 import os
 import requests
 from typing import Dict, Any, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def send_telegram_text(message: str, chat_id: Optional[str] = None) -> Dict[str, Any]:
     """

@@ -6,6 +6,7 @@ from typing import Dict, Any, Optional
 from src.engine.risk_tiers import evaluate_survival_tier, SurvivalTier
 from src.engine.constitution import get_constitution_articles, validate_order_against_constitution
 from src.engine.memory import memory_journal
+from src.engine.position_sizer import calculate_volatility_parity_position
 from src.data.macro_data import get_indian_macro_indicators
 from src.analysis.screener import get_top_buy_recommendations
 from src.broker.angel_one import angel_client
@@ -108,9 +109,28 @@ class AutonomousHeartbeat:
                         conviction = int(rec.get("conviction", 0))
 
                         if conviction >= 8 and 0 < price <= cash:
-                            qty = max(1, int(min(cash * 0.4, 25000.0) // price))
-                            sl = float(rec.get("stop_loss", price * 0.97))
-                            tp = float(rec.get("target_price", price * 1.05))
+                            raw_sl = float(rec.get("stop_loss", price * 0.97))
+                            atr_est = float(rec.get("atr", abs(price - raw_sl) / 2.0 if raw_sl else price * 0.015))
+                            tier_mult = float(self.current_tier.get("position_size_multiplier", 1.0))
+
+                            pos_plan = calculate_volatility_parity_position(
+                                account_equity=current_equity,
+                                current_price=price,
+                                atr=atr_est,
+                                risk_pct=0.01,
+                                atr_stop_multiple=2.0,
+                                target_rr_ratio=2.0,
+                                tier_multiplier=tier_mult,
+                                available_cash=cash,
+                                max_allocation_pct=0.35
+                            )
+
+                            if not pos_plan.get("allowed") or pos_plan.get("quantity", 0) <= 0:
+                                continue
+
+                            qty = pos_plan["quantity"]
+                            sl = pos_plan["stop_loss"]
+                            tp = pos_plan["target_price"]
 
                             val = validate_order_against_constitution(
                                 symbol=sym,

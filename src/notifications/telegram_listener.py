@@ -9,6 +9,8 @@ from src.data.market_data import get_stock_quote, get_historical_bars, normalize
 from src.analysis.order_flow import analyze_order_flow
 from src.analysis.volatility_regimes import analyze_volatility_regime
 from src.notifications.telegram import send_telegram_text
+from src.notifications.daily_briefings import build_morning_briefing, build_evening_report
+from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
 from src.engine.constitution import validate_order_against_constitution
 from src.engine.memory import memory_journal
 
@@ -94,6 +96,9 @@ class TelegramBotListener:
             reply = (
                 "🤖 *Bharat Trade Agent Command Center*\n\n"
                 "Available Commands:\n"
+                "• `/briefing` — Pre-market Morning Intelligence (08:45 AM preview)\n"
+                "• `/report` — Post-market Evening Performance Report (16:00 PM preview)\n"
+                "• `/multiasset` — Scan Indices, Commodities & Momentum Equities\n"
                 "• `/portfolio` or `/holdings` — Live Angel One portfolio & PnL\n"
                 "• `/funds` — Available trading cash & margin\n"
                 "• `/quote <SYM>` — Live price & day change (e.g. `/quote RELIANCE`)\n"
@@ -106,6 +111,56 @@ class TelegramBotListener:
                 "• `/help` — Show this guide"
             )
             send_telegram_text(reply, chat_id)
+
+        elif cmd in ["/briefing", "/morning"]:
+            send_telegram_text("⏳ *Generating Morning Briefing...*", chat_id)
+            try:
+                msg = build_morning_briefing()
+                send_telegram_text(msg, chat_id)
+            except Exception as e:
+                send_telegram_text(f"⚠️ Failed to generate briefing: {e}", chat_id)
+
+        elif cmd in ["/report", "/evening"]:
+            send_telegram_text("⏳ *Compiling Evening Report...*", chat_id)
+            try:
+                msg = build_evening_report()
+                send_telegram_text(msg, chat_id)
+            except Exception as e:
+                send_telegram_text(f"⚠️ Failed to generate report: {e}", chat_id)
+
+        elif cmd in ["/multiasset", "/strategies"]:
+            send_telegram_text("⏳ *Scanning Multi-Asset Universe (Indices, Commodities, Momentum Equities)...*", chat_id)
+            try:
+                summary = angel_client.get_portfolio_summary()
+                tot_val = float(summary.get("total_portfolio_value", 125000.0))
+                cash = float(summary.get("available_cash", 125000.0))
+                res = scan_multi_asset_opportunities(account_equity=tot_val, available_cash=cash)
+                filt = res.get("correlation_filter", {})
+                opps = res.get("opportunities", [])
+                lines = [
+                    "🎯 *Multi-Asset Strategy Scan*",
+                    f"• Market Correlation: *{filt.get('status', 'OK')}*",
+                    f"• Nifty RSI: {filt.get('nifty_rsi', 50.0)} | VIX: {filt.get('india_vix', 14.0)}",
+                    f"• Setups Found: *{len(opps)}*\n"
+                ]
+                if opps:
+                    for op in opps[:5]:
+                        st = op.get("strategy_type", "").replace("_", " ")
+                        sym = op.get("symbol", "")
+                        ep = op.get("entry_price", 0.0)
+                        sl = op.get("stop_loss", 0.0)
+                        tp = op.get("target_price", 0.0)
+                        conv = op.get("conviction", 7)
+                        cs = op.get("correlation_status", "PASSED")
+                        ps = op.get("position_sizing", {})
+                        qty = ps.get("quantity", 0)
+                        lines.append(f"• *{sym}* [{st}]: Entry ₹{ep:,.1f} | SL ₹{sl:,.1f} | TP ₹{tp:,.1f}")
+                        lines.append(f"  _Sizing: {qty} shares | Conviction: {conv}/10 | Status: {cs}_")
+                else:
+                    lines.append("• _No active trigger setups at this moment. Waiting for edge alignment._")
+                send_telegram_text("\n".join(lines), chat_id)
+            except Exception as e:
+                send_telegram_text(f"⚠️ Multi-asset scan error: {e}", chat_id)
 
         elif cmd in ["/portfolio", "/holdings"]:
             summary = angel_client.get_portfolio_summary()
