@@ -6,15 +6,43 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
 from datetime import datetime
 
+import time
+
+_tavily_cache: Dict[str, Dict[str, Any]] = {}
+_tavily_usage = {
+    "date": "",
+    "daily_count": 0,
+    "max_daily_budget": 25  # 25/day * 30 days = 750/month (well within 1,000 free limit)
+}
+
 def fetch_tavily_stock_news(symbol: str, company_name: str = "") -> List[Dict[str, Any]]:
     """
     Fetches clean, verified live financial news using Tavily AI Search API.
+    Includes a 45-minute per-symbol cache and a 25 query/day budget guard
+    to strictly prevent exceeding the 1,000 monthly free credit tier.
     """
     api_key = os.getenv("TAVILY_API_KEY", "").strip()
     if not api_key:
         return []
 
     clean_sym = symbol.replace(".NS", "").replace(".BO", "").replace("^", "")
+    now_ts = time.time()
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+    # 1. Return cached results if fetched within last 45 minutes
+    cached = _tavily_cache.get(clean_sym)
+    if cached and (now_ts - cached["timestamp"]) < 2700:
+        return cached["results"]
+
+    # 2. Daily budget check and rollover
+    if _tavily_usage["date"] != today_str:
+        _tavily_usage["date"] = today_str
+        _tavily_usage["daily_count"] = 0
+
+    if _tavily_usage["daily_count"] >= _tavily_usage["max_daily_budget"]:
+        # Budget preserved for today; seamlessly fall back to unlimited RSS feeds
+        return []
+
     query = f"{clean_sym} {company_name} latest news Indian stock market NSE BSE"
     try:
         payload = {
@@ -37,6 +65,12 @@ def fetch_tavily_stock_news(symbol: str, company_name: str = "") -> List[Dict[st
                     "published_at": r.get("published_date") or datetime.now().strftime("%a, %d %b %Y"),
                     "snippet": r.get("content", "")[:180]
                 })
+
+            _tavily_usage["daily_count"] += 1
+            _tavily_cache[clean_sym] = {
+                "timestamp": now_ts,
+                "results": items
+            }
             return items
     except Exception:
         pass
