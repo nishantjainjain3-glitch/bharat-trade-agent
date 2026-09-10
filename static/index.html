@@ -253,6 +253,12 @@
         </div>
       </div>
 
+      <!-- Analysis Progress Banner -->
+      <div id="analysisStatusBanner" class="hidden p-4 rounded-xl bg-indigo-950/50 border border-indigo-500/40 text-indigo-200 text-xs flex items-center gap-3 shadow-lg">
+        <svg class="w-4 h-4 animate-spin text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+        <span id="analysisStatusText" class="font-medium">Analyzing stock: fetching live market data, indicators, and AI models...</span>
+      </div>
+
       <!-- Analysis Result Section -->
       <div id="resultContainer" class="space-y-6">
         <!-- Stock Live Snapshot Card -->
@@ -1543,9 +1549,28 @@ LIVE_EXECUTION_ENABLED=false
     }
 
     async function quickAnalyze(symbol) {
-      document.getElementById('symbolInput').value = symbol;
-      document.getElementById('loadingSpinner').classList.remove('hidden');
-      document.getElementById('analyzeBtn').classList.add('opacity-70', 'pointer-events-none');
+      if (!symbol) return;
+
+      // 1. Immediately switch to the Research tab and scroll to top
+      switchTab('research');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // 2. Populate input and activate loading states
+      const input = document.getElementById('symbolInput');
+      if (input) input.value = symbol;
+
+      const spinner = document.getElementById('loadingSpinner');
+      if (spinner) spinner.classList.remove('hidden');
+
+      const btn = document.getElementById('analyzeBtn');
+      if (btn) btn.classList.add('opacity-70', 'pointer-events-none');
+
+      const banner = document.getElementById('analysisStatusBanner');
+      const bannerText = document.getElementById('analysisStatusText');
+      if (banner && bannerText) {
+        bannerText.textContent = `Analyzing ${symbol}: gathering live NSE bars, technical indicators, order flow, and AI research...`;
+        banner.classList.remove('hidden');
+      }
 
       try {
         const [analyzeRes, historyRes] = await Promise.all([
@@ -1559,7 +1584,7 @@ LIVE_EXECUTION_ENABLED=false
 
         if (!analyzeRes.ok) {
           const err = await analyzeRes.json();
-          alert('Error: ' + (err.detail || 'Failed to analyze'));
+          alert('Error: ' + (err.detail || 'Failed to analyze ' + symbol));
           return;
         }
 
@@ -1573,8 +1598,9 @@ LIVE_EXECUTION_ENABLED=false
         console.error(e);
         alert('Network or server error while analyzing ' + symbol);
       } finally {
-        document.getElementById('loadingSpinner').classList.add('hidden');
-        document.getElementById('analyzeBtn').classList.remove('opacity-70', 'pointer-events-none');
+        if (spinner) spinner.classList.add('hidden');
+        if (btn) btn.classList.remove('opacity-70', 'pointer-events-none');
+        if (banner) banner.classList.add('hidden');
       }
     }
 
@@ -2033,8 +2059,8 @@ LIVE_EXECUTION_ENABLED=false
               ${hPos ? '+' : ''}₹${pnlVal.toFixed(2)} (${hPos ? '+' : ''}${pnlPct.toFixed(2)}%)
             </td>
             <td class="py-2.5 px-3 text-right">
-              <button onclick="quickAnalyze('${sym.replace('-EQ', '')}')" class="text-xs text-indigo-400 hover:text-indigo-300 px-2 py-1 bg-slate-800 rounded">
-                Analyze
+              <button onclick="quickAnalyze('${sym.replace('-EQ', '')}')" class="text-xs bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:border-indigo-400/50 px-2.5 py-1 rounded font-medium transition inline-flex items-center gap-1 shadow-sm">
+                <span>🔍 Analyze</span>
               </button>
             </td>
           `;
