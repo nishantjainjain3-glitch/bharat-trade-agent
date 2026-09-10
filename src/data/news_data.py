@@ -1,8 +1,46 @@
+import os
+import requests
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
 from datetime import datetime
+
+def fetch_tavily_stock_news(symbol: str, company_name: str = "") -> List[Dict[str, Any]]:
+    """
+    Fetches clean, verified live financial news using Tavily AI Search API.
+    """
+    api_key = os.getenv("TAVILY_API_KEY", "").strip()
+    if not api_key:
+        return []
+
+    clean_sym = symbol.replace(".NS", "").replace(".BO", "").replace("^", "")
+    query = f"{clean_sym} {company_name} latest news Indian stock market NSE BSE"
+    try:
+        payload = {
+            "api_key": api_key,
+            "query": query,
+            "search_depth": "basic",
+            "topic": "news",
+            "max_results": 5
+        }
+        res = requests.post("https://api.tavily.com/search", json=payload, timeout=4)
+        if res.status_code == 200:
+            data = res.json()
+            items = []
+            for r in data.get("results", []):
+                domain = r.get("url", "").split("/")[2].replace("www.", "") if "/" in r.get("url", "") else "Financial Press"
+                items.append({
+                    "title": r.get("title", "").strip(),
+                    "source": domain,
+                    "link": r.get("url", "#"),
+                    "published_at": r.get("published_date") or datetime.now().strftime("%a, %d %b %Y"),
+                    "snippet": r.get("content", "")[:180]
+                })
+            return items
+    except Exception:
+        pass
+    return []
 
 def fetch_rss_items(url: str, headers: dict, default_source: str = "Financial Press") -> List[Dict[str, Any]]:
     items = []
@@ -48,6 +86,11 @@ def get_indian_stock_news(symbol: str, company_name: str = "") -> List[Dict[str,
     }
     
     all_news = []
+    # 0. Tavily AI Search (real-time breaking Indian equity news)
+    tavily_news = fetch_tavily_stock_news(symbol, company_name)
+    if tavily_news:
+        all_news.extend(tavily_news)
+
     # 1. Primary targeted Google News query
     all_news.extend(fetch_rss_items(google_url, headers, default_source="Google News India"))
     
