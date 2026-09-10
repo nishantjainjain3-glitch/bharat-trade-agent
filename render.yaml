@@ -8,3 +8,9 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.15
+      - key: AUTOTRADE_ENABLED
+        value: "true"
+      - key: LIVE_EXECUTION_ENABLED
+        value: "true"
+      - key: TRADE_EXECUTION_LOCKED
+        value: "false"

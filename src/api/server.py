@@ -149,7 +149,10 @@ def get_system_status():
         "angel_one_configured": angel_client.is_configured,
         "telegram_configured": bool(os.getenv("TELEGRAM_BOT_TOKEN") and os.getenv("TELEGRAM_CHAT_ID")),
         "survival_tier": hb.get("survival_tier", {}).get("tier", "NORMAL"),
-        "market_session": hb.get("market_session", "UNKNOWN")
+        "market_session": hb.get("market_session", "UNKNOWN"),
+        "autotrade_enabled": os.getenv("AUTOTRADE_ENABLED", "false").lower() in ("true", "1"),
+        "live_execution_enabled": os.getenv("LIVE_EXECUTION_ENABLED", "false").lower() in ("true", "1"),
+        "trade_execution_locked": angel_client.is_trade_locked()
     }
 
 @app.get("/api/agent/state")
