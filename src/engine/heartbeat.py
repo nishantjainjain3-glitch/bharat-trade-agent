@@ -104,11 +104,18 @@ class AutonomousHeartbeat:
         trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "false").lower() in ("true", "1")
         if autotrade_enabled and not trade_locked and self.market_session == "MARKET_OPEN" and self.current_tier.get("trading_allowed", True):
             cash = float(portfolio.get("available_cash", 0.0))
-            if self.cycle_count % 5 == 0 and cash >= 50.0:
+            if cash >= 50.0:
                 try:
-                    recs = get_top_buy_recommendations(limit=2)
+                    existing_syms = [
+                        str(h.get("tradingsymbol", "")).replace("-EQ", "").replace(".NS", "").upper()
+                        for h in portfolio.get("holdings", [])
+                    ]
+                    recs = get_top_buy_recommendations(limit=4)
                     for rec in recs:
                         sym = rec.get("symbol", "")
+                        clean_sym = sym.replace(".NS", "").replace("-EQ", "").upper()
+                        if clean_sym in existing_syms:
+                            continue
                         price = float(rec.get("price", 0.0))
                         conviction = int(rec.get("conviction", 0))
 
