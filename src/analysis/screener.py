@@ -342,3 +342,85 @@ def get_preset_screener_recommendations(preset: str = "ALL", limit: int = 4) -> 
 
 def get_top_buy_recommendations(limit: int = 4) -> List[Dict[str, Any]]:
     return get_preset_screener_recommendations(preset="ALL", limit=limit)
+
+def get_high_momentum_breakouts(limit: int = 5, target_pct: float = 5.5, stop_pct: float = 2.5) -> List[Dict[str, Any]]:
+    """
+    Scans real-time market movers and volume breakout leaders across NSE via Angel One API.
+    Identifies high-velocity stocks capable of 5% - 10% gains intraday or within 1-2 days.
+    """
+    import os, json, re
+    from src.broker.angel_one import angel_client
+    
+    tokens_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "angel_tokens.json")
+    tokens_map = {}
+    if os.path.exists(tokens_file):
+        try:
+            with open(tokens_file, "r", encoding="utf-8") as f:
+                tokens_map = json.load(f)
+        except Exception:
+            pass
+
+    # 1. Fetch real-time market gainers from Angel One
+    raw_gainers = angel_client.get_market_gainers(datatype="PercPriceGainers", expirytype="NEAR")
+    
+    # 2. Extract underlying equity symbols and map to tokens
+    symbol_token_map = {}
+    for g in raw_gainers:
+        ts = g.get("tradingSymbol", "")
+        clean_sym = re.sub(r"\d{2}[A-Z]{3}\d{2}FUT", "", ts).strip().upper()
+        tok = tokens_map.get(clean_sym)
+        if tok and clean_sym not in symbol_token_map:
+            symbol_token_map[clean_sym] = tok
+
+    # Also include known momentum movers if in token database
+    for extra in ["PINELABS", "INDUSTOWER", "YESBANK", "PAYTM", "SUZLON"]:
+        if extra in tokens_map and extra not in symbol_token_map:
+            symbol_token_map[extra] = tokens_map[extra]
+
+    if not symbol_token_map:
+        return []
+
+    # 3. Batch fetch real-time full quotes from Angel One
+    tokens_to_fetch = list(symbol_token_map.values())[:25]
+    quotes = angel_client.get_batch_quotes(tokens_to_fetch, exchange="NSE")
+
+    candidates = []
+    for q in quotes:
+        raw_sym = str(q.get("tradingSymbol", "")).replace("-EQ", "").upper()
+        ltp = float(q.get("ltp") or 0.0)
+        day_chg = float(q.get("percentChange") or 0.0)
+        volume = int(q.get("tradeVolume") or 0)
+        day_high = float(q.get("high") or ltp)
+        day_low = float(q.get("low") or ltp)
+
+        if ltp <= 0 or volume < 500000:
+            continue
+
+        tp = round(ltp * (1.0 + target_pct / 100.0), 2)
+        sl = round(ltp * (1.0 - stop_pct / 100.0), 2)
+        conviction = 8
+        if day_chg >= 4.0:
+            conviction = 9
+        if volume > 10000000:
+            conviction = min(10, conviction + 1)
+
+        candidates.append({
+            "symbol": raw_sym,
+            "name": raw_sym,
+            "price": ltp,
+            "day_change_pct": round(day_chg, 2),
+            "volume": volume,
+            "day_high": day_high,
+            "day_low": day_low,
+            "target_price": tp,
+            "target_return_pct": target_pct,
+            "stop_loss": sl,
+            "stop_loss_pct": stop_pct,
+            "risk_reward_ratio": round(target_pct / stop_pct, 2),
+            "expected_hold": "Same day to 2 days",
+            "conviction": conviction,
+            "strategy": "High-Volume Real-Time Breakout"
+        })
+
+    candidates.sort(key=lambda x: (-x["day_change_pct"], -x["volume"]))
+    return candidates[:limit]

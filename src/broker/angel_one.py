@@ -303,4 +303,70 @@ class AngelOneClient:
         except Exception as e:
             return {"status": False, "mode": "LIVE_ERROR", "message": f"Order placement failed: {str(e)}"}
 
+    def get_market_gainers(self, datatype: str = "PercPriceGainers", expirytype: str = "NEAR") -> List[Dict[str, Any]]:
+        """Fetches real-time market gainers directly from Angel One."""
+        if not self.is_configured:
+            return []
+        if not self.jwt_token:
+            self.login()
+
+        url = "https://apiconnect.angelone.in/rest/secure/angelbroking/marketData/v1/gainersLosers"
+        headers = {
+            "Authorization": f"Bearer {self.jwt_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-UserType": "USER",
+            "X-SourceID": "WEB",
+            "X-ClientLocalIP": "127.0.0.1",
+            "X-ClientPublicIP": self.public_ip,
+            "X-MACAddress": "MAC_ADDRESS",
+            "X-PrivateKey": self.api_key
+        }
+        payload = {
+            "datatype": datatype,
+            "expirytype": expirytype
+        }
+        try:
+            res = requests.post(url, json=payload, headers=headers, timeout=8)
+            data = res.json()
+            if data.get("status"):
+                return data.get("data", [])
+        except Exception:
+            pass
+        return []
+
+    def get_batch_quotes(self, tokens: List[str], exchange: str = "NSE") -> List[Dict[str, Any]]:
+        """Fetches full real-time quotes (LTP, % change, volume, high, low) from Angel One."""
+        if not self.is_configured or not tokens:
+            return []
+        if not self.jwt_token:
+            self.login()
+
+        url = "https://apiconnect.angelone.in/rest/secure/angelbroking/market/v1/quote"
+        headers = {
+            "Authorization": f"Bearer {self.jwt_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-UserType": "USER",
+            "X-SourceID": "WEB",
+            "X-ClientLocalIP": "127.0.0.1",
+            "X-ClientPublicIP": self.public_ip,
+            "X-MACAddress": "MAC_ADDRESS",
+            "X-PrivateKey": self.api_key
+        }
+        payload = {
+            "mode": "FULL",
+            "exchangeTokens": {
+                exchange: [str(t) for t in tokens[:50]]
+            }
+        }
+        try:
+            res = requests.post(url, json=payload, headers=headers, timeout=8)
+            data = res.json()
+            if data.get("status"):
+                return data.get("data", {}).get("fetched", [])
+        except Exception:
+            pass
+        return []
+
 angel_client = AngelOneClient()

@@ -23,9 +23,11 @@ from src.data.macro_data import (
     get_nse_sector_heatmap,
     get_indian_macro_event_probabilities
 )
-from src.data.news_data import get_indian_stock_news
-from src.analysis.screener import get_top_buy_recommendations, get_preset_screener_recommendations
-from src.analysis.sector_rotation import get_nifty_sector_rotation
+from src.analysis.screener import (
+    get_top_buy_recommendations, 
+    get_preset_screener_recommendations,
+    get_high_momentum_breakouts
+)
 from src.analysis.backtester import backtest_strategy, run_parameter_sweep
 from src.notifications.telegram import send_telegram_trade_alert, send_telegram_text
 from src.analysis.technical import analyze_technical_indicators
@@ -230,6 +232,10 @@ def get_recommendations(preset: str = "ALL"):
 @app.get("/api/screener/top-buys")
 def get_screener_top_buys(preset: str = "ALL"):
     return get_preset_screener_recommendations(preset=preset, limit=4)
+
+@app.get("/api/screener/momentum-breakouts")
+def get_screener_momentum_breakouts(limit: int = 5, target_pct: float = 5.5, stop_pct: float = 2.5):
+    return get_high_momentum_breakouts(limit=limit, target_pct=target_pct, stop_pct=stop_pct)
 
 @app.get("/api/sectors/rotation")
 def get_sectors_rotation():
