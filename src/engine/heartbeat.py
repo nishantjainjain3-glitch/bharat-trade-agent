@@ -110,6 +110,12 @@ class AutonomousHeartbeat:
 
                 updated_pos = dict(active_pos)
                 for sym, pos_data in active_pos.items():
+                    qty = int(pos_data.get("quantity", 0))
+                    sl = float(pos_data.get("stop_loss", 0.0))
+                    tp = float(pos_data.get("target_price", 0.0))
+                    if qty <= 0:
+                        continue
+
                     ltp = 0.0
                     for h in portfolio.get("holdings", []):
                         h_sym = str(h.get("tradingsymbol", "")).replace("-EQ", "").replace(".NS", "").upper()
@@ -117,6 +123,14 @@ class AutonomousHeartbeat:
                             ltp = float(h.get("ltp") or 0.0)
                             break
                     
+                    if ltp <= 0.0:
+                        try:
+                            from src.data.market_data import get_stock_quote
+                            q = get_stock_quote(f"{sym}.NS")
+                            ltp = float(q.get("current_price") or 0.0)
+                        except Exception:
+                            pass
+
                     if ltp <= 0.0:
                         continue
 

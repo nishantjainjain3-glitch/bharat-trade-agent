@@ -267,5 +267,31 @@
       "price": 364.95,
       "message": "LIVE order executed on Angel One! Order ID: 260911000287670"
     }
+  },
+  {
+    "id": 20,
+    "timestamp": "2026-09-11 10:49:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.78%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 50,751.00.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.78
+    }
+  },
+  {
+    "id": 21,
+    "timestamp": "2026-09-11 11:04:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.83%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 50,972.00.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.83
+    }
   }
 ]
