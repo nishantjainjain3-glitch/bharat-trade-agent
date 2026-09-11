@@ -35,7 +35,23 @@ NSE_SYMBOL_TOKENS = {
     "NIFTYBEES": "10576",
     "BANKBEES": "10577",
     "GOLDBEES": "10578",
-    "SILVERBEES": "10579"
+    "SILVERBEES": "10579",
+    "IDFCFIRSTB": "11184",
+    "PNB": "10666",
+    "BEL": "383",
+    "TATAPOWER": "3426",
+    "SUZLON": "12018",
+    "IRFC": "2029",
+    "JIOFIN": "18143",
+    "FEDERALBNK": "1023",
+    "BHEL": "438",
+    "PFC": "14299",
+    "RECLTD": "15355",
+    "CANBK": "10794",
+    "NATIONALUM": "6364",
+    "ASHOKLEY": "212",
+    "MANAPPURAM": "19061",
+    "TEXMOPIPES": "18214"
 }
 
 TOKENS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "angel_tokens.json")
