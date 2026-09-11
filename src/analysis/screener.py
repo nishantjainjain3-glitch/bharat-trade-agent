@@ -6,6 +6,26 @@ from src.analysis.fundamental import evaluate_fundamentals
 from src.agents.research_team import run_multi_agent_research
 
 UNIVERSE_TICKERS = [
+    # Liquid Midcaps & High-Momentum Growth (Under ₹500, High Volume)
+    {"symbol": "BEL.NS", "name": "Bharat Electronics", "sector": "Defence"},
+    {"symbol": "TATAPOWER.NS", "name": "Tata Power", "sector": "Power"},
+    {"symbol": "SUZLON.NS", "name": "Suzlon Energy", "sector": "Energy"},
+    {"symbol": "IRFC.NS", "name": "Indian Railway Finance", "sector": "Railways"},
+    {"symbol": "JIOFIN.NS", "name": "Jio Financial Services", "sector": "Financials"},
+    {"symbol": "FEDERALBNK.NS", "name": "Federal Bank", "sector": "Banking"},
+    {"symbol": "IDFCFIRSTB.NS", "name": "IDFC First Bank", "sector": "Banking"},
+    {"symbol": "TATASTEEL.NS", "name": "Tata Steel", "sector": "Metals"},
+    {"symbol": "COALINDIA.NS", "name": "Coal India", "sector": "Energy"},
+    {"symbol": "BHEL.NS", "name": "Bharat Heavy Electricals", "sector": "Capital Goods"},
+    {"symbol": "PFC.NS", "name": "Power Finance Corporation", "sector": "Financials"},
+    {"symbol": "RECLTD.NS", "name": "REC Ltd", "sector": "Financials"},
+    {"symbol": "CANBK.NS", "name": "Canara Bank", "sector": "Banking"},
+    {"symbol": "PNB.NS", "name": "Punjab National Bank", "sector": "Banking"},
+    {"symbol": "NATIONALUM.NS", "name": "National Aluminium", "sector": "Metals"},
+    {"symbol": "ASHOKLEY.NS", "name": "Ashok Leyland", "sector": "Automobile"},
+    {"symbol": "GOLDBEES.NS", "name": "Nippon Gold ETF", "sector": "Commodities"},
+    {"symbol": "SILVERBEES.NS", "name": "Nippon Silver ETF", "sector": "Commodities"},
+    # Benchmark Large Caps
     {"symbol": "BHARTIARTL.NS", "name": "Bharti Airtel", "sector": "Telecom"},
     {"symbol": "ITC.NS", "name": "ITC Ltd", "sector": "FMCG"},
     {"symbol": "SUNPHARMA.NS", "name": "Sun Pharma", "sector": "Healthcare"},
