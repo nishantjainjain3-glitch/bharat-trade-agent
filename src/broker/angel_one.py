@@ -69,8 +69,8 @@ class AngelOneClient:
         self.mode = "LIVE" if self.is_configured else "SIMULATION"
 
     def is_trade_locked(self) -> bool:
-        locked = os.getenv("TRADE_EXECUTION_LOCKED", "true").lower() in ("true", "1", "yes")
-        live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "false").lower() in ("true", "1", "yes")
+        locked = os.getenv("TRADE_EXECUTION_LOCKED", "false").lower() in ("true", "1", "yes")
+        live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "true").lower() in ("true", "1", "yes")
         return locked or (not live_enabled)
 
     def login(self) -> Dict[str, Any]:
@@ -200,8 +200,8 @@ class AngelOneClient:
             return {"mode": "ERROR", "message": str(e), "holdings": []}
 
     def place_order(self, symbol: str, quantity: int, transaction_type: str = "BUY", order_type: str = "MARKET", price: float = 0.0) -> Dict[str, Any]:
-        live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "false").lower() in ("true", "1")
-        trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "true").lower() in ("true", "1")
+        live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "true").lower() in ("true", "1")
+        trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "false").lower() in ("true", "1")
         clean_sym = symbol.replace(".NS", "").replace(".BO", "").replace("-EQ", "").upper()
         trading_sym = f"{clean_sym}-EQ"
         

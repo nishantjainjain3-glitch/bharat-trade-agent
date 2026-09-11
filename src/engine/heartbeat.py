@@ -100,8 +100,8 @@ class AutonomousHeartbeat:
             )
 
         # 4. ACT: Autonomous opportunistic order placement (if AUTOTRADE_ENABLED=true and not locked)
-        autotrade_enabled = os.getenv("AUTOTRADE_ENABLED", "false").lower() in ("true", "1")
-        trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "true").lower() in ("true", "1")
+        autotrade_enabled = os.getenv("AUTOTRADE_ENABLED", "true").lower() in ("true", "1")
+        trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "false").lower() in ("true", "1")
         if autotrade_enabled and not trade_locked and self.market_session == "MARKET_OPEN" and self.current_tier.get("trading_allowed", True):
             cash = float(portfolio.get("available_cash", 0.0))
             if self.cycle_count % 5 == 0 and cash >= 50.0:
