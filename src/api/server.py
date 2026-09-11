@@ -167,6 +167,40 @@ def get_agent_state():
         "recent_journal": memory_journal.get_recent_entries(limit=10)
     }
 
+@app.get("/api/agent/outbound-ip")
+def get_outbound_ip_status():
+    import requests
+    direct_ip = "unknown"
+    try:
+        r = requests.get("https://api.ipify.org?format=json", timeout=5)
+        direct_ip = r.json().get("ip", "unknown")
+    except Exception as e:
+        direct_ip = f"error: {str(e)}"
+
+    proxy_configured = bool(angel_client.proxy_url)
+    proxy_ip = "not configured"
+    proxy_status = "disabled"
+    if proxy_configured:
+        try:
+            r = requests.get("https://api.ipify.org?format=json", proxies=angel_client.proxies, timeout=8)
+            proxy_ip = r.json().get("ip", "unknown")
+            proxy_status = "connected"
+        except Exception as e:
+            proxy_ip = f"error: {str(e)}"
+            proxy_status = "failed"
+
+    effective_ip = proxy_ip if proxy_configured else direct_ip
+    whitelisted_ip = angel_client.public_ip
+    return {
+        "direct_ip": direct_ip,
+        "proxy_configured": proxy_configured,
+        "proxy_status": proxy_status,
+        "proxy_ip": proxy_ip,
+        "effective_outbound_ip": effective_ip,
+        "angel_whitelisted_ip": whitelisted_ip,
+        "ip_matches_whitelist": (effective_ip == whitelisted_ip)
+    }
+
 @app.post("/api/agent/heartbeat/trigger")
 async def trigger_heartbeat():
     res = await agent_heartbeat.execute_cycle()

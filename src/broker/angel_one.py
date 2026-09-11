@@ -77,6 +77,8 @@ class AngelOneClient:
         self.pin = os.getenv("ANGEL_PIN", "")
         self.totp_key = os.getenv("ANGEL_TOTP_KEY", "")
         self.public_ip = os.getenv("ANGEL_CLIENT_PUBLIC_IP", "152.59.151.52")
+        self.proxy_url = os.getenv("STATIC_PROXY_URL") or os.getenv("FIXIE_URL") or os.getenv("QUOTAGUARDSTATIC_URL")
+        self.proxies = {"http": self.proxy_url, "https": self.proxy_url} if self.proxy_url else None
         
         self.jwt_token: Optional[str] = None
         self.refresh_token: Optional[str] = None
@@ -117,7 +119,7 @@ class AngelOneClient:
                 "password": self.pin,
                 "totp": totp
             }
-            res = requests.post(url, json=payload, headers=headers, timeout=10)
+            res = requests.post(url, json=payload, headers=headers, proxies=self.proxies, timeout=12)
             data = res.json()
             if data.get("status"):
                 self.jwt_token = data["data"]["jwtToken"]
@@ -277,7 +279,7 @@ class AngelOneClient:
             "quantity": str(quantity)
         }
         try:
-            res = requests.post(url, json=payload, headers=headers, timeout=10)
+            res = requests.post(url, json=payload, headers=headers, proxies=self.proxies, timeout=12)
             data = res.json()
             if data.get("status"):
                 order_id = data.get("data", {}).get("orderid", "LIVE-ORDER")
