@@ -11,6 +11,7 @@ from src.data.macro_data import get_indian_macro_indicators
 from src.analysis.screener import get_top_buy_recommendations
 from src.broker.angel_one import angel_client
 from src.notifications.telegram import send_telegram_text
+from src.engine.exit_manager import compute_positive_trailing_stop
 
 IST = timezone(timedelta(hours=5, minutes=30))
 
@@ -119,11 +120,25 @@ class AutonomousHeartbeat:
                     if ltp <= 0.0:
                         continue
 
-                    sl = float(pos_data.get("stop_loss", 0.0))
-                    tp = float(pos_data.get("target_price", 0.0))
-                    qty = int(pos_data.get("quantity", 0))
+                    entry_price = float(pos_data.get("entry_price", ltp))
+                    highest_price = float(pos_data.get("highest_price", max(entry_price, ltp)))
+                    if ltp > highest_price:
+                        highest_price = ltp
+                        pos_data["highest_price"] = highest_price
+                        updated_pos[sym] = pos_data
 
-                    if sl > 0 and ltp <= sl:
+                    trail = compute_positive_trailing_stop(
+                        entry_price=entry_price,
+                        current_price=ltp,
+                        highest_price=highest_price,
+                        initial_stop_loss=sl,
+                        activation_profit_pct=1.5,
+                        trailing_distance_pct=1.0
+                    )
+                    effective_sl = trail.get("effective_stop_loss", sl)
+                    is_trailing = trail.get("is_trailing_active", False)
+
+                    if effective_sl > 0 and ltp <= effective_sl:
                         sell_res = angel_client.place_order(
                             symbol=sym,
                             quantity=qty,
@@ -132,11 +147,13 @@ class AutonomousHeartbeat:
                             price=ltp
                         )
                         if sell_res.get("status"):
+                            exit_type = "TRAILING STOP-LOSS" if is_trailing else "HARD STOP-LOSS"
                             msg = (
-                                f"🔴 *STOP-LOSS TRIGGERED & EXECUTED*\n\n"
+                                f"🔴 *{exit_type} TRIGGERED & EXECUTED*\n\n"
                                 f"• Stock: *{sym}*\n"
                                 f"• Action: *SELL {qty} shares* @ ₹{ltp:.2f}\n"
-                                f"• Stop-Loss Level: ₹{sl:.2f}\n"
+                                f"• Exit Trigger: ₹{effective_sl:.2f}\n"
+                                f"• Highest Peak: ₹{highest_price:.2f}\n"
                                 f"• Order ID: `{sell_res.get('order_id')}`\n\n"
                                 f"_Capital preservation discipline strictly enforced._"
                             )
