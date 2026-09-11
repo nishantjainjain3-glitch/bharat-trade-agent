@@ -116,5 +116,139 @@
         "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
       }
     }
+  },
+  {
+    "id": 10,
+    "timestamp": "2026-09-10 17:27:37 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
+    }
+  },
+  {
+    "id": 11,
+    "timestamp": "2026-09-10 17:27:37 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
+    }
+  },
+  {
+    "id": 12,
+    "timestamp": "2026-09-11 09:20:16 IST",
+    "category": "BRIEFING",
+    "title": "Morning Briefing Dispatched",
+    "content": "🌅 *BHARAT TRADE AGENT — MORNING BRIEFING*\n📅 _Friday, 11 September 2026 | 09:19 IST_\n🛡️ *Broker Mode:* `LIVE` (Angel One)\n\n🌐 *Global & Benchmark Cues:*\n• Nifty 50 Prev Close: *-0.95%*\n• India VIX: *14.20* (Low/Calm)\n• Survival Tier: *CIRCUIT_BREAKER* (0.0x sizing multiplier)\n\n💼 *Account Snapshot:*\n• Total Equity: *₹49,986.10*\n• Available Cash: *₹4,224.80*\n• Invested Margin: *₹42,867.30*\n• Overall P&L: *🟢 ₹+2,894.00 (+6.75%)*\n\n📊 *Open Positions (7):*\n• *PNB*: 1 qty @ ₹115.2 (🟢 ₹+10.0)\n• *TMCV*: 38 qty @ ₹427.1 (🟢 ₹+6,685.0)\n• *MANAPPURAM*: 1 qty @ ₹327.6 (🟢 ₹+122.0)\n• *COALINDIA*: 1 qty @ ₹433.9 (🔴 ₹-74.0)\n• *GOLDBEES*: 71 qty @ ₹124.1 (🔴 ₹-242.0)\n\n🎯 *Multi-Asset Tactical Battle Plan:*\n• *NIFTYBEES* [INDEX MEAN REVERSION]: Entry ₹265.7 | SL ₹264.4 | TP ₹267.5 (Conviction: 8/10)\n• *BANKBEES* [INDEX MEAN REVERSION]: Entry ₹579.0 | SL ₹576.1 | TP ₹584.7 (Conviction: 8/10)\n\n⚖️ _Risk Mandate: Strict 1% ATR Volatility-Parity sizing per trade._",
+    "metadata": {
+      "status": true,
+      "message": "Message sent successfully"
+    }
+  },
+  {
+    "id": 13,
+    "timestamp": "2026-09-11 09:21:55 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.95%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 208,450.00.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.95
+    }
+  },
+  {
+    "id": 14,
+    "timestamp": "2026-09-11 09:56:20 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #6: MARKET_OPEN",
+    "content": "Heartbeat #6: Market OPEN. Nifty 50: -0.94%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 208,450.00.",
+    "metadata": {
+      "cycle": 6,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.94
+    }
+  },
+  {
+    "id": 15,
+    "timestamp": "2026-09-11 10:08:13 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.88%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 208,450.00.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.88
+    }
+  },
+  {
+    "id": 16,
+    "timestamp": "2026-09-11 10:08:29 IST",
+    "category": "EXECUTION",
+    "title": "Autonomous Trade: BUY 670x IDFCFIRSTB",
+    "content": "🤖 *AUTONOMOUS TRADE EXECUTED (SIMULATION)*\n\n• Stock: *IDFCFIRSTB*\n• Action: *BUY 670 shares* @ ₹86.14\n• Stop-Loss: ₹83.03 | Target: ₹92.36\n• Conviction: 9/10\n• Order ID: `SIM-HKQQU6WB`\n\n_Validated by Constitution & Risk Tier: NORMAL_",
+    "metadata": {
+      "status": true,
+      "mode": "SIMULATION",
+      "order_id": "SIM-HKQQU6WB",
+      "symbol": "IDFCFIRSTB",
+      "quantity": 670,
+      "transaction_type": "BUY",
+      "order_type": "MARKET",
+      "price": 86.14,
+      "message": "Trade execution locked per user safety instructions. Paper simulated BUY 670 shares of IDFCFIRSTB at INR 86.14."
+    }
+  },
+  {
+    "id": 17,
+    "timestamp": "2026-09-11 10:15:32 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.80%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 50,965.10.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.8
+    }
+  },
+  {
+    "id": 18,
+    "timestamp": "2026-09-11 10:25:01 IST",
+    "category": "EXECUTION",
+    "title": "LIVE Trade: BUY 13x IDFCFIRSTB",
+    "content": "🤖 *AUTONOMOUS LIVE TRADE EXECUTED*\n\n• Broker: *Angel One (LIVE)*\n• Stock: *IDFCFIRSTB* (IDFC First Bank)\n• Action: *BUY 13 shares* @ ₹86.15\n• Total Value: *₹1,120.00*\n• Stop-Loss: *₹83.07* | Target: *₹92.34*\n• Conviction: *9/10*\n• Exchange Order ID: 260911000270430\n\n_Validated by Constitution Article I & II (Risk: 0.95% of equity)_",
+    "metadata": {
+      "order_id": "260911000270430",
+      "symbol": "IDFCFIRSTB",
+      "quantity": 13,
+      "price": 86.15,
+      "mode": "LIVE",
+      "status": true
+    }
   }
 ]
