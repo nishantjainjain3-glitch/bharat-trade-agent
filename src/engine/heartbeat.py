@@ -99,6 +99,88 @@ class AutonomousHeartbeat:
                 }
             )
 
+        # 3.5. MONITOR & EXIT: Evaluate active positions against stop-loss and profit target
+        active_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "active_positions.json")
+        if self.market_session == "MARKET_OPEN" and os.path.exists(active_file):
+            try:
+                import json
+                with open(active_file, "r", encoding="utf-8") as f:
+                    active_pos = json.load(f)
+
+                updated_pos = dict(active_pos)
+                for sym, pos_data in active_pos.items():
+                    ltp = 0.0
+                    for h in portfolio.get("holdings", []):
+                        h_sym = str(h.get("tradingsymbol", "")).replace("-EQ", "").replace(".NS", "").upper()
+                        if h_sym == sym:
+                            ltp = float(h.get("ltp") or 0.0)
+                            break
+                    
+                    if ltp <= 0.0:
+                        continue
+
+                    sl = float(pos_data.get("stop_loss", 0.0))
+                    tp = float(pos_data.get("target_price", 0.0))
+                    qty = int(pos_data.get("quantity", 0))
+
+                    if sl > 0 and ltp <= sl:
+                        sell_res = angel_client.place_order(
+                            symbol=sym,
+                            quantity=qty,
+                            transaction_type="SELL",
+                            order_type="MARKET",
+                            price=ltp
+                        )
+                        if sell_res.get("status"):
+                            msg = (
+                                f"🔴 *STOP-LOSS TRIGGERED & EXECUTED*\n\n"
+                                f"• Stock: *{sym}*\n"
+                                f"• Action: *SELL {qty} shares* @ ₹{ltp:.2f}\n"
+                                f"• Stop-Loss Level: ₹{sl:.2f}\n"
+                                f"• Order ID: `{sell_res.get('order_id')}`\n\n"
+                                f"_Capital preservation discipline strictly enforced._"
+                            )
+                            send_telegram_text(msg)
+                            memory_journal.record_entry(
+                                category="EXIT",
+                                title=f"Stop-Loss Hit: SELL {qty}x {sym}",
+                                content=msg,
+                                metadata=sell_res
+                            )
+                            updated_pos.pop(sym, None)
+
+                    elif tp > 0 and ltp >= tp:
+                        sell_res = angel_client.place_order(
+                            symbol=sym,
+                            quantity=qty,
+                            transaction_type="SELL",
+                            order_type="MARKET",
+                            price=ltp
+                        )
+                        if sell_res.get("status"):
+                            msg = (
+                                f"🟢 *PROFIT TARGET HIT & EXECUTED*\n\n"
+                                f"• Stock: *{sym}*\n"
+                                f"• Action: *SELL {qty} shares* @ ₹{ltp:.2f}\n"
+                                f"• Target Level: ₹{tp:.2f}\n"
+                                f"• Order ID: `{sell_res.get('order_id')}`\n\n"
+                                f"_Target realized. Capital booked to available cash._"
+                            )
+                            send_telegram_text(msg)
+                            memory_journal.record_entry(
+                                category="EXIT",
+                                title=f"Target Realized: SELL {qty}x {sym}",
+                                content=msg,
+                                metadata=sell_res
+                            )
+                            updated_pos.pop(sym, None)
+
+                if len(updated_pos) != len(active_pos):
+                    with open(active_file, "w", encoding="utf-8") as f:
+                        json.dump(updated_pos, f, indent=2)
+            except Exception as e:
+                self.last_observation += f" | Exit monitor warning: {str(e)}"
+
         # 4. ACT: Autonomous opportunistic order placement (if AUTOTRADE_ENABLED=true and not locked)
         autotrade_enabled = os.getenv("AUTOTRADE_ENABLED", "true").lower() in ("true", "1")
         trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "false").lower() in ("true", "1")
@@ -187,6 +269,24 @@ class AutonomousHeartbeat:
                                         content=msg,
                                         metadata=order_res
                                     )
+                                    # Register for automated stop-loss and profit target exit monitoring
+                                    try:
+                                        p_data = {}
+                                        if os.path.exists(active_file):
+                                            with open(active_file, "r", encoding="utf-8") as f:
+                                                p_data = json.load(f)
+                                        p_data[clean_sym] = {
+                                            "symbol": clean_sym,
+                                            "quantity": qty,
+                                            "entry_price": price,
+                                            "stop_loss": sl,
+                                            "target_price": tp,
+                                            "order_id": oid
+                                        }
+                                        with open(active_file, "w", encoding="utf-8") as f:
+                                            json.dump(p_data, f, indent=2)
+                                    except Exception:
+                                        pass
                                     break
                 except Exception as e:
                     self.last_observation += f" | Order loop warning: {str(e)}"

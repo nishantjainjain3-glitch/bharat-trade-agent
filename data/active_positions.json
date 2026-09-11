@@ -1,0 +1,20 @@
+{
+  "IDFCFIRSTB": {
+    "symbol": "IDFCFIRSTB",
+    "quantity": 13,
+    "entry_price": 86.18,
+    "stop_loss": 83.07,
+    "target_price": 92.34,
+    "entry_time": "2026-09-11 10:24:45 IST",
+    "order_id": "260911000270430"
+  },
+  "TATAPOWER": {
+    "symbol": "TATAPOWER",
+    "quantity": 8,
+    "entry_price": 365.0,
+    "stop_loss": 346.95,
+    "target_price": 400.95,
+    "entry_time": "2026-09-11 10:30:55 IST",
+    "order_id": "260911000287670"
+  }
+}
