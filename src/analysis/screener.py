@@ -214,15 +214,23 @@ def scan_single_stock(item: Dict[str, str]) -> Dict[str, Any]:
         elif "Fundamental strength:" in catalyst:
             catalyst = catalyst.split("Fundamental strength:")[1].split(".")[0].strip()
 
-        year_high = float(quote.get("year_high") or price)
+        def _safe_float(val, default=0.0):
+            try:
+                if val is None or val == "N/A" or val == "":
+                    return default
+                return float(val)
+            except (ValueError, TypeError):
+                return default
+
+        year_high = _safe_float(quote.get("year_high"), price)
         dist_52w_high_pct = round(((year_high - price) / year_high) * 100.0, 1) if year_high > 0 else 0.0
-        rvol = technicals.get("volume", {}).get("rvol_20d", 1.0)
+        rvol = _safe_float(technicals.get("volume", {}).get("rvol_20d"), 1.0)
         candlestick_patterns = technicals.get("candlestick_patterns", [])
         f_metrics = funds.get("metrics", {})
-        roe = float(f_metrics.get("roe_pct") or 0.0)
-        debt_to_equity = float(f_metrics.get("debt_to_equity") or 0.0)
-        ema_50 = technicals.get("emas", {}).get("ema_50", 0.0)
-        ema_200 = technicals.get("emas", {}).get("ema_200", 0.0)
+        roe = _safe_float(f_metrics.get("roe_pct"), 0.0)
+        debt_to_equity = _safe_float(f_metrics.get("debt_to_equity"), 0.0)
+        ema_50 = _safe_float(technicals.get("emas", {}).get("ema_50"), 0.0)
+        ema_200 = _safe_float(technicals.get("emas", {}).get("ema_200"), 0.0)
 
         return {
             "symbol": quote["clean_symbol"],
@@ -274,9 +282,9 @@ def get_preset_screener_recommendations(preset: str = "ALL", limit: int = 4) -> 
     if _SCREENER_CACHE and (now - _SCREENER_CACHE_TIME) < 300.0:
         results = _SCREENER_CACHE
     else:
-        # Scan top liquid bluechips first with a manageable worker pool
-        primary_pool = UNIVERSE_TICKERS[:8]
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        # Scan liquid growth stocks and momentum leaders with a parallel worker pool
+        primary_pool = UNIVERSE_TICKERS[:18]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
             futures = [executor.submit(scan_single_stock, item) for item in primary_pool]
             for f in concurrent.futures.as_completed(futures):
                 try:
