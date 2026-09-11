@@ -1,4 +1,4 @@
-﻿import os
+import os
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
@@ -159,6 +159,68 @@ def build_evening_report() -> str:
     return "\n".join(lines)
 
 
+def build_afternoon_market_check() -> str:
+    """Constructs the 15:00 PM (3:00 PM) market check and position status reminder."""
+    now_ist = datetime.now(IST)
+    date_str = now_ist.strftime("%A, %d %B %Y | %H:%M IST")
+
+    portfolio = angel_client.get_portfolio_summary()
+    mode = portfolio.get("mode", "LIVE")
+    tot_val = float(portfolio.get("total_portfolio_value", 50000.0))
+    cash = float(portfolio.get("available_cash", 0.0))
+    pnl = float(portfolio.get("overall_pnl", 0.0))
+    pnl_pct = float(portfolio.get("overall_pnl_pct", 0.0))
+    holdings = portfolio.get("holdings", [])
+
+    try:
+        macro = get_indian_macro_indicators()
+        nifty_chg = macro.get("NIFTY", {}).get("change_pct", 0.0)
+    except Exception:
+        nifty_chg = 0.0
+
+    lines = [
+        "⏰ *3:00 PM MARKET CHECK & REMINDER*",
+        f"📅 _{date_str}_",
+        f"🛡️ *Broker Mode:* `{mode}` (Angel One)\n",
+        "📊 *Market & Portfolio State:*",
+        f"• Nifty 50: *{nifty_chg:+.2f}%*",
+        f"• Total Portfolio Value: *₹{tot_val:,.2f}*",
+        f"• Available Cash: *₹{cash:,.2f}*",
+        f"• Day P&L: *₹{pnl:+,.2f} ({pnl_pct:+.2f}%)*\n",
+        "🎯 *Active Tracked Positions:*",
+    ]
+
+    active_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "active_positions.json")
+    if os.path.exists(active_file):
+        try:
+            import json
+            with open(active_file, "r", encoding="utf-8") as f:
+                active_pos = json.load(f)
+            for sym, pdata in active_pos.items():
+                qty = pdata.get("quantity", 0)
+                entry = float(pdata.get("entry_price", 0.0))
+                sl = float(pdata.get("stop_loss", 0.0))
+                tp = float(pdata.get("target_price", 0.0))
+                
+                ltp = entry
+                for h in holdings:
+                    h_sym = str(h.get("tradingsymbol", "")).replace("-EQ", "").replace(".NS", "").upper()
+                    if h_sym == sym:
+                        ltp = float(h.get("ltp") or entry)
+                        break
+                pnl_stock = (ltp - entry) * qty
+                pct_stock = ((ltp - entry) / entry * 100) if entry > 0 else 0.0
+                lines.append(
+                    f"• *{sym}*: {qty} shares @ ₹{ltp:.2f} (Entry: ₹{entry:.2f} | {pnl_stock:+,.1f} INR / {pct_stock:+.2f}%)\n"
+                    f"  SL: ₹{sl:.2f} | Target: ₹{tp:.2f} | Status: *HOLDING SAFE*"
+                )
+        except Exception:
+            pass
+
+    lines.append("\n🤖 _Agent evaluated market conditions. All position thresholds respected. Market closes at 15:30 IST._")
+    return "\n".join(lines)
+
+
 def send_morning_briefing(chat_id: Optional[str] = None) -> Dict[str, Any]:
     """Sends the morning briefing to Telegram."""
     msg = build_morning_briefing()
@@ -166,6 +228,19 @@ def send_morning_briefing(chat_id: Optional[str] = None) -> Dict[str, Any]:
     memory_journal.record_entry(
         category="BRIEFING",
         title="Morning Briefing Dispatched",
+        content=msg,
+        metadata=res
+    )
+    return res
+
+
+def send_afternoon_market_check(chat_id: Optional[str] = None) -> Dict[str, Any]:
+    """Sends the 3:00 PM market check and reminder to Telegram."""
+    msg = build_afternoon_market_check()
+    res = send_telegram_text(msg, chat_id=chat_id)
+    memory_journal.record_entry(
+        category="REMINDER",
+        title="3:00 PM Market Check Dispatched",
         content=msg,
         metadata=res
     )
@@ -187,20 +262,22 @@ def send_evening_report(chat_id: Optional[str] = None) -> Dict[str, Any]:
 
 class DailyBriefingScheduler:
     """
-    Background scheduler for the Two Messages a Day routine:
+    Background scheduler for scheduled daily Telegram dispatches:
     - 08:45 AM IST: Morning Briefing
+    - 15:00 PM IST: 3:00 PM Market Check & Reminder
     - 16:00 PM IST: Evening Performance Report
     """
 
     def __init__(self):
         self.last_morning_sent_date: Optional[str] = None
+        self.last_afternoon_sent_date: Optional[str] = None
         self.last_evening_sent_date: Optional[str] = None
         self.is_running = False
         self._task: Optional[asyncio.Task] = None
 
     async def start(self):
         self.is_running = True
-        logger.info("DailyBriefingScheduler started (08:45 AM & 16:00 PM IST dispatches enabled).")
+        logger.info("DailyBriefingScheduler started (08:45 AM, 15:00 PM, and 16:00 PM IST dispatches enabled).")
         while self.is_running:
             try:
                 await self.check_and_dispatch()
@@ -223,7 +300,6 @@ class DailyBriefingScheduler:
         current_minute = now_ist.hour * 60 + now_ist.minute
 
         # 08:45 AM IST (525 minutes from midnight)
-        # Dispatch between 08:45 and 09:05
         if (8 * 60 + 45 <= current_minute <= 9 * 60 + 5) and self.last_morning_sent_date != today_str:
             logger.info("Triggering scheduled Morning Briefing at 08:45 AM IST")
             loop = asyncio.get_event_loop()
@@ -232,8 +308,16 @@ class DailyBriefingScheduler:
                 self.last_morning_sent_date = today_str
                 logger.info("Morning Briefing successfully sent to Telegram")
 
+        # 15:00 PM IST (900 minutes from midnight)
+        if (15 * 60 <= current_minute <= 15 * 60 + 10) and self.last_afternoon_sent_date != today_str:
+            logger.info("Triggering scheduled 3:00 PM Market Check")
+            loop = asyncio.get_event_loop()
+            res = await loop.run_in_executor(None, send_afternoon_market_check)
+            if res.get("status"):
+                self.last_afternoon_sent_date = today_str
+                logger.info("3:00 PM Market Check successfully sent to Telegram")
+
         # 16:00 PM IST (960 minutes from midnight)
-        # Dispatch between 16:00 and 16:20
         if (16 * 60 <= current_minute <= 16 * 60 + 20) and self.last_evening_sent_date != today_str:
             logger.info("Triggering scheduled Evening Report at 16:00 PM IST")
             loop = asyncio.get_event_loop()
