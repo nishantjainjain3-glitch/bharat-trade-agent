@@ -113,7 +113,16 @@ class AutonomousHeartbeat:
                         conviction = int(rec.get("conviction", 0))
 
                         if conviction >= 8 and 0 < price <= cash:
-                            raw_sl = float(rec.get("stop_loss", price * 0.97))
+                            def _parse_num(v, fallback):
+                                try:
+                                    if v is None:
+                                        return fallback
+                                    s = str(v).replace("INR", "").replace("₹", "").replace(",", "").strip()
+                                    return float(s)
+                                except (ValueError, TypeError):
+                                    return fallback
+
+                            raw_sl = _parse_num(rec.get("stop_loss"), price * 0.97)
                             atr_est = float(rec.get("atr", abs(price - raw_sl) / 2.0 if raw_sl else price * 0.015))
                             tier_mult = float(self.current_tier.get("position_size_multiplier", 1.0))
 
@@ -162,7 +171,7 @@ class AutonomousHeartbeat:
                                         f"• Stop-Loss: ₹{sl:,.2f} | Target: ₹{tp:,.2f}\n"
                                         f"• Conviction: {conviction}/10\n"
                                         f"• Order ID: `{oid}`\n\n"
-                                        f"_Validated by Constitution & Risk Tier: {self.current_tier['tier']}_"
+                                        f"_Validated by Constitution & Risk Tier: {self.current_tier.get('tier', 'NORMAL')}_"
                                     )
                                     send_telegram_text(msg)
                                     memory_journal.record_entry(
@@ -172,8 +181,8 @@ class AutonomousHeartbeat:
                                         metadata=order_res
                                     )
                                     break
-                except Exception:
-                    pass
+                except Exception as e:
+                    self.last_observation += f" | Order loop warning: {str(e)}"
 
         return self.get_status()
 
