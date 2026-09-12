@@ -261,6 +261,23 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertIn("bearish_obs", obs)
         self.assertIn("status", obs)
 
+    def test_portfolio_recycling_plan(self):
+        from src.engine.portfolio_recycler import portfolio_recycler
+        sample_portfolio = {
+            "total_portfolio_value": 50000.0,
+            "available_cash": 200.0,
+            "holdings": [
+                {"tradingsymbol": "STOCK_A", "quantity": 100, "ltp": 200.0},
+                {"tradingsymbol": "STOCK_B", "quantity": 1, "ltp": 300.0},
+                {"tradingsymbol": "GOLDBEES", "quantity": 50, "ltp": 120.0},
+            ]
+        }
+        plan = portfolio_recycler.generate_capital_recycling_plan(sample_portfolio, required_cash=5000.0, target_symbol="BHEL")
+        self.assertEqual(plan["status"], "RECYCLING_PLAN_READY")
+        self.assertGreater(plan["total_cash_to_be_released"], 4500.0)
+        self.assertGreaterEqual(len(plan["actions_needed"]), 1)
+
 if __name__ == "__main__":
     unittest.main()
+
 

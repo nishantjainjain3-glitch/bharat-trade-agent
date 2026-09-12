@@ -858,6 +858,29 @@ def get_ict_order_blocks_endpoint(symbol: str):
 def get_killzones_endpoint():
     return get_ict_killzone_status()
 
+@app.get("/api/portfolio/allocation-audit")
+def get_portfolio_allocation_audit():
+    try:
+        from src.engine.portfolio_recycler import portfolio_recycler
+        summary = angel_client.get_portfolio_summary()
+        return portfolio_recycler.audit_portfolio_allocation(summary)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/portfolio/recycling-plan")
+def get_portfolio_recycling_plan(required_cash: float = 14200.0, target_symbol: str = "BHEL"):
+    try:
+        from src.engine.portfolio_recycler import portfolio_recycler
+        summary = angel_client.get_portfolio_summary()
+        return portfolio_recycler.generate_capital_recycling_plan(
+            portfolio_summary=summary,
+            required_cash=required_cash,
+            target_symbol=target_symbol
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
