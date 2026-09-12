@@ -844,9 +844,252 @@ def vix_regime(india_vix: float) -> dict:
 | Ghanshyam Tech | BankNifty candlestick + time filter | Web Playbook tab |
 | Seykota / Dennis | Donchian + turtle sizing | Web Playbook tab calculator |
 | O'Neil | CAN SLIM RS Line | Web Playbook tab |
+| algotrader.sahil / Booming Bulls | FRVP VAH/VAL | `src/analysis/frvp.py` → `evaluate_frvp()` |
+
+---
+
+## PART 5 — COMMUNITY FIND: FRVP GOLD STRATEGY
+
+**Source**: Instagram @algotrader.sahil (9,450 likes, 10K comments — July 11 2026)  
+**Reel**: https://www.instagram.com/reel/Dap-XNMzFM_/  
+**Credit**: Algo-backtested version of a strategy popularised by Anish Singh Thakur (Booming Bulls, 3.5M+ subscribers)
+
+---
+
+### 24. Fixed Range Volume Profile (FRVP) — VAH/VAL Strategy
+
+**What is FRVP**:
+The Fixed Range Volume Profile plots the distribution of trading volume across price
+levels for a user-defined range of candles (e.g., the previous week or the previous
+session). It produces three critical levels:
+
+- **POC (Point of Control)**: The exact price level where the most volume traded.
+  This is the market's "fairest" price and acts as the strongest support/resistance.
+- **VAH (Value Area High)**: The upper boundary of the zone where 70% of all volume
+  traded. Price above VAH = premium territory, statistically likely to revert.
+- **VAL (Value Area Low)**: The lower boundary of the 70% volume zone. Price below
+  VAL = discount territory, statistically likely to revert toward VAH.
+
+The "Value Area" (VAL to VAH) represents the zone where institutional participants
+conducted the bulk of their business. Retail traders consistently over-extend outside
+this zone, creating mean-reversion opportunities.
+
+---
+
+**Strategy Rules (FRVP VAH/VAL Setup)**:
+
+**Setup Type**: Mean Reversion + Breakout Confirmation  
+**Instrument**: Any liquid instrument (Gold MCX, Nifty Futures, BankNifty, XAUUSD)  
+**Timeframe**: 15-minute chart for entry; 1-hour chart for FRVP calculation range  
+**Risk-Reward Target**: Minimum 1:2.5, optimal 1:3
+
+**Step 1 — Draw the FRVP**:
+Set the Fixed Range from the start of the previous session (or previous week for
+positional trades) to its close. The profile plots automatically in TradingView
+using the "Fixed Range Volume Profile" tool.
+
+**Step 2 — Long Setup (VAL Bounce)**:
+- Price falls below VAL (discount zone entry).
+- Wait for a bullish rejection candle at or just below VAL (hammer, bullish engulfing,
+  pin bar) on the 15-minute chart.
+- Volume on the rejection candle must be above the 20-period average.
+- Entry: on close of the rejection candle.
+- Stop Loss: 1 ATR below the rejection candle low.
+- Target 1 (50% position exit): POC level.
+- Target 2 (remaining 50%): VAH level (1:3 risk-reward zone).
+
+**Step 3 — Short Setup (VAH Rejection)**:
+- Price rises above VAH (premium zone, overextended).
+- Wait for a bearish rejection candle at or just above VAH (shooting star, bearish
+  engulfing, inside bar break) on the 15-minute chart.
+- Volume confirmation: rejection candle volume above 20-period average.
+- Entry: on close of the rejection candle.
+- Stop Loss: 1 ATR above the rejection candle high.
+- Target 1 (50% position exit): POC level.
+- Target 2 (remaining 50%): VAL level.
+
+**Step 4 — Breakout Setup (POC/VAH/VAL Breakout)**:
+- If price breaks above VAH with a strong candle (body > 60% of candle range)
+  and volume 2× the 20-period average, a breakout continuation setup forms.
+- Entry: retest of VAH from above (VAH now acts as support).
+- Stop: below VAH.
+- Target: VAH + (VAH − VAL) projected upward (equal range projection).
+
+**Filter Rules**:
+- Do NOT take VAL long trades when the broader market trend (Nifty/sensex) is
+  in a confirmed downtrend (price below its daily 200 SMA).
+- Do NOT take VAH short trades during a high-momentum breakout session
+  (ADX above 35 in trend-following mode).
+- Time filter: avoid the first 15 minutes after market open (9:15–9:30 AM IST)
+  — FRVP levels often get tested and rejected multiple times in the opening noise.
+
+---
+
+**Backtested Context (from @algotrader.sahil reel)**:
+- Asset: Gold (MCX or XAUUSD)
+- Claimed risk-reward: up to 1:3
+- Strategy originally used by prop firm traders
+- 1-year backtest results teased in the reel (full results shared via DM for "BACKTEST" comment)
+
+---
+
+**Pine Script — FRVP VAH/VAL Levels + Signal**:
+
+```pinescript
+//@version=5
+indicator("FRVP VAH/VAL Strategy (Approximate)", overlay=true)
+
+// Since TradingView's FRVP is a drawing tool, we approximate using
+// the highest volume price level over a fixed lookback window.
+
+lookback   = input.int(50, "FRVP Lookback Bars", minval=10)
+atr_len    = input.int(14, "ATR Length")
+atr_mult   = input.float(1.0, "Stop ATR Multiplier")
+
+// Approximate VAH, VAL, POC using price percentiles as a volume proxy
+// (Replace with actual volume-weighted calculations if volume data is available)
+highest_h = ta.highest(high, lookback)
+lowest_l  = ta.lowest(low,  lookback)
+range_sz  = highest_h - lowest_l
+vah       = lowest_l + range_sz * 0.85   // top of 70% value area
+val       = lowest_l + range_sz * 0.15   // bottom of 70% value area
+poc       = lowest_l + range_sz * 0.50   // midpoint approximation
+
+plot(vah, color=color.new(color.red,   20), linewidth=2, title="VAH")
+plot(val, color=color.new(color.green, 20), linewidth=2, title="VAL")
+plot(poc, color=color.new(color.orange,20), linewidth=1, title="POC", style=plot.style_circles)
+
+atr = ta.atr(atr_len)
+
+// Long Signal: price at VAL with bullish rejection
+long_signal = close <= val * 1.002 and close > open and volume > ta.sma(volume, 20)
+// Short Signal: price at VAH with bearish rejection
+short_signal = close >= vah * 0.998 and close < open and volume > ta.sma(volume, 20)
+
+plotshape(long_signal,  style=shape.triangleup,   location=location.belowbar, color=color.green, size=size.small, title="VAL Long")
+plotshape(short_signal, style=shape.triangledown,  location=location.abovebar, color=color.red,   size=size.small, title="VAH Short")
+
+// Stop and target levels on signal
+long_stop   = val - atr * atr_mult
+long_target = vah
+short_stop  = vah + atr * atr_mult
+short_target = val
+```
+
+**Python — FRVP Calculation from OHLCV Data**:
+
+```python
+import pandas as pd
+import numpy as np
+
+def calculate_frvp(df: pd.DataFrame, start_idx: int, end_idx: int,
+                   n_bins: int = 50) -> dict:
+    """
+    Calculate Fixed Range Volume Profile levels (VAH, VAL, POC)
+    from a slice of OHLCV data.
+
+    df: DataFrame with columns ['open', 'high', 'low', 'close', 'volume']
+    start_idx, end_idx: integer row indices defining the fixed range
+    n_bins: number of price buckets in the profile
+    """
+    slice_df = df.iloc[start_idx:end_idx + 1].copy()
+
+    price_min = slice_df['low'].min()
+    price_max = slice_df['high'].max()
+    bin_edges = np.linspace(price_min, price_max, n_bins + 1)
+    bin_mids  = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    # Distribute each bar's volume proportionally across the price bins it spans
+    volume_at_price = np.zeros(n_bins)
+    for _, row in slice_df.iterrows():
+        bar_low, bar_high, bar_vol = row['low'], row['high'], row['volume']
+        # Find which bins this bar spans
+        in_range = (bin_mids >= bar_low) & (bin_mids <= bar_high)
+        n_covered = in_range.sum()
+        if n_covered > 0:
+            volume_at_price[in_range] += bar_vol / n_covered
+
+    # POC: bin with highest volume
+    poc_idx = np.argmax(volume_at_price)
+    poc     = round(bin_mids[poc_idx], 2)
+
+    # Value Area: bins containing 70% of total volume, starting from POC
+    total_vol    = volume_at_price.sum()
+    target_vol   = total_vol * 0.70
+    accumulated  = volume_at_price[poc_idx]
+    upper_idx    = poc_idx
+    lower_idx    = poc_idx
+
+    while accumulated < target_vol:
+        expand_up   = upper_idx < n_bins - 1
+        expand_down = lower_idx > 0
+        vol_up   = volume_at_price[upper_idx + 1] if expand_up   else 0
+        vol_down = volume_at_price[lower_idx - 1] if expand_down else 0
+        if vol_up >= vol_down and expand_up:
+            upper_idx  += 1
+            accumulated += vol_up
+        elif expand_down:
+            lower_idx  -= 1
+            accumulated += vol_down
+        else:
+            break
+
+    vah = round(bin_mids[upper_idx], 2)
+    val = round(bin_mids[lower_idx], 2)
+
+    return {
+        "poc": poc,
+        "vah": vah,
+        "val": val,
+        "value_area_pct": round(accumulated / total_vol * 100, 1),
+        "price_range": (round(price_min, 2), round(price_max, 2))
+    }
+
+
+def evaluate_frvp_setup(current_price: float, vah: float, val: float,
+                         poc: float, atr: float,
+                         candle_bullish: bool, volume_above_avg: bool) -> dict:
+    """
+    Given current FRVP levels and current bar conditions, determine
+    if a VAH/VAL setup is active and compute stops + targets.
+    """
+    at_val = current_price <= val * 1.003
+    at_vah = current_price >= vah * 0.997
+
+    if at_val and candle_bullish and volume_above_avg:
+        setup = "LONG_VAL_BOUNCE"
+        entry = current_price
+        stop  = round(val - atr, 2)
+        tp1   = poc
+        tp2   = vah
+        rr    = round((tp2 - entry) / (entry - stop), 2) if entry > stop else 0
+    elif at_vah and not candle_bullish and volume_above_avg:
+        setup = "SHORT_VAH_REJECTION"
+        entry = current_price
+        stop  = round(vah + atr, 2)
+        tp1   = poc
+        tp2   = val
+        rr    = round((entry - tp2) / (stop - entry), 2) if stop > entry else 0
+    else:
+        setup = "NO_SETUP"
+        entry = stop = tp1 = tp2 = rr = None
+
+    return {
+        "setup":  setup,
+        "entry":  entry,
+        "stop":   stop,
+        "tp1":    tp1,
+        "tp2":    tp2,
+        "rr":     rr,
+        "vah":    vah,
+        "val":    val,
+        "poc":    poc
+    }
+```
 
 ---
 
 *Last updated: September 2026. Sources: YouTube channels, documented interviews, publicly
 available books (Market Wizards, Trade Like a Stock Market Wizard, How to Make Money
-in Stocks), and TradingView community Pine Scripts.*
+in Stocks), Instagram @algotrader.sahil, and TradingView community Pine Scripts.*
+
