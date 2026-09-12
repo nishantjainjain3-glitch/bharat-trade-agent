@@ -432,32 +432,241 @@ def evaluate_all_investor_personas(
     technicals: Optional[Dict[str, Any]] = None,
     order_flow: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
-    """Runs all 5 investor & trader frameworks and synthesizes a master council consensus."""
-    buffett = evaluate_buffett(quote, fundamentals)
-    graham = evaluate_graham(quote, fundamentals)
-    lynch = evaluate_lynch(quote, fundamentals)
-    ray_fu = evaluate_ray_fu(quote, technicals, fundamentals)
-    guruji = evaluate_day_trading_guruji(quote, technicals, order_flow)
+    """Runs all 7 investor & trader frameworks and synthesizes a master council consensus."""
+    buffett   = evaluate_buffett(quote, fundamentals)
+    graham    = evaluate_graham(quote, fundamentals)
+    lynch     = evaluate_lynch(quote, fundamentals)
+    ray_fu    = evaluate_ray_fu(quote, technicals, fundamentals)
+    guruji    = evaluate_day_trading_guruji(quote, technicals, order_flow)
+    minervini = evaluate_minervini(quote, technicals, fundamentals)
+    turtle    = evaluate_turtle(quote, technicals)
 
-    avg_score = round((buffett["score"] + graham["score"] + lynch["score"] + ray_fu["score"] + guruji["score"]) / 5.0, 1)
+    scores = [buffett["score"], graham["score"], lynch["score"],
+              ray_fu["score"], guruji["score"], minervini["score"], turtle["score"]]
+    avg_score = round(sum(scores) / len(scores), 1)
 
     if avg_score >= 70:
         consensus = "STRONG_COUNCIL_CONSENSUS_BUY"
-        summary = "Multiple fundamental and tactical frameworks agree: company possesses strong profitability, durable economic moats, and constructive price action."
+        summary = ("Multiple fundamental and tactical frameworks agree: company possesses "
+                   "strong profitability, durable economic moats, and constructive price action.")
     elif avg_score >= 55:
         consensus = "SELECTIVE_ACCUMULATION"
-        summary = "Favorable quality characteristics, though valuation, CPR range, or regime alignment requires selective entry on confirmed pullbacks."
+        summary = ("Favorable quality characteristics, though valuation, CPR range, "
+                   "or regime alignment requires selective entry on confirmed pullbacks.")
     else:
         consensus = "CAUTION_LOW_COUNCIL_SCORE"
-        summary = "Stock fails multiple value and price action screens (stretched valuation, adverse CPR posture, or high volatility noise)."
+        summary = ("Stock fails multiple value and price action screens (stretched valuation, "
+                   "adverse CPR posture, or high volatility noise).")
 
     return {
-        "buffett": buffett,
-        "graham": graham,
-        "lynch": lynch,
-        "ray_fu": ray_fu,
+        "buffett":           buffett,
+        "graham":            graham,
+        "lynch":             lynch,
+        "ray_fu":            ray_fu,
         "day_trading_guruji": guruji,
+        "minervini":         minervini,
+        "turtle":            turtle,
         "composite_guru_score": avg_score,
-        "consensus_verdict": consensus,
-        "consensus_summary": summary
+        "consensus_verdict":    consensus,
+        "consensus_summary":    summary
     }
+
+
+def evaluate_minervini(
+    quote: Dict[str, Any],
+    technicals: Optional[Dict[str, Any]] = None,
+    fundamentals: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Mark Minervini Framework (SEPA + VCP):
+    - Trend Template: Price > 150 SMA > 200 SMA; 50 SMA > 150 SMA > 200 SMA.
+    - Volatility Contraction Pattern: stock consolidates in tightening pivots before breakout.
+    - Breakout on volume 40-50%+ above average.
+    - Earnings growth acceleration required (C and A of CANSLIM).
+    """
+    price = quote.get("price", 0.0)
+    technicals = technicals or {}
+    fundamentals = fundamentals or {}
+    metrics = fundamentals.get("metrics", {})
+    levels = technicals.get("levels", {})
+    trend = technicals.get("trend", "NEUTRAL")
+    atr = levels.get("atr", price * 0.025 if price > 0 else 1.0)
+
+    score = 40
+    pros = []
+    cons = []
+
+    # 1. Trend Template Check (uses SMA relationship via trend + adx proxy)
+    adx_info = technicals.get("adx", {})
+    adx_val  = adx_info.get("adx", 15.0)
+
+    if trend == "BULLISH" and adx_val >= 20:
+        score += 25
+        pros.append(f"Price in confirmed uptrend (ADX {adx_val:.0f}) — Minervini Trend Template alignment.")
+    elif trend == "BEARISH":
+        score -= 20
+        cons.append("Downtrend detected. Minervini does not buy stocks below their 200 SMA.")
+
+    # 2. Volatility Contraction (ATR relative tightness as proxy)
+    if price > 0 and atr > 0:
+        atr_pct = (atr / price) * 100.0
+        if atr_pct <= 2.5:
+            score += 20
+            pros.append(f"ATR contraction ({atr_pct:.1f}%) consistent with VCP base formation — coiled spring setup.")
+        elif atr_pct <= 4.0:
+            score += 10
+            pros.append(f"Moderate volatility ({atr_pct:.1f}%). Partial contraction visible.")
+        else:
+            score -= 10
+            cons.append(f"High ATR ({atr_pct:.1f}%) — no VCP base. Minervini waits for contraction.")
+
+    # 3. Earnings Growth (C+A of CANSLIM)
+    pe = metrics.get("pe_ratio", 0)
+    roe = metrics.get("roe_pct", 0)
+    if isinstance(roe, (int, float)) and roe >= 20:
+        score += 15
+        pros.append(f"ROE of {roe:.1f}% indicates exceptional business quality and earnings power.")
+    elif isinstance(roe, (int, float)) and roe >= 12:
+        score += 5
+        pros.append(f"Acceptable ROE of {roe:.1f}%.")
+    else:
+        score -= 10
+        cons.append("ROE below 12% — business quality insufficient for Minervini's growth criteria.")
+
+    # 52-week position proxy via price vs support/resistance
+    support = levels.get("support", price * 0.75)
+    resistance = levels.get("resistance", price * 1.25)
+    if price > 0 and resistance > support:
+        pct_from_low = (price - support) / support * 100
+        pct_from_high = (resistance - price) / resistance * 100
+        if pct_from_low >= 25 and pct_from_high <= 25:
+            score += 10
+            pros.append("Price positioned in the upper range — within 25% of highs, above 25% from lows.")
+
+    score = max(10, min(95, score))
+
+    if score >= 72:
+        verdict = "VCP_BREAKOUT_CANDIDATE"
+        badge = "Minervini VCP Setup"
+    elif score >= 52:
+        verdict = "TREND_TEMPLATE_QUALIFIED"
+        badge = "Trend Template Pass"
+    else:
+        verdict = "BELOW_MINERVINI_STANDARD"
+        badge = "No VCP Base"
+
+    rationale = (
+        f"Minervini SEPA score: {score}/100. "
+        + (" ".join(pros[:2]) if pros else "")
+        + (" " + cons[0] if cons else "")
+    )
+
+    return {
+        "persona":   "Mark Minervini",
+        "title":     "SEPA + VCP Growth Momentum",
+        "score":     score,
+        "verdict":   verdict,
+        "badge":     badge,
+        "rationale": rationale,
+        "key_metric": f"ATR: {(atr/price*100):.1f}% | Trend: {trend} | ADX: {adx_val:.0f}"
+    }
+
+
+def evaluate_turtle(
+    quote: Dict[str, Any],
+    technicals: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Richard Dennis / Ed Seykota Turtle Trading Framework:
+    - Donchian Channel breakouts (20-day high for System 1, 55-day for System 2).
+    - Position sizing: 1% equity risk / (2 × ATR) determines unit count.
+    - Trend confirmation: ADX > 20 required; no counter-trend trades.
+    - ATR-based trailing stop (2 ATR from entry).
+    """
+    price = quote.get("price", 0.0)
+    technicals = technicals or {}
+    levels = technicals.get("levels", {})
+    atr = levels.get("atr", price * 0.025 if price > 0 else 1.0)
+    resistance = levels.get("resistance", price * 1.05)
+    support = levels.get("support", price * 0.95)
+    trend = technicals.get("trend", "NEUTRAL")
+    adx_info = technicals.get("adx", {})
+    adx_val  = adx_info.get("adx", 15.0)
+
+    score = 50
+    pros = []
+    cons = []
+
+    # 1. Trend filter: ADX > 20 confirms a trending market
+    if adx_val >= 25:
+        score += 20
+        pros.append(f"Strong trend confirmed (ADX {adx_val:.0f} > 25) — Turtle system enters only in trending markets.")
+    elif adx_val >= 20:
+        score += 10
+        pros.append(f"Moderate trend (ADX {adx_val:.0f}) meets the minimum Turtle entry threshold.")
+    else:
+        score -= 15
+        cons.append(f"Weak ADX ({adx_val:.0f} < 20) — Turtle system avoids range-bound, choppy markets.")
+
+    # 2. Donchian breakout proximity (price near resistance = near channel breakout)
+    if price > 0 and resistance > 0:
+        pct_to_breakout = (resistance - price) / price * 100
+        if pct_to_breakout <= 1.5:
+            score += 25
+            pros.append(f"Price within {pct_to_breakout:.1f}% of the Donchian channel breakout level — imminent Turtle entry signal.")
+        elif pct_to_breakout <= 4.0:
+            score += 12
+            pros.append(f"Price approaching channel breakout ({pct_to_breakout:.1f}% away). Monitor for Turtle entry.")
+        else:
+            score -= 5
+            cons.append(f"Price {pct_to_breakout:.1f}% below breakout — no Turtle signal imminent.")
+
+    # 3. ATR sizing health (how many units can be taken)
+    if price > 0 and atr > 0:
+        turtle_stop = 2 * atr
+        stop_pct = (turtle_stop / price) * 100
+        if stop_pct <= 5.0:
+            score += 15
+            pros.append(f"2-ATR stop ({stop_pct:.1f}%) is within normal range — clean Turtle unit sizing possible.")
+        elif stop_pct <= 8.0:
+            score += 5
+        else:
+            score -= 10
+            cons.append(f"2-ATR stop of {stop_pct:.1f}% is very wide — limits position size significantly.")
+
+    # 4. Trend direction alignment
+    if trend == "BEARISH":
+        score -= 15
+        cons.append("Bearish trend — Turtle System 1 would be short, not long.")
+
+    score = max(10, min(95, score))
+
+    turtle_stop_price = round(price - 2 * atr, 2) if price > 0 else 0
+
+    if score >= 70:
+        verdict = "TURTLE_BREAKOUT_SIGNAL"
+        badge = "Donchian Breakout Setup"
+    elif score >= 52:
+        verdict = "TURTLE_TREND_ALIGNED"
+        badge = "Trending — Watch for Entry"
+    else:
+        verdict = "TURTLE_NO_SIGNAL"
+        badge = "No Trend / Choppy"
+
+    rationale = (
+        f"Turtle Trading score: {score}/100. "
+        + (" ".join(pros[:2]) if pros else "")
+        + (" " + cons[0] if cons else "")
+    )
+
+    return {
+        "persona":        "Richard Dennis / Turtle",
+        "title":          "Donchian Breakout + ATR Sizing",
+        "score":          score,
+        "verdict":        verdict,
+        "badge":          badge,
+        "turtle_stop":    turtle_stop_price,
+        "rationale":      rationale,
+        "key_metric":     f"ADX: {adx_val:.0f} | 2-ATR Stop: ₹{turtle_stop_price:,.1f} | Trend: {trend}"
+    }
+

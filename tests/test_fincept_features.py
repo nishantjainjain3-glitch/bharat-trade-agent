@@ -6,6 +6,8 @@ from src.analysis.personas import (
     evaluate_lynch,
     evaluate_ray_fu,
     evaluate_day_trading_guruji,
+    evaluate_minervini,
+    evaluate_turtle,
     evaluate_all_investor_personas
 )
 from src.data.macro_data import get_nse_sector_heatmap
@@ -105,11 +107,27 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertIn("Narrow CPR", res["cpr_setup"])
         self.assertIn("Sell-Side Liquidity (SSL) sweep confirmed", res["rationale"])
 
+    def test_minervini_vcp_trend_template(self):
+        res = evaluate_minervini(self.sample_quote, self.sample_technicals, self.sample_fundamentals)
+        self.assertEqual(res["persona"], "Mark Minervini")
+        self.assertGreaterEqual(res["score"], 60)
+        self.assertIn("Minervini SEPA score", res["rationale"])
+        self.assertIn("verdict", res)
+        self.assertIn("badge", res)
+
+    def test_turtle_donchian_breakout(self):
+        res = evaluate_turtle(self.sample_quote, self.sample_technicals)
+        self.assertEqual(res["persona"], "Richard Dennis / Turtle")
+        self.assertGreaterEqual(res["score"], 50)
+        self.assertIn("turtle_stop", res)
+        self.assertLess(res["turtle_stop"], self.sample_quote["price"])
+        self.assertIn("Turtle Trading score", res["rationale"])
+
     def test_composite_guru_consensus(self):
         comp = evaluate_all_investor_personas(
-            self.sample_quote, 
-            self.sample_fundamentals, 
-            self.sample_technicals, 
+            self.sample_quote,
+            self.sample_fundamentals,
+            self.sample_technicals,
             self.sample_order_flow
         )
         self.assertIn("buffett", comp)
@@ -117,6 +135,8 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertIn("lynch", comp)
         self.assertIn("ray_fu", comp)
         self.assertIn("day_trading_guruji", comp)
+        self.assertIn("minervini", comp)
+        self.assertIn("turtle", comp)
         self.assertIn("composite_guru_score", comp)
         self.assertIn("consensus_verdict", comp)
 
