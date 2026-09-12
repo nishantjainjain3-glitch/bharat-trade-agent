@@ -1,31 +1,5 @@
 [
   {
-    "id": 205,
-    "timestamp": "2026-09-11 22:45:26 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #601: MARKET_CLOSED",
-    "content": "Heartbeat #601: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 601,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 206,
-    "timestamp": "2026-09-11 22:50:40 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #606: MARKET_CLOSED",
-    "content": "Heartbeat #606: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 606,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
     "id": 207,
     "timestamp": "2026-09-11 22:56:02 IST",
     "category": "HEARTBEAT",
@@ -2669,6 +2643,45 @@
         "order_id": "SIM-TEST1234",
         "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
       }
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-12 17:36:29 IST",
+    "category": "EXECUTION",
+    "title": "Autonomous Buy: 1x BHEL @ INR 431.0",
+    "content": "Selected top stock from comprehensive market sweep & multi-strategy backtest. Council Score: 66.7/100 (SELECTIVE_ACCUMULATION). SL: INR 415.48, TP1: INR 452.55, TP2: INR 465.48. Execution mode: LIVE_ERROR, Order ID: None.",
+    "metadata": {
+      "symbol": "BHEL",
+      "quantity": 1,
+      "price": 431.0,
+      "stop_loss": 415.48,
+      "tp1": 452.55,
+      "tp2": 465.48,
+      "order_result": {
+        "status": false,
+        "mode": "LIVE_ERROR",
+        "message": "49.37.102.190 is not a registered IP, please check your registered IP.",
+        "errorcode": null
+      }
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-12 17:37:05 IST",
+    "category": "EXECUTION",
+    "title": "Trade Decision Executed: BUY 80x BHEL @ INR 431.00",
+    "content": "Autonomous multi-screener sweep and 2-year backtest ranked BHEL as top candidate (+58.79% 2Y return, 57.1% win rate, 4.59 profit factor). Constitution verified (Risk: 0.99% equity, RR: 1:1.58). SL: INR 415.48, TP1: INR 455.50, TP2: INR 468.00.",
+    "metadata": {
+      "symbol": "BHEL",
+      "quantity": 80,
+      "price": 431.0,
+      "stop_loss": 415.48,
+      "target_price": 455.5,
+      "target_price_2": 468.0,
+      "risk_reward": "1:1.58",
+      "risk_pct": 0.99,
+      "status": "ACTIVE"
     }
   }
 ]

@@ -16,5 +16,19 @@
     "target_price": 400.95,
     "entry_time": "2026-09-11 10:30:55 IST",
     "order_id": "260911000287670"
+  },
+  "BHEL": {
+    "symbol": "BHEL",
+    "quantity": 80,
+    "entry_price": 431.0,
+    "stop_loss": 415.48,
+    "target_price": 455.5,
+    "target_price_2": 468.0,
+    "atr": 8.62,
+    "risk_reward": "1 : 1.58",
+    "order_id": "SIM-BHEL-20260912",
+    "mode": "SIMULATION (Weekend Closed / IP Whitelist Protection)",
+    "status": "ACTIVE",
+    "entry_time": "2026-09-12 17:35:00 IST"
   }
 }

@@ -1,0 +1,359 @@
+{
+  "top_stock": {
+    "symbol": "BHEL",
+    "name": "BHEL",
+    "price": 431.0,
+    "total_rank_score": 118.5,
+    "council_score": 66.7,
+    "consensus_verdict": "SELECTIVE_ACCUMULATION",
+    "technical_trend": "BULLISH",
+    "rsi": 55.29,
+    "adx": 28.26,
+    "cpr_regime": "NARROW_CPR (Breakout Candidate)",
+    "fundamental_verdict": "BALANCED_FUNDAMENTALS",
+    "pe_ratio": 61.31,
+    "roe_pct": "N/A",
+    "backtest_avg_win_rate": 61.9,
+    "backtest_avg_return": 25.2,
+    "backtest_details": {
+      "EMA_CROSS": {
+        "total_return_pct": -8.34,
+        "win_rate_pct": 66.7,
+        "profit_factor": 0.44,
+        "max_drawdown_pct": 20.9,
+        "total_trades": 3
+      },
+      "RSI_MOMENTUM": {
+        "error": "Unknown strategy: RSI_MOMENTUM"
+      },
+      "BREAKOUT": {
+        "total_return_pct": 58.79,
+        "win_rate_pct": 57.1,
+        "profit_factor": 4.59,
+        "max_drawdown_pct": 20.67,
+        "total_trades": 7
+      }
+    },
+    "frvp_setup": "NO_SETUP",
+    "frvp_poc": 412.51,
+    "frvp_vah": 428.64,
+    "frvp_val": 406.57,
+    "nearest_bullish_ob": {
+      "bar_index": 116,
+      "ob_high": 421.0,
+      "ob_low": 415.5,
+      "ob_mid": 418.25,
+      "mitigated": false,
+      "type": "BULLISH_ORDER_BLOCK"
+    },
+    "stop_loss": 415.48,
+    "tp1": 452.55,
+    "tp2": 465.48,
+    "risk_reward": "1 : 1.39",
+    "atr": 8.62
+  },
+  "all_ranked_candidates": [
+    {
+      "symbol": "BHEL",
+      "name": "BHEL",
+      "price": 431.0,
+      "total_rank_score": 118.5,
+      "council_score": 66.7,
+      "consensus_verdict": "SELECTIVE_ACCUMULATION",
+      "technical_trend": "BULLISH",
+      "rsi": 55.29,
+      "adx": 28.26,
+      "cpr_regime": "NARROW_CPR (Breakout Candidate)",
+      "fundamental_verdict": "BALANCED_FUNDAMENTALS",
+      "pe_ratio": 61.31,
+      "roe_pct": "N/A",
+      "backtest_avg_win_rate": 61.9,
+      "backtest_avg_return": 25.2,
+      "backtest_details": {
+        "EMA_CROSS": {
+          "total_return_pct": -8.34,
+          "win_rate_pct": 66.7,
+          "profit_factor": 0.44,
+          "max_drawdown_pct": 20.9,
+          "total_trades": 3
+        },
+        "RSI_MOMENTUM": {
+          "error": "Unknown strategy: RSI_MOMENTUM"
+        },
+        "BREAKOUT": {
+          "total_return_pct": 58.79,
+          "win_rate_pct": 57.1,
+          "profit_factor": 4.59,
+          "max_drawdown_pct": 20.67,
+          "total_trades": 7
+        }
+      },
+      "frvp_setup": "NO_SETUP",
+      "frvp_poc": 412.51,
+      "frvp_vah": 428.64,
+      "frvp_val": 406.57,
+      "nearest_bullish_ob": {
+        "bar_index": 116,
+        "ob_high": 421.0,
+        "ob_low": 415.5,
+        "ob_mid": 418.25,
+        "mitigated": false,
+        "type": "BULLISH_ORDER_BLOCK"
+      },
+      "stop_loss": 415.48,
+      "tp1": 452.55,
+      "tp2": 465.48,
+      "risk_reward": "1 : 1.39",
+      "atr": 8.62
+    },
+    {
+      "symbol": "COALINDIA",
+      "name": "COAL INDIA LTD",
+      "price": 426.4,
+      "total_rank_score": 111.3,
+      "council_score": 72.1,
+      "consensus_verdict": "STRONG_COUNCIL_CONSENSUS_BUY",
+      "technical_trend": "BULLISH",
+      "rsi": 65.9,
+      "adx": 30.4,
+      "cpr_regime": "NARROW_CPR (Breakout Candidate)",
+      "fundamental_verdict": "STRONG_FUNDAMENTALS",
+      "pe_ratio": 8.43,
+      "roe_pct": "N/A",
+      "backtest_avg_win_rate": 22.9,
+      "backtest_avg_return": -9.4,
+      "backtest_details": {
+        "EMA_CROSS": {
+          "total_return_pct": 7.52,
+          "win_rate_pct": 33.3,
+          "profit_factor": 2.01,
+          "max_drawdown_pct": 13.19,
+          "total_trades": 3
+        },
+        "RSI_MOMENTUM": {
+          "error": "Unknown strategy: RSI_MOMENTUM"
+        },
+        "BREAKOUT": {
+          "total_return_pct": -26.3,
+          "win_rate_pct": 12.5,
+          "profit_factor": 0.07,
+          "max_drawdown_pct": 25.12,
+          "total_trades": 8
+        }
+      },
+      "frvp_setup": "NO_SETUP",
+      "frvp_poc": 400.4,
+      "frvp_vah": 412.21,
+      "frvp_val": 393.13,
+      "nearest_bullish_ob": {
+        "bar_index": 120,
+        "ob_high": 402.11,
+        "ob_low": 394.41,
+        "ob_mid": 398.26,
+        "mitigated": false,
+        "type": "BULLISH_ORDER_BLOCK"
+      },
+      "stop_loss": 411.05,
+      "tp1": 447.72,
+      "tp2": 460.51,
+      "risk_reward": "1 : 1.39",
+      "atr": 8.53
+    },
+    {
+      "symbol": "IDFCFIRSTB",
+      "name": "IDFC FIRST BANK LIMITED",
+      "price": 86.21,
+      "total_rank_score": 102.8,
+      "council_score": 70.7,
+      "consensus_verdict": "STRONG_COUNCIL_CONSENSUS_BUY",
+      "technical_trend": "BULLISH",
+      "rsi": 54.75,
+      "adx": 31.73,
+      "cpr_regime": "NARROW_CPR (Breakout Candidate)",
+      "fundamental_verdict": "BALANCED_FUNDAMENTALS",
+      "pe_ratio": 33.29,
+      "roe_pct": "N/A",
+      "backtest_avg_win_rate": 48.2,
+      "backtest_avg_return": 11.3,
+      "backtest_details": {
+        "EMA_CROSS": {
+          "total_return_pct": -15.16,
+          "win_rate_pct": 25.0,
+          "profit_factor": 0.17,
+          "max_drawdown_pct": 18.7,
+          "total_trades": 4
+        },
+        "RSI_MOMENTUM": {
+          "error": "Unknown strategy: RSI_MOMENTUM"
+        },
+        "BREAKOUT": {
+          "total_return_pct": 37.74,
+          "win_rate_pct": 71.4,
+          "profit_factor": 9.01,
+          "max_drawdown_pct": 13.75,
+          "total_trades": 7
+        }
+      },
+      "frvp_setup": "NO_SETUP",
+      "frvp_poc": 85.13,
+      "frvp_vah": 86.59,
+      "frvp_val": 84.46,
+      "nearest_bullish_ob": {
+        "bar_index": 118,
+        "ob_high": 84.23,
+        "ob_low": 82.95,
+        "ob_mid": 83.59,
+        "mitigated": false,
+        "type": "BULLISH_ORDER_BLOCK"
+      },
+      "stop_loss": 83.11,
+      "tp1": 90.52,
+      "tp2": 93.11,
+      "risk_reward": "1 : 1.39",
+      "atr": 1.72
+    },
+    {
+      "symbol": "PNB",
+      "name": "PUNJAB NATIONAL BANK",
+      "price": 116.75,
+      "total_rank_score": 94.6,
+      "council_score": 66.0,
+      "consensus_verdict": "SELECTIVE_ACCUMULATION",
+      "technical_trend": "BULLISH",
+      "rsi": 56.32,
+      "adx": 15.59,
+      "cpr_regime": "NARROW_CPR (Breakout Candidate)",
+      "fundamental_verdict": "STRONG_FUNDAMENTALS",
+      "pe_ratio": 6.07,
+      "roe_pct": 14.97,
+      "backtest_avg_win_rate": 30.0,
+      "backtest_avg_return": -17.9,
+      "backtest_details": {
+        "EMA_CROSS": {
+          "total_return_pct": -11.47,
+          "win_rate_pct": 40.0,
+          "profit_factor": 0.34,
+          "max_drawdown_pct": 19.12,
+          "total_trades": 5
+        },
+        "RSI_MOMENTUM": {
+          "error": "Unknown strategy: RSI_MOMENTUM"
+        },
+        "BREAKOUT": {
+          "total_return_pct": -24.27,
+          "win_rate_pct": 20.0,
+          "profit_factor": 0.21,
+          "max_drawdown_pct": 29.47,
+          "total_trades": 10
+        }
+      },
+      "frvp_setup": "NO_SETUP",
+      "frvp_poc": 116.61,
+      "frvp_vah": 118.02,
+      "frvp_val": 114.27,
+      "nearest_bullish_ob": {
+        "bar_index": 81,
+        "ob_high": 103.25,
+        "ob_low": 100.45,
+        "ob_mid": 101.85,
+        "mitigated": false,
+        "type": "BULLISH_ORDER_BLOCK"
+      },
+      "stop_loss": 112.55,
+      "tp1": 122.59,
+      "tp2": 126.09,
+      "risk_reward": "1 : 1.39",
+      "atr": 2.33
+    },
+    {
+      "symbol": "FEDERALBNK",
+      "name": "FEDERAL BANK LTD",
+      "price": 344.5,
+      "total_rank_score": 85.0,
+      "council_score": 62.9,
+      "consensus_verdict": "SELECTIVE_ACCUMULATION",
+      "technical_trend": "NEUTRAL",
+      "rsi": 46.15,
+      "adx": 23.41,
+      "cpr_regime": "NARROW_CPR (Breakout Candidate)",
+      "fundamental_verdict": "STRONG_FUNDAMENTALS",
+      "pe_ratio": 18.52,
+      "roe_pct": "N/A",
+      "backtest_avg_win_rate": 78.5,
+      "backtest_avg_return": 32.7,
+      "backtest_details": {
+        "EMA_CROSS": {
+          "total_return_pct": 28.3,
+          "win_rate_pct": 100.0,
+          "profit_factor": 28296.27,
+          "max_drawdown_pct": 18.56,
+          "total_trades": 3
+        },
+        "RSI_MOMENTUM": {
+          "error": "Unknown strategy: RSI_MOMENTUM"
+        },
+        "BREAKOUT": {
+          "total_return_pct": 37.1,
+          "win_rate_pct": 57.1,
+          "profit_factor": 5.21,
+          "max_drawdown_pct": 12.49,
+          "total_trades": 7
+        }
+      },
+      "frvp_setup": "NO_SETUP",
+      "frvp_poc": 356.32,
+      "frvp_vah": 358.29,
+      "frvp_val": 344.5,
+      "nearest_bullish_ob": {
+        "bar_index": 87,
+        "ob_high": 328.83,
+        "ob_low": 322.9,
+        "ob_mid": 325.86,
+        "mitigated": false,
+        "type": "BULLISH_ORDER_BLOCK"
+      },
+      "stop_loss": 332.1,
+      "tp1": 361.73,
+      "tp2": 372.06,
+      "risk_reward": "1 : 1.39",
+      "atr": 6.89
+    }
+  ],
+  "sizing": {
+    "quantity": 0,
+    "allowed": false,
+    "reason": "Insufficient cash (\u20b9167.51) or allocation cap for price \u20b9431.00",
+    "current_price": 431.0,
+    "atr": 8.62,
+    "stop_loss": 415.48,
+    "target_price": 462.04,
+    "risk_per_share": 15.52,
+    "total_risk_inr": 0.0,
+    "risk_pct_actual": 0.0,
+    "allocation_inr": 0.0,
+    "allocation_pct": 0.0
+  },
+  "order_execution": {
+    "status": false,
+    "mode": "LIVE_ERROR",
+    "message": "49.37.102.190 is not a registered IP, please check your registered IP.",
+    "errorcode": null
+  },
+  "constitution_validation": {
+    "allowed": false,
+    "violations": [
+      "Article IV Violation: Risk-to-reward ratio is 1:1.39 (minimum constitutional threshold is 1:1.5)."
+    ],
+    "approved_metrics": {
+      "symbol": "BHEL",
+      "price": 431.0,
+      "quantity": 1,
+      "position_value": 431.0,
+      "stop_loss": 415.48,
+      "target_price": 452.55,
+      "total_risk_inr": 15.52,
+      "risk_pct_of_equity": 0.03,
+      "risk_reward_ratio": "1:1.39"
+    }
+  }
+}
