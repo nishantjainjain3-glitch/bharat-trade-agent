@@ -1,9 +1,11 @@
-﻿import unittest
+import unittest
 import math
 from src.analysis.personas import (
     evaluate_buffett,
     evaluate_graham,
     evaluate_lynch,
+    evaluate_ray_fu,
+    evaluate_day_trading_guruji,
     evaluate_all_investor_personas
 )
 from src.data.macro_data import get_nse_sector_heatmap
@@ -28,6 +30,32 @@ class TestFinceptFeatures(unittest.TestCase):
                 "book_value": 333.3,
                 "eps": 140.0
             }
+        }
+        self.sample_technicals = {
+            "trend": "BULLISH",
+            "rsi": 55.0,
+            "adx": {"adx": 28.0},
+            "levels": {
+                "support": 3900.0,
+                "resistance": 4150.0,
+                "atr": 60.0 # 1.5% ATR
+            },
+            "cpr": {
+                "pivot": 3980.0,
+                "tc": 3990.0,
+                "bc": 3970.0,
+                "width_pct": 0.30, # Narrow CPR
+                "price_position": "ABOVE_CPR (Bullish Institutional Bias)"
+            }
+        }
+        self.sample_order_flow = {
+            "liquidity_sweeps": [
+                {
+                    "type": "SELL_SIDE_LIQUIDITY_SWEEP",
+                    "price_level": 3890.0,
+                    "volume_absorbed": 150000
+                }
+            ]
         }
 
     def test_buffett_evaluation_wide_moat(self):
@@ -61,11 +89,34 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertGreaterEqual(res["score"], 75)
         self.assertIn("Fast Grower", res["category"])
 
+    def test_ray_fu_evaluation_quant_regime(self):
+        res = evaluate_ray_fu(self.sample_quote, self.sample_technicals, self.sample_fundamentals)
+        self.assertEqual(res["persona"], "Ray Fu")
+        self.assertGreaterEqual(res["score"], 70)
+        self.assertIn("Trend Following", res["regime"])
+        self.assertEqual(res["audit_tag"], "VERIFIED_DATA")
+        self.assertIn("Ray Fu criteria score", res["rationale"])
+
+    def test_day_trading_guruji_liquidity_sweep(self):
+        res = evaluate_day_trading_guruji(self.sample_quote, self.sample_technicals, self.sample_order_flow)
+        self.assertEqual(res["persona"], "Day Trading Guruji")
+        self.assertGreaterEqual(res["score"], 75)
+        self.assertEqual(res["verdict"], "SWEEP_CONFIRMED_BUY")
+        self.assertIn("Narrow CPR", res["cpr_setup"])
+        self.assertIn("Sell-Side Liquidity (SSL) sweep confirmed", res["rationale"])
+
     def test_composite_guru_consensus(self):
-        comp = evaluate_all_investor_personas(self.sample_quote, self.sample_fundamentals)
+        comp = evaluate_all_investor_personas(
+            self.sample_quote, 
+            self.sample_fundamentals, 
+            self.sample_technicals, 
+            self.sample_order_flow
+        )
         self.assertIn("buffett", comp)
         self.assertIn("graham", comp)
         self.assertIn("lynch", comp)
+        self.assertIn("ray_fu", comp)
+        self.assertIn("day_trading_guruji", comp)
         self.assertIn("composite_guru_score", comp)
         self.assertIn("consensus_verdict", comp)
 

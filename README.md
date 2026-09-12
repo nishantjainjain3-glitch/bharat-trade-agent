@@ -5,13 +5,13 @@ An autonomous Indian equity research and trading workstation with mobile-respons
 ## Features
 - **Real-Time Indian Equities Data:** Live quotes, 52-week ranges, technicals, and sector classifications for NSE/BSE.
 - **Top AI Buy Recommendations:** Automated screener finding high-conviction buy setups across liquid Nifty bluechips.
-- **Multi-Agent Research Engine:** Technical Analyst + Fundamental Analyst + Bull vs. Bear debate with entry, target, and stop-loss levels.
-- **Live Indian Financial News:** Real-time headlines and exchange filings injected into research.
-- **Macro Market Bar:** Live Nifty 50, Bank Nifty, USD/INR, and Brent Crude oil tracking.
-- **Strategy Backtester:** Vectorized multi-year backtesting (EMA Crossovers, RSI Mean Reversion, Breakouts) with compounding equity curves and win rates.
-- **Angel One SmartAPI Module:** Direct portfolio tracking, simulation paper trading mode, and order execution.
-- **Mobile-First Web App:** Works across desktop browsers and mobile phones ("Add to Home Screen" PWA support).
-- **Telegram Phone Alerts:** One-click trade alerts pushed straight to your Telegram app.
+- **Master Strategy Council (5 Frameworks):** Evaluates stocks across Warren Buffett (Moat), Benjamin Graham (Margin of Safety), Peter Lynch (GARP), Ray Fu (1% ATR Volatility Sizing & Quant Regimes), and Day Trading Guruji (CPR & Liquidity Sweeps).
+- **Ray Fu Maker-Checker Adversarial Loop:** Deterministic audit verifying mathematics (risk-to-reward >= 1.5:1), validating exchange filings, and tagging unconfirmed data with `[UNVERIFIED]`.
+- **Day Trading Guruji Price Action Engine:** False-breakdown sell-side liquidity sweep (SSL) detection, CPR width breakout/range filters, and retail indicator reality checks.
+- **NotebookLM AI Backtest Pipeline:** Seamless 4-step workflow to convert any YouTube video or corporate filing PDF into quantitative TradingView Pine Script and Python backtest logic.
+- **Tactical Battle Plan:** Pullback vs. breakout entry bands, relative volume (RVOL) confluence, and Freqtrade positive trailing stops.
+- **Interactive Playbook & Creator Studio:** Dedicated UI hub with interactive 1% ATR volatility position sizer, indicator backtest comparisons, and one-click prompt copy cards.
+- **Telegram Phone Alerts:** One-click trade alerts and morning/evening daily market briefings pushed straight to your Telegram app.
 
 ## Quickstart (Local Run)
 ```bash

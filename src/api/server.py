@@ -300,8 +300,9 @@ def analyze_stock(req: AnalyzeRequest):
         raw_fundamentals = get_company_fundamentals(req.symbol)
         fundamentals = evaluate_fundamentals(raw_fundamentals)
         news = get_indian_stock_news(req.symbol, quote.get("name", ""))
+        order_flow = analyze_order_flow(df)
         research = run_multi_agent_research(quote, technicals, fundamentals, news)
-        personas = evaluate_all_investor_personas(quote, fundamentals)
+        personas = evaluate_all_investor_personas(quote, fundamentals, technicals=technicals, order_flow=order_flow)
         financials = get_corporate_financial_history(req.symbol)
         hb_status = agent_heartbeat.get_status()
         tier_name = hb_status.get("survival_tier", {}).get("tier", "NORMAL")
@@ -312,6 +313,7 @@ def analyze_stock(req: AnalyzeRequest):
             "technicals": technicals,
             "fundamentals": fundamentals,
             "news": news,
+            "order_flow": order_flow,
             "research": research,
             "personas": personas,
             "financials": financials,
@@ -319,6 +321,85 @@ def analyze_stock(req: AnalyzeRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/playbook/creators")
+def get_creator_playbook():
+    return {
+        "status": "success",
+        "creators": {
+            "ray_fu": {
+                "handle": "@raycfu",
+                "name": "Ray Fu",
+                "title": "Quantitative Trading Bot & Loop Engineering",
+                "core_concepts": [
+                    {
+                        "name": "1% ATR Volatility Sizing",
+                        "description": "Calculates position sizing so that the distance between entry and stop-loss (1.5x - 2.0x daily ATR) risks strictly 1.0% of portfolio equity.",
+                        "rule": "Position Size = (Portfolio Equity * 0.01) / (2.0 * ATR)"
+                    },
+                    {
+                        "name": "Multi-Instrument Quant Regimes",
+                        "description": "Index mean-reversion in sideways compression, trend-following when ADX > 25, and momentum breakouts on Bollinger Band expansion.",
+                        "rule": "Regime gating dictates strategy activation without style drift."
+                    },
+                    {
+                        "name": "10% Maximum Drawdown Circuit Breaker",
+                        "description": "Portfolio automatically freezes new allocations if peak-to-trough drawdown reaches 10%, cutting size by 50% at 2% drawdown.",
+                        "rule": "Implemented in agent survival tiers (Normal -> Defensive -> Critical -> Circuit Breaker)."
+                    },
+                    {
+                        "name": "Maker-Checker Adversarial Loop",
+                        "description": "An independent validation pass that recalculates all mathematics, verifies source citations, and marks unverified figures as [UNVERIFIED].",
+                        "rule": "Every research synthesis is audited before trade execution."
+                    },
+                    {
+                        "name": "Loop Engineering & IC Scoring",
+                        "description": "Evaluates signal persistence with Information Coefficient (IC > 0.5 is strong, < 0.3 is noise) and enforces a 5-day signal half-life decay filter.",
+                        "rule": "Discard 1-bar blips; only execute on persistent statistical edges."
+                    }
+                ]
+            },
+            "day_trading_guruji": {
+                "handle": "@daytradingguruji",
+                "name": "Hardik Sharma",
+                "title": "Intraday Price Action & Retail Reality Check",
+                "backtested_results": [
+                    {"strategy": "5 EMA Strategy (Subasish Pani)", "timeframe": "5m / 15m", "net_return": "-5.19%", "win_rate": "23.5%", "max_drawdown": "8.7%", "verdict": "FAIL (Choppy Whipsaws)"},
+                    {"strategy": "9 & 15 EMA Scalp (The Trade Room)", "timeframe": "5m", "net_return": "Negative", "win_rate": "<30%", "max_drawdown": "11.2%", "verdict": "FAIL (Lagging Moving Average Crossover)"},
+                    {"strategy": "Brahmastra Strategy (Pushkar Raj Thakur)", "timeframe": "5m", "net_return": "-0.09%", "win_rate": "41.5%", "max_drawdown": "3.5%", "verdict": "FAIL (Overfitted Multi-Indicator Lag)"},
+                    {"strategy": "Liquidity Sweep & Zone Re-Entry (Hardik Sharma)", "timeframe": "5m / 15m", "net_return": "+18.0%", "win_rate": "62.0%", "max_drawdown": "4.0%", "verdict": "PROFITABLE (Institutional Absorption)"}
+                ],
+                "core_concepts": [
+                    {
+                        "name": "Institutional Liquidity Sweep Setup",
+                        "description": "Wait for price to punch below an established support/demand level by 1-2%, flushing retail stop losses, then take entry only when a candle closes back above the level with surge volume.",
+                        "rule": "Entry on close back inside zone. Hard stop under the sweep wick. Minimum 1:2 to 1:3 RR."
+                    },
+                    {
+                        "name": "Central Pivot Range (CPR) Width Filter",
+                        "description": "Narrow CPR (width <= 0.35%) flags high directional breakout probability. Wide CPR (>= 0.90%) signals range-bound consolidation day.",
+                        "rule": "Trending breakout trades only on narrow CPR; fade extremes on wide CPR."
+                    },
+                    {
+                        "name": "Time-of-Day Discipline",
+                        "description": "Avoid placing mechanical entries in the first 30 minutes (9:15 - 9:45 AM) to let institutional opening balance form.",
+                        "rule": "High-probability entries occur post 9:45 AM and 10:45 AM."
+                    }
+                ]
+            },
+            "notebooklm_pipeline": {
+                "title": "NotebookLM Strategy Extraction & Backtest Pipeline",
+                "steps": [
+                    "Step 1: Paste any YouTube URL or research PDF into Google NotebookLM (notebooklm.google.com).",
+                    "Step 2: Prompt NotebookLM: 'Extract the complete trading rules from the above source: indicators, timeframes, long/short entry triggers, stop-loss calculation, and profit targets.'",
+                    "Step 3: Copy extracted rules and prompt LLM: 'Convert the following trading rules into a modular Python strategy / TradingView Pine Script with walk-forward validation and slippage.'",
+                    "Step 4: Feed generated code directly into our Agent Strategy Backtester (/api/backtest) or TradingView Pine Editor."
+                ],
+                "notebooklm_prompt": "Act as a senior quantitative researcher. Extract all trading rules from this source: 1. Asset class and recommended timeframe. 2. Indicator parameters (periods, types). 3. Exact Long entry conditions. 4. Exact Short entry conditions. 5. Hard stop loss level. 6. Profit targets and risk-to-reward ratio. 7. Invalidation / exit rules. Format as a numbered rulebook.",
+                "codegen_prompt": "You are a Pine Script v5 and Python quantitative developer. Convert these exact trading rules into an error-free TradingView strategy and Python backtest logic with 1% ATR position sizing and 0.1% slippage per leg."
+            }
+        }
+    }
 
 @app.post("/api/backtest")
 def run_backtest_endpoint(req: BacktestRequest):

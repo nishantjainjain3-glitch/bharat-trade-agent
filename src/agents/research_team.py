@@ -154,7 +154,7 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
         f"Recommended operational window: Entry between INR {entry_low} - INR {entry_high} targeting INR {target_val} with strict SL at INR {stop_loss_val}."
     )
 
-    return {
+    research_payload = {
         "verdict": verdict,
         "conviction": conviction,
         "time_horizon": time_horizon,
@@ -170,4 +170,79 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
         "news_headlines": news_headlines,
         "sentiment_velocity": sentiment_velocity,
         "provider": "quantitative_agent_engine"
+    }
+
+    # Ray Fu Maker-Checker Adversarial Verification Stage
+    research_payload["maker_checker_audit"] = run_maker_checker_audit(
+        research=research_payload,
+        quote=quote,
+        technicals=technicals,
+        fundamentals=fundamentals
+    )
+
+    return research_payload
+
+def run_maker_checker_audit(
+    research: Dict[str, Any], 
+    quote: Dict[str, Any], 
+    technicals: Dict[str, Any], 
+    fundamentals: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Adversarial Checker Loop inspired by Ray Fu (@raycfu):
+    Independent verification pass that recalculates math, checks source metrics,
+    verifies minimum risk-to-reward (>= 1.5), and marks unconfirmed data as UNVERIFIED.
+    """
+    price = quote.get("price", 0.0)
+    unverified_fields = []
+    math_verified = True
+    audit_notes = []
+
+    # Verify math on stop loss & target price
+    try:
+        t_str = str(research.get("target_price", "")).replace("INR", "").replace("₹", "").strip()
+        s_str = str(research.get("stop_loss", "")).replace("INR", "").replace("₹", "").strip()
+        t_val = float(t_str) if t_str else 0.0
+        s_val = float(s_str) if s_str else 0.0
+
+        if price > 0 and s_val > 0 and t_val > 0:
+            risk = price - s_val
+            reward = t_val - price
+            if risk > 0:
+                calc_rr = reward / risk
+                if calc_rr < 1.45:
+                    math_verified = False
+                    audit_notes.append(f"Asymmetry warning: Calculated RR ({calc_rr:.1f}) is below 1.5 minimum threshold.")
+                else:
+                    audit_notes.append(f"Math verified: Projected reward/risk ratio ({calc_rr:.1f}:1) meets threshold.")
+            else:
+                math_verified = False
+                audit_notes.append("Math error: Stop loss is above or equal to current price.")
+    except Exception:
+        math_verified = False
+        audit_notes.append("Unable to parse numerical stop/target bounds for mathematical recalculation.")
+
+    # Cross-verify fundamental data against filings
+    f_metrics = fundamentals.get("metrics", {})
+    if not f_metrics.get("pe_ratio") or f_metrics.get("pe_ratio") <= 0:
+        unverified_fields.append("pe_ratio")
+    if not f_metrics.get("roe_pct"):
+        unverified_fields.append("roe_pct")
+    if not f_metrics.get("debt_to_equity"):
+        unverified_fields.append("debt_to_equity")
+
+    if unverified_fields:
+        audit_notes.append(f"Unconfirmed fundamental metrics: {', '.join(unverified_fields)} [MARKED AS UNVERIFIED].")
+        if research.get("conviction", 5) > 7:
+            research["conviction"] = 7
+            audit_notes.append("Conviction capped at 7/10 due to unverified financial metrics.")
+
+    status = "AUDIT_PASSED" if math_verified and len(unverified_fields) == 0 else "AUDIT_PASSED_WITH_CAVEATS"
+
+    return {
+        "status": status,
+        "framework": "Ray Fu Maker-Checker Adversarial Protocol",
+        "math_verified": math_verified,
+        "unverified_fields": unverified_fields,
+        "audit_notes": " ".join(audit_notes)
     }

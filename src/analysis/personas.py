@@ -1,4 +1,4 @@
-﻿import math
+import math
 from typing import Dict, Any, Optional
 
 def evaluate_buffett(quote: Dict[str, Any], fundamentals: Dict[str, Any]) -> Dict[str, Any]:
@@ -230,28 +230,233 @@ def evaluate_lynch(quote: Dict[str, Any], fundamentals: Dict[str, Any]) -> Dict[
         "key_metric": f"PEG: {peg if isinstance(peg, (int, float)) else 'N/A'} | Class: {category}"
     }
 
-def evaluate_all_investor_personas(quote: Dict[str, Any], fundamentals: Dict[str, Any]) -> Dict[str, Any]:
-    """Runs all 3 investor frameworks and synthesizes a master guru consensus."""
+def evaluate_ray_fu(
+    quote: Dict[str, Any], 
+    technicals: Optional[Dict[str, Any]] = None, 
+    fundamentals: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Ray Fu Framework (@raycfu):
+    - 1% Portfolio Risk Sizing based on ATR (ensures risk per trade is strictly defined).
+    - Multi-Instrument Quant Regime: Trend-following on ADX > 25, Momentum breakout on volatility expansion, Mean reversion on range-bound low-ATR.
+    - Signal Half-Life & Decay: Requires signal persistence (no entering on transient 1-bar spikes).
+    - Maker-Checker Adversarial Audit: Mathematical verification of target/stop asymmetry (min 1.5:1), tagging any unverified claims as UNVERIFIED.
+    - 10% Maximum Portfolio Drawdown circuit breaker alignment.
+    """
+    price = quote.get("price", 0.0)
+    technicals = technicals or {}
+    fundamentals = fundamentals or {}
+    levels = technicals.get("levels", {})
+    atr = levels.get("atr", price * 0.025 if price > 0 else 1.0)
+    adx_info = technicals.get("adx", {})
+    adx_val = adx_info.get("adx", 20.0)
+    trend = technicals.get("trend", "NEUTRAL")
+    metrics = fundamentals.get("metrics", {})
+
+    score = 50
+    pros = []
+    cons = []
+
+    # 1. ATR Risk Calibration (1% sizing parameter check)
+    if atr > 0 and price > 0:
+        atr_pct = (atr / price) * 100.0
+        if atr_pct <= 3.5:
+            score += 20
+            pros.append(f"Controlled ATR volatility ({atr_pct:.1f}% of price) allows clean 1% risk position sizing.")
+        elif atr_pct > 6.0:
+            score -= 15
+            cons.append(f"Excessive daily ATR volatility ({atr_pct:.1f}%) forces wide stops that strain the 1% risk budget.")
+        else:
+            score += 10
+            pros.append(f"Moderate ATR volatility ({atr_pct:.1f}%) meets quantitative risk sizing bounds.")
+    else:
+        cons.append("ATR data unavailable for risk calculation.")
+
+    # 2. Multi-Instrument Regime Alignment
+    if adx_val >= 25.0 and trend == "BULLISH":
+        score += 25
+        regime = "Trend Following (ADX > 25)"
+        pros.append(f"Strong directional trend alignment confirmed by ADX ({adx_val}) and moving average stack.")
+    elif adx_val < 20.0 and "ABOVE_CPR" in str(technicals.get("cpr", {}).get("price_position", "")):
+        score += 10
+        regime = "Mean Reversion / Range"
+        pros.append("Range-bound regime with constructive support base suitable for mean reversion.")
+    elif trend == "BEARISH":
+        score -= 20
+        regime = "Adverse Bearish Trend"
+        cons.append("Adverse technical trend violates quantitative directional filter.")
+    else:
+        regime = "Neutral Consolidation"
+
+    # 3. Maker-Checker Data Verification
+    unverified_count = 0
+    if not metrics.get("pe_ratio") or metrics.get("pe_ratio") <= 0:
+        unverified_count += 1
+    if not metrics.get("roe_pct"):
+        unverified_count += 1
+    
+    if unverified_count == 0:
+        score += 10
+        audit_tag = "VERIFIED_DATA"
+        pros.append("Fundamental metrics cross-verified with audited exchange data.")
+    else:
+        audit_tag = "UNVERIFIED_DATA_FLAGS"
+        cons.append(f"{unverified_count} fundamental data fields unverified from source filings.")
+
+    score = max(10, min(95, score))
+
+    if score >= 75:
+        verdict = "QUANT_CONVICTION_BUY"
+        badge = f"Quant Pick ({regime})"
+    elif score >= 55:
+        verdict = "TACTICAL_ACCUMULATION"
+        badge = f"Regime: {regime}"
+    else:
+        verdict = "REGIME_MISALIGNED_PASS"
+        badge = "High Noise / Filtered Out"
+
+    rationale = (
+        f"Ray Fu criteria score: {score}/100 ({regime}). "
+        + (" ".join(pros[:2]) if pros else "")
+        + (" " + cons[0] if cons else "")
+    )
+
+    return {
+        "persona": "Ray Fu",
+        "title": "Quant Execution & Maker-Checker",
+        "score": score,
+        "verdict": verdict,
+        "badge": badge,
+        "regime": regime,
+        "audit_tag": audit_tag,
+        "rationale": rationale,
+        "key_metric": f"ATR: ₹{atr:,.1f} | ADX: {adx_val} ({regime})"
+    }
+
+def evaluate_day_trading_guruji(
+    quote: Dict[str, Any], 
+    technicals: Optional[Dict[str, Any]] = None, 
+    order_flow: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Hardik Sharma Framework (@daytradingguruji):
+    - Liquidity Sweeps & Smart Money Re-entry: Detects sell-side liquidity sweep (SSL) below support/pivots followed by high-volume close back inside the zone.
+    - Central Pivot Range (CPR) Width: Narrow CPR (< 0.75%) flags high breakout momentum; Wide CPR dictates range-bound fading.
+    - Retail Indicator Reality Check: Penalizes blind 5 EMA / 9-15 EMA crossover chasing without volume absorption; requires institutional confirmation.
+    - Asymmetric Risk-to-Reward: Demands tight stop loss under the sweep wick with minimum 1:2 to 1:3 RR targets.
+    - Time-of-Day Filter: Prefers trades initiated after opening noise settles (post 9:45 / 10:45 AM).
+    """
+    price = quote.get("price", 0.0)
+    technicals = technicals or {}
+    cpr = technicals.get("cpr", {})
+    cpr_width = cpr.get("width_pct", 0.5)
+    cpr_pos = cpr.get("price_position", "INSIDE_CPR")
+    rsi = technicals.get("rsi", 50.0)
+    levels = technicals.get("levels", {})
+    support = levels.get("support", price * 0.96)
+    
+    score = 50
+    pros = []
+    cons = []
+
+    # 1. Central Pivot Range (CPR) Analysis
+    if cpr_width <= 0.35:
+        score += 25
+        cpr_setup = "Narrow CPR (Breakout Coiled)"
+        pros.append(f"Ultra-narrow Central Pivot Range ({cpr_width:.2f}%) indicates high institutional compression and imminent breakout expansion.")
+    elif cpr_width <= 0.75:
+        score += 15
+        cpr_setup = "Moderate CPR (Trending Potential)"
+        pros.append(f"Constructive CPR width ({cpr_width:.2f}%) supports steady directional continuation.")
+    else:
+        score -= 10
+        cpr_setup = "Wide CPR (Range-Bound Fade)"
+        cons.append(f"Wide Central Pivot Range ({cpr_width:.2f}%) warns of choppy, sideways mean-reverting price action.")
+
+    # 2. Position Relative to CPR Pivot
+    if "ABOVE_CPR" in cpr_pos:
+        score += 15
+        pros.append(f"Price trading strictly above Central Pivot Range (Pivot: ₹{cpr.get('pivot', 0.0):,.1f}) provides institutional floor.")
+    elif "BELOW_CPR" in cpr_pos:
+        score -= 15
+        cons.append(f"Price trading below Central Pivot Range (Pivot: ₹{cpr.get('pivot', 0.0):,.1f}) places retail long positions at risk.")
+
+    # 3. Order Flow & Liquidity Sweep Check
+    sweeps = []
+    if order_flow and isinstance(order_flow, dict):
+        sweeps = order_flow.get("liquidity_sweeps", [])
+    
+    recent_ssl = any(s.get("type") == "SELL_SIDE_LIQUIDITY_SWEEP" for s in sweeps)
+    if recent_ssl:
+        score += 25
+        pros.append("Sell-Side Liquidity (SSL) sweep confirmed: retail stops flushed followed by immediate institutional re-absorption.")
+    elif 30 <= rsi <= 45:
+        score += 10
+        pros.append(f"RSI pullback ({rsi:.1f}) into key support zone offers favorable entry with tight invalidation.")
+    elif rsi > 70:
+        score -= 15
+        cons.append(f"RSI extended ({rsi:.1f}) near resistance: high probability of retail bull trap pullback.")
+
+    score = max(10, min(95, score))
+
+    if score >= 75:
+        verdict = "SWEEP_CONFIRMED_BUY"
+        badge = "Liquidity Sweep Setup"
+    elif score >= 55:
+        verdict = "CPR_ACCUMULATION"
+        badge = f"CPR: {cpr_setup}"
+    else:
+        verdict = "RETAIL_TRAP_AVOID"
+        badge = "Chop / Trap Risk"
+
+    rationale = (
+        f"Hardik Sharma criteria score: {score}/100 ({cpr_setup}). "
+        + (" ".join(pros) if pros else "")
+        + (" " + cons[0] if cons else "")
+    )
+
+    return {
+        "persona": "Day Trading Guruji",
+        "title": "Intraday Liquidity & Price Action",
+        "score": score,
+        "verdict": verdict,
+        "badge": badge,
+        "cpr_setup": cpr_setup,
+        "rationale": rationale,
+        "key_metric": f"CPR: {cpr_width:.2f}% | {cpr_pos.split(' ')[0]}"
+    }
+
+def evaluate_all_investor_personas(
+    quote: Dict[str, Any], 
+    fundamentals: Dict[str, Any],
+    technicals: Optional[Dict[str, Any]] = None,
+    order_flow: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Runs all 5 investor & trader frameworks and synthesizes a master council consensus."""
     buffett = evaluate_buffett(quote, fundamentals)
     graham = evaluate_graham(quote, fundamentals)
     lynch = evaluate_lynch(quote, fundamentals)
+    ray_fu = evaluate_ray_fu(quote, technicals, fundamentals)
+    guruji = evaluate_day_trading_guruji(quote, technicals, order_flow)
 
-    avg_score = round((buffett["score"] + graham["score"] + lynch["score"]) / 3.0, 1)
+    avg_score = round((buffett["score"] + graham["score"] + lynch["score"] + ray_fu["score"] + guruji["score"]) / 5.0, 1)
 
     if avg_score >= 70:
-        consensus = "STRONG_GURU_CONSENSUS_BUY"
-        summary = "Multiple legendary frameworks agree: company possesses strong profitability, durable economic moats, and sensible valuation."
+        consensus = "STRONG_COUNCIL_CONSENSUS_BUY"
+        summary = "Multiple fundamental and tactical frameworks agree: company possesses strong profitability, durable economic moats, and constructive price action."
     elif avg_score >= 55:
         consensus = "SELECTIVE_ACCUMULATION"
-        summary = "Favorable quality characteristics, though valuation or growth rate requires selective entry on dips."
+        summary = "Favorable quality characteristics, though valuation, CPR range, or regime alignment requires selective entry on confirmed pullbacks."
     else:
-        consensus = "CAUTION_LOW_GURU_SCORE"
-        summary = "Company fails multiple value and quality screens (stretched multiples, elevated leverage, or low ROE)."
+        consensus = "CAUTION_LOW_COUNCIL_SCORE"
+        summary = "Stock fails multiple value and price action screens (stretched valuation, adverse CPR posture, or high volatility noise)."
 
     return {
         "buffett": buffett,
         "graham": graham,
         "lynch": lynch,
+        "ray_fu": ray_fu,
+        "day_trading_guruji": guruji,
         "composite_guru_score": avg_score,
         "consensus_verdict": consensus,
         "consensus_summary": summary

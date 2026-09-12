@@ -1,87 +1,2503 @@
 [
   {
-    "id": 1,
-    "timestamp": "2026-09-09 20:10:59 IST",
-    "category": "GENESIS",
-    "title": "Automaton Protocol Initialized",
-    "content": "Autonomous trading agent activated with capital preservation laws and dynamic survival tiers.",
-    "metadata": {
-      "version": "2.0.0",
-      "capital": 125000.0
-    }
-  },
-  {
-    "id": 2,
-    "timestamp": "2026-09-09 20:10:59 IST",
-    "category": "CONSTITUTION",
-    "title": "Trading Laws Ratified",
-    "content": "5 articles locked: 1.5% max risk per trade, mandatory hard stop-loss, macro trend alignment, minimum 1:1.5 R:R, and immutable logging.",
-    "metadata": {
-      "articles_count": 5
-    }
-  },
-  {
-    "id": 3,
-    "timestamp": "2026-09-09 20:13:10 IST",
+    "id": 201,
+    "timestamp": "2026-09-11 22:24:32 IST",
     "category": "HEARTBEAT",
-    "title": "Cycle #1: MARKET_CLOSED",
-    "content": "Heartbeat #1: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "title": "Cycle #581: MARKET_CLOSED",
+    "content": "Heartbeat #581: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
     "metadata": {
-      "cycle": 1,
+      "cycle": 581,
       "session": "MARKET_CLOSED",
       "tier": "NORMAL",
-      "nifty_change": -0.86
+      "nifty_change": -0.34
     }
   },
   {
-    "id": 4,
-    "timestamp": "2026-09-10 11:14:41 IST",
-    "category": "BRIEFING",
-    "title": "Morning Briefing Dispatched",
-    "content": "🌅 *BHARAT TRADE AGENT — MORNING BRIEFING*\n📅 _Thursday, 10 September 2026 | 11:14 IST_\n🛡️ *Broker Mode:* `SIMULATION` (Angel One)\n\n🌐 *Global & Benchmark Cues:*\n• Nifty 50 Prev Close: *+0.01%*\n• India VIX: *14.20* (Low/Calm)\n• Survival Tier: *NORMAL* (1.0x sizing multiplier)\n\n💼 *Account Snapshot:*\n• Total Equity: *₹208,450.00*\n• Available Cash: *₹125,000.00*\n• Invested Margin: *₹75,000.00*\n• Overall P&L: *🟢 ₹+8,450.00 (+4.22%)*\n\n📊 *Open Positions (2):*\n• *RELIANCE*: 15 qty @ ₹2,960.0 (🟢 ₹+1,650.0)\n• *TCS*: 8 qty @ ₹4,250.0 (🟢 ₹+1,200.0)\n\n🎯 *Multi-Asset Tactical Battle Plan:*\n• *Indices*: Watching NIFTYBEES / BANKBEES 15m Bollinger mean-reversion.\n• *Commodities*: GOLDBEES / SILVERBEES 4h 50 EMA trend support active.\n• *Equities*: Scanning 1h volume breakouts on momentum leaders.\n\n⚖️ _Risk Mandate: Strict 1% ATR Volatility-Parity sizing per trade._",
-    "metadata": {
-      "status": false,
-      "message": "Telegram not configured. Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID to .env."
-    }
-  },
-  {
-    "id": 5,
-    "timestamp": "2026-09-10 11:15:05 IST",
-    "category": "BRIEFING",
-    "title": "Morning Briefing Dispatched",
-    "content": "🌅 *BHARAT TRADE AGENT — MORNING BRIEFING*\n📅 _Thursday, 10 September 2026 | 11:14 IST_\n🛡️ *Broker Mode:* `LIVE` (Angel One)\n\n🌐 *Global & Benchmark Cues:*\n• Nifty 50 Prev Close: *+0.03%*\n• India VIX: *14.20* (Low/Calm)\n• Survival Tier: *CIRCUIT_BREAKER* (0.0x sizing multiplier)\n\n💼 *Account Snapshot:*\n• Total Equity: *₹50,165.09*\n• Available Cash: *₹64.66*\n• Invested Margin: *₹50,100.43*\n• Overall P&L: *🟢 ₹+0.00 (+0.00%)*\n\n📊 *Open Positions (15):*\n• *GOLDBEES*: 71 qty @ ₹126.7 (🔴 ₹-50.0)\n• *TEXMOPIPES*: 345 qty @ ₹60.8 (🔴 ₹-2,316.0)\n• *ONGC*: 1 qty @ ₹237.4 (🔴 ₹-64.0)\n• *MANAPPURAM*: 1 qty @ ₹325.3 (🟢 ₹+120.0)\n• *NHPC*: 1 qty @ ₹76.4 (🔴 ₹-17.0)\n\n🎯 *Multi-Asset Tactical Battle Plan:*\n• *Indices*: Watching NIFTYBEES / BANKBEES 15m Bollinger mean-reversion.\n• *Commodities*: GOLDBEES / SILVERBEES 4h 50 EMA trend support active.\n• *Equities*: Scanning 1h volume breakouts on momentum leaders.\n\n⚖️ _Risk Mandate: Strict 1% ATR Volatility-Parity sizing per trade._",
-    "metadata": {
-      "status": true,
-      "message": "Message sent successfully"
-    }
-  },
-  {
-    "id": 6,
-    "timestamp": "2026-09-10 11:15:31 IST",
-    "category": "BRIEFING",
-    "title": "Evening Report Dispatched",
-    "content": "🌇 *BHARAT TRADE AGENT — EVENING REPORT*\n📅 _Thursday, 10 September 2026 | 11:15 IST_\n🛡️ *Broker Mode:* `SIMULATION` (Angel One)\n\n📈 *Day Closing Financials:*\n• Total Portfolio Value: *₹208,450.00*\n• Available Cash Balance: *₹125,000.00*\n• Capital in Positions: *₹75,000.00*\n• Portfolio P&L: *🟢 ₹+8,450.00 (+4.22%)*\n\n💼 *Holdings Status (2 active):*\n• *RELIANCE*: 15 shares @ ₹2,960.0 | 🟢 ₹+1,650.0\n• *TCS*: 8 shares @ ₹4,250.0 | 🟢 ₹+1,200.0\n\n🤖 *System Status & Health:*\n• Execution Engine: *Online & Synced*\n• Telegram Command Center: *Active*\n• Volatility-Parity Position Guard: *Enforced*\n\n_Rest well. Tomorrow's morning briefing arrives at 08:45 AM IST._",
-    "metadata": {
-      "status": true,
-      "message": "Message sent successfully"
-    }
-  },
-  {
-    "id": 7,
-    "timestamp": "2026-09-10 15:19:05 IST",
+    "id": 202,
+    "timestamp": "2026-09-11 22:29:45 IST",
     "category": "HEARTBEAT",
-    "title": "Cycle #1: MARKET_OPEN",
-    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.18%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 50,602.09.",
+    "title": "Cycle #586: MARKET_CLOSED",
+    "content": "Heartbeat #586: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
     "metadata": {
-      "cycle": 1,
-      "session": "MARKET_OPEN",
+      "cycle": 586,
+      "session": "MARKET_CLOSED",
       "tier": "NORMAL",
-      "nifty_change": -0.18
+      "nifty_change": -0.34
     }
   },
   {
-    "id": 8,
-    "timestamp": "2026-09-10 15:19:28 IST",
+    "id": 203,
+    "timestamp": "2026-09-11 22:34:58 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #591: MARKET_CLOSED",
+    "content": "Heartbeat #591: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 591,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 204,
+    "timestamp": "2026-09-11 22:40:12 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #596: MARKET_CLOSED",
+    "content": "Heartbeat #596: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 596,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 205,
+    "timestamp": "2026-09-11 22:45:26 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #601: MARKET_CLOSED",
+    "content": "Heartbeat #601: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 601,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 206,
+    "timestamp": "2026-09-11 22:50:40 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #606: MARKET_CLOSED",
+    "content": "Heartbeat #606: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 606,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 207,
+    "timestamp": "2026-09-11 22:56:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #611: MARKET_CLOSED",
+    "content": "Heartbeat #611: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 611,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 208,
+    "timestamp": "2026-09-11 23:01:16 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #616: MARKET_CLOSED",
+    "content": "Heartbeat #616: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 616,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 209,
+    "timestamp": "2026-09-11 23:06:33 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #621: MARKET_CLOSED",
+    "content": "Heartbeat #621: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 621,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 210,
+    "timestamp": "2026-09-11 23:11:48 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #626: MARKET_CLOSED",
+    "content": "Heartbeat #626: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 626,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 211,
+    "timestamp": "2026-09-11 23:17:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #631: MARKET_CLOSED",
+    "content": "Heartbeat #631: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 631,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 212,
+    "timestamp": "2026-09-11 23:22:16 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #636: MARKET_CLOSED",
+    "content": "Heartbeat #636: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 636,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 213,
+    "timestamp": "2026-09-11 23:27:31 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #641: MARKET_CLOSED",
+    "content": "Heartbeat #641: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 641,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 214,
+    "timestamp": "2026-09-11 23:32:45 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #646: MARKET_CLOSED",
+    "content": "Heartbeat #646: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 646,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 215,
+    "timestamp": "2026-09-11 23:38:00 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #651: MARKET_CLOSED",
+    "content": "Heartbeat #651: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 651,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 216,
+    "timestamp": "2026-09-11 23:43:29 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #656: MARKET_CLOSED",
+    "content": "Heartbeat #656: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 656,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 217,
+    "timestamp": "2026-09-11 23:48:45 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #661: MARKET_CLOSED",
+    "content": "Heartbeat #661: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 661,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 218,
+    "timestamp": "2026-09-11 23:53:59 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #666: MARKET_CLOSED",
+    "content": "Heartbeat #666: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 666,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 219,
+    "timestamp": "2026-09-11 23:59:19 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #671: MARKET_CLOSED",
+    "content": "Heartbeat #671: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 671,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 220,
+    "timestamp": "2026-09-12 00:00:22 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #672: WEEKEND_CLOSED",
+    "content": "Heartbeat #672: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 672,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 221,
+    "timestamp": "2026-09-12 00:01:25 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #673: WEEKEND_CLOSED",
+    "content": "Heartbeat #673: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 673,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 222,
+    "timestamp": "2026-09-12 00:02:28 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #674: WEEKEND_CLOSED",
+    "content": "Heartbeat #674: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 674,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 223,
+    "timestamp": "2026-09-12 00:03:30 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #675: WEEKEND_CLOSED",
+    "content": "Heartbeat #675: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 675,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 224,
+    "timestamp": "2026-09-12 00:04:39 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #676: WEEKEND_CLOSED",
+    "content": "Heartbeat #676: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 676,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": 0.0
+    }
+  },
+  {
+    "id": 225,
+    "timestamp": "2026-09-12 00:05:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #677: WEEKEND_CLOSED",
+    "content": "Heartbeat #677: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 677,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 226,
+    "timestamp": "2026-09-12 00:06:45 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #678: WEEKEND_CLOSED",
+    "content": "Heartbeat #678: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 678,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 227,
+    "timestamp": "2026-09-12 00:07:48 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #679: WEEKEND_CLOSED",
+    "content": "Heartbeat #679: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 679,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 228,
+    "timestamp": "2026-09-12 00:08:50 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #680: WEEKEND_CLOSED",
+    "content": "Heartbeat #680: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 680,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 229,
+    "timestamp": "2026-09-12 00:09:53 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #681: WEEKEND_CLOSED",
+    "content": "Heartbeat #681: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 681,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 230,
+    "timestamp": "2026-09-12 00:10:56 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #682: WEEKEND_CLOSED",
+    "content": "Heartbeat #682: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 682,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 231,
+    "timestamp": "2026-09-12 00:11:58 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #683: WEEKEND_CLOSED",
+    "content": "Heartbeat #683: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 683,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 232,
+    "timestamp": "2026-09-12 00:13:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #684: WEEKEND_CLOSED",
+    "content": "Heartbeat #684: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 684,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 233,
+    "timestamp": "2026-09-12 00:14:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #685: WEEKEND_CLOSED",
+    "content": "Heartbeat #685: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 685,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 234,
+    "timestamp": "2026-09-12 00:15:07 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #686: WEEKEND_CLOSED",
+    "content": "Heartbeat #686: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 686,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 235,
+    "timestamp": "2026-09-12 00:16:09 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #687: WEEKEND_CLOSED",
+    "content": "Heartbeat #687: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 687,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 236,
+    "timestamp": "2026-09-12 00:17:12 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #688: WEEKEND_CLOSED",
+    "content": "Heartbeat #688: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 688,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 237,
+    "timestamp": "2026-09-12 00:18:15 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #689: WEEKEND_CLOSED",
+    "content": "Heartbeat #689: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 689,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 238,
+    "timestamp": "2026-09-12 00:19:18 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #690: WEEKEND_CLOSED",
+    "content": "Heartbeat #690: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 690,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 239,
+    "timestamp": "2026-09-12 00:20:21 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #691: WEEKEND_CLOSED",
+    "content": "Heartbeat #691: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 691,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 240,
+    "timestamp": "2026-09-12 00:21:23 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #692: WEEKEND_CLOSED",
+    "content": "Heartbeat #692: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 692,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 241,
+    "timestamp": "2026-09-12 00:22:26 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #693: WEEKEND_CLOSED",
+    "content": "Heartbeat #693: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 693,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 242,
+    "timestamp": "2026-09-12 00:23:28 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #694: WEEKEND_CLOSED",
+    "content": "Heartbeat #694: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 694,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 243,
+    "timestamp": "2026-09-12 00:24:31 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #695: WEEKEND_CLOSED",
+    "content": "Heartbeat #695: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 695,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 244,
+    "timestamp": "2026-09-12 00:25:34 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #696: WEEKEND_CLOSED",
+    "content": "Heartbeat #696: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 696,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 245,
+    "timestamp": "2026-09-12 00:26:37 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #697: WEEKEND_CLOSED",
+    "content": "Heartbeat #697: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 697,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 246,
+    "timestamp": "2026-09-12 00:27:40 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #698: WEEKEND_CLOSED",
+    "content": "Heartbeat #698: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 698,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 247,
+    "timestamp": "2026-09-12 00:28:43 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #699: WEEKEND_CLOSED",
+    "content": "Heartbeat #699: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 699,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 248,
+    "timestamp": "2026-09-12 00:29:46 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #700: WEEKEND_CLOSED",
+    "content": "Heartbeat #700: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 700,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 249,
+    "timestamp": "2026-09-12 00:30:48 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #701: WEEKEND_CLOSED",
+    "content": "Heartbeat #701: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 701,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 250,
+    "timestamp": "2026-09-12 00:31:51 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #702: WEEKEND_CLOSED",
+    "content": "Heartbeat #702: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 702,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 251,
+    "timestamp": "2026-09-12 00:32:53 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #703: WEEKEND_CLOSED",
+    "content": "Heartbeat #703: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 703,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 252,
+    "timestamp": "2026-09-12 00:33:56 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #704: WEEKEND_CLOSED",
+    "content": "Heartbeat #704: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 704,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 253,
+    "timestamp": "2026-09-12 00:34:59 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #705: WEEKEND_CLOSED",
+    "content": "Heartbeat #705: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 705,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 254,
+    "timestamp": "2026-09-12 00:36:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #706: WEEKEND_CLOSED",
+    "content": "Heartbeat #706: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 706,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 255,
+    "timestamp": "2026-09-12 00:37:05 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #707: WEEKEND_CLOSED",
+    "content": "Heartbeat #707: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 707,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 256,
+    "timestamp": "2026-09-12 00:38:07 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #708: WEEKEND_CLOSED",
+    "content": "Heartbeat #708: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 708,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 257,
+    "timestamp": "2026-09-12 00:39:10 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #709: WEEKEND_CLOSED",
+    "content": "Heartbeat #709: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 709,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 258,
+    "timestamp": "2026-09-12 00:40:13 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #710: WEEKEND_CLOSED",
+    "content": "Heartbeat #710: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 710,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 259,
+    "timestamp": "2026-09-12 00:41:15 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #711: WEEKEND_CLOSED",
+    "content": "Heartbeat #711: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 711,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 260,
+    "timestamp": "2026-09-12 00:42:18 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #712: WEEKEND_CLOSED",
+    "content": "Heartbeat #712: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 712,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 261,
+    "timestamp": "2026-09-12 00:43:22 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #713: WEEKEND_CLOSED",
+    "content": "Heartbeat #713: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 713,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 262,
+    "timestamp": "2026-09-12 00:44:24 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #714: WEEKEND_CLOSED",
+    "content": "Heartbeat #714: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 714,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 263,
+    "timestamp": "2026-09-12 00:45:27 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #715: WEEKEND_CLOSED",
+    "content": "Heartbeat #715: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 715,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 264,
+    "timestamp": "2026-09-12 00:46:29 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #716: WEEKEND_CLOSED",
+    "content": "Heartbeat #716: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 716,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 265,
+    "timestamp": "2026-09-12 00:47:33 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #717: WEEKEND_CLOSED",
+    "content": "Heartbeat #717: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 717,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 266,
+    "timestamp": "2026-09-12 00:48:36 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #718: WEEKEND_CLOSED",
+    "content": "Heartbeat #718: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 718,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 267,
+    "timestamp": "2026-09-12 00:49:39 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #719: WEEKEND_CLOSED",
+    "content": "Heartbeat #719: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 719,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 268,
+    "timestamp": "2026-09-12 00:50:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #720: WEEKEND_CLOSED",
+    "content": "Heartbeat #720: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 720,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 269,
+    "timestamp": "2026-09-12 00:51:45 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #721: WEEKEND_CLOSED",
+    "content": "Heartbeat #721: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 721,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 270,
+    "timestamp": "2026-09-12 00:52:47 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #722: WEEKEND_CLOSED",
+    "content": "Heartbeat #722: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 722,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 271,
+    "timestamp": "2026-09-12 00:53:50 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #723: WEEKEND_CLOSED",
+    "content": "Heartbeat #723: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 723,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 272,
+    "timestamp": "2026-09-12 00:54:59 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #724: WEEKEND_CLOSED",
+    "content": "Heartbeat #724: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 724,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 273,
+    "timestamp": "2026-09-12 00:56:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #725: WEEKEND_CLOSED",
+    "content": "Heartbeat #725: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 725,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 274,
+    "timestamp": "2026-09-12 00:57:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #726: WEEKEND_CLOSED",
+    "content": "Heartbeat #726: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 726,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 275,
+    "timestamp": "2026-09-12 00:58:07 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #727: WEEKEND_CLOSED",
+    "content": "Heartbeat #727: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 727,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 276,
+    "timestamp": "2026-09-12 00:59:10 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #728: WEEKEND_CLOSED",
+    "content": "Heartbeat #728: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 728,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 277,
+    "timestamp": "2026-09-12 01:00:19 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #729: WEEKEND_CLOSED",
+    "content": "Heartbeat #729: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 729,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 278,
+    "timestamp": "2026-09-12 01:01:22 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #730: WEEKEND_CLOSED",
+    "content": "Heartbeat #730: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 730,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 279,
+    "timestamp": "2026-09-12 01:02:25 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #731: WEEKEND_CLOSED",
+    "content": "Heartbeat #731: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 731,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 280,
+    "timestamp": "2026-09-12 01:03:27 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #732: WEEKEND_CLOSED",
+    "content": "Heartbeat #732: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 732,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 281,
+    "timestamp": "2026-09-12 01:04:30 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #733: WEEKEND_CLOSED",
+    "content": "Heartbeat #733: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 733,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 282,
+    "timestamp": "2026-09-12 01:05:39 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #734: WEEKEND_CLOSED",
+    "content": "Heartbeat #734: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 734,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 283,
+    "timestamp": "2026-09-12 01:06:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #735: WEEKEND_CLOSED",
+    "content": "Heartbeat #735: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 735,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 284,
+    "timestamp": "2026-09-12 01:07:44 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #736: WEEKEND_CLOSED",
+    "content": "Heartbeat #736: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 736,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 285,
+    "timestamp": "2026-09-12 01:08:47 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #737: WEEKEND_CLOSED",
+    "content": "Heartbeat #737: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 737,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 286,
+    "timestamp": "2026-09-12 01:09:49 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #738: WEEKEND_CLOSED",
+    "content": "Heartbeat #738: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 738,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 287,
+    "timestamp": "2026-09-12 01:10:53 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #739: WEEKEND_CLOSED",
+    "content": "Heartbeat #739: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 739,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 288,
+    "timestamp": "2026-09-12 01:11:55 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #740: WEEKEND_CLOSED",
+    "content": "Heartbeat #740: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 740,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 289,
+    "timestamp": "2026-09-12 01:12:58 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #741: WEEKEND_CLOSED",
+    "content": "Heartbeat #741: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 741,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 290,
+    "timestamp": "2026-09-12 01:14:01 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #742: WEEKEND_CLOSED",
+    "content": "Heartbeat #742: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 742,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 291,
+    "timestamp": "2026-09-12 01:15:03 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #743: WEEKEND_CLOSED",
+    "content": "Heartbeat #743: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 743,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 292,
+    "timestamp": "2026-09-12 01:16:06 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #744: WEEKEND_CLOSED",
+    "content": "Heartbeat #744: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 744,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 293,
+    "timestamp": "2026-09-12 01:17:08 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #745: WEEKEND_CLOSED",
+    "content": "Heartbeat #745: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 745,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 294,
+    "timestamp": "2026-09-12 01:18:11 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #746: WEEKEND_CLOSED",
+    "content": "Heartbeat #746: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 746,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 295,
+    "timestamp": "2026-09-12 01:19:14 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #747: WEEKEND_CLOSED",
+    "content": "Heartbeat #747: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 747,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 296,
+    "timestamp": "2026-09-12 01:20:16 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #748: WEEKEND_CLOSED",
+    "content": "Heartbeat #748: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 748,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": 0.0
+    }
+  },
+  {
+    "id": 297,
+    "timestamp": "2026-09-12 01:21:18 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #749: WEEKEND_CLOSED",
+    "content": "Heartbeat #749: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 749,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 298,
+    "timestamp": "2026-09-12 01:22:22 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #750: WEEKEND_CLOSED",
+    "content": "Heartbeat #750: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 750,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 299,
+    "timestamp": "2026-09-12 01:23:25 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #751: WEEKEND_CLOSED",
+    "content": "Heartbeat #751: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 751,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 300,
+    "timestamp": "2026-09-12 01:24:27 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #752: WEEKEND_CLOSED",
+    "content": "Heartbeat #752: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 752,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 301,
+    "timestamp": "2026-09-12 01:25:30 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #753: WEEKEND_CLOSED",
+    "content": "Heartbeat #753: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 753,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 302,
+    "timestamp": "2026-09-12 01:26:33 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #754: WEEKEND_CLOSED",
+    "content": "Heartbeat #754: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 754,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 303,
+    "timestamp": "2026-09-12 01:27:36 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #755: WEEKEND_CLOSED",
+    "content": "Heartbeat #755: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 755,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 304,
+    "timestamp": "2026-09-12 01:28:38 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #756: WEEKEND_CLOSED",
+    "content": "Heartbeat #756: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 756,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 305,
+    "timestamp": "2026-09-12 01:29:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #757: WEEKEND_CLOSED",
+    "content": "Heartbeat #757: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 757,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 306,
+    "timestamp": "2026-09-12 01:30:44 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #758: WEEKEND_CLOSED",
+    "content": "Heartbeat #758: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 758,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 307,
+    "timestamp": "2026-09-12 01:31:47 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #759: WEEKEND_CLOSED",
+    "content": "Heartbeat #759: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 759,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 308,
+    "timestamp": "2026-09-12 01:32:49 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #760: WEEKEND_CLOSED",
+    "content": "Heartbeat #760: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 760,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 309,
+    "timestamp": "2026-09-12 01:33:52 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #761: WEEKEND_CLOSED",
+    "content": "Heartbeat #761: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 761,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 310,
+    "timestamp": "2026-09-12 01:34:55 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #762: WEEKEND_CLOSED",
+    "content": "Heartbeat #762: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 762,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 311,
+    "timestamp": "2026-09-12 01:35:58 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #763: WEEKEND_CLOSED",
+    "content": "Heartbeat #763: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 763,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 312,
+    "timestamp": "2026-09-12 01:37:01 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #764: WEEKEND_CLOSED",
+    "content": "Heartbeat #764: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 764,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 313,
+    "timestamp": "2026-09-12 01:38:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #765: WEEKEND_CLOSED",
+    "content": "Heartbeat #765: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 765,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 314,
+    "timestamp": "2026-09-12 01:39:07 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #766: WEEKEND_CLOSED",
+    "content": "Heartbeat #766: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 766,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 315,
+    "timestamp": "2026-09-12 01:40:10 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #767: WEEKEND_CLOSED",
+    "content": "Heartbeat #767: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 767,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 316,
+    "timestamp": "2026-09-12 01:41:13 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #768: WEEKEND_CLOSED",
+    "content": "Heartbeat #768: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 768,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 317,
+    "timestamp": "2026-09-12 01:42:15 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #769: WEEKEND_CLOSED",
+    "content": "Heartbeat #769: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 769,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 318,
+    "timestamp": "2026-09-12 01:43:18 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #770: WEEKEND_CLOSED",
+    "content": "Heartbeat #770: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 770,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 319,
+    "timestamp": "2026-09-12 01:44:21 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #771: WEEKEND_CLOSED",
+    "content": "Heartbeat #771: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 771,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 320,
+    "timestamp": "2026-09-12 01:45:25 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #772: WEEKEND_CLOSED",
+    "content": "Heartbeat #772: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 772,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 321,
+    "timestamp": "2026-09-12 01:46:27 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #773: WEEKEND_CLOSED",
+    "content": "Heartbeat #773: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 773,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 322,
+    "timestamp": "2026-09-12 01:47:31 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #774: WEEKEND_CLOSED",
+    "content": "Heartbeat #774: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 774,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 323,
+    "timestamp": "2026-09-12 01:48:34 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #775: WEEKEND_CLOSED",
+    "content": "Heartbeat #775: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 775,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 324,
+    "timestamp": "2026-09-12 01:49:37 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #776: WEEKEND_CLOSED",
+    "content": "Heartbeat #776: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 776,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 325,
+    "timestamp": "2026-09-12 01:50:39 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #777: WEEKEND_CLOSED",
+    "content": "Heartbeat #777: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 777,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 326,
+    "timestamp": "2026-09-12 01:51:43 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #778: WEEKEND_CLOSED",
+    "content": "Heartbeat #778: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 778,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 327,
+    "timestamp": "2026-09-12 01:52:46 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #779: WEEKEND_CLOSED",
+    "content": "Heartbeat #779: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 779,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 328,
+    "timestamp": "2026-09-12 01:53:49 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #780: WEEKEND_CLOSED",
+    "content": "Heartbeat #780: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 780,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 329,
+    "timestamp": "2026-09-12 01:54:52 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #781: WEEKEND_CLOSED",
+    "content": "Heartbeat #781: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 781,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 330,
+    "timestamp": "2026-09-12 01:55:55 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #782: WEEKEND_CLOSED",
+    "content": "Heartbeat #782: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 782,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 331,
+    "timestamp": "2026-09-12 01:56:57 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #783: WEEKEND_CLOSED",
+    "content": "Heartbeat #783: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 783,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 332,
+    "timestamp": "2026-09-12 01:58:01 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #784: WEEKEND_CLOSED",
+    "content": "Heartbeat #784: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 784,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 333,
+    "timestamp": "2026-09-12 01:59:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #785: WEEKEND_CLOSED",
+    "content": "Heartbeat #785: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 785,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 334,
+    "timestamp": "2026-09-12 02:00:06 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #786: WEEKEND_CLOSED",
+    "content": "Heartbeat #786: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 786,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 335,
+    "timestamp": "2026-09-12 02:01:09 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #787: WEEKEND_CLOSED",
+    "content": "Heartbeat #787: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 787,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 336,
+    "timestamp": "2026-09-12 02:02:11 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #788: WEEKEND_CLOSED",
+    "content": "Heartbeat #788: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 788,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 337,
+    "timestamp": "2026-09-12 02:03:14 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #789: WEEKEND_CLOSED",
+    "content": "Heartbeat #789: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 789,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 338,
+    "timestamp": "2026-09-12 02:04:17 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #790: WEEKEND_CLOSED",
+    "content": "Heartbeat #790: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 790,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 339,
+    "timestamp": "2026-09-12 02:05:21 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #791: WEEKEND_CLOSED",
+    "content": "Heartbeat #791: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 791,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 340,
+    "timestamp": "2026-09-12 02:06:24 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #792: WEEKEND_CLOSED",
+    "content": "Heartbeat #792: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 792,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 341,
+    "timestamp": "2026-09-12 02:07:27 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #793: WEEKEND_CLOSED",
+    "content": "Heartbeat #793: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 793,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 342,
+    "timestamp": "2026-09-12 02:08:31 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #794: WEEKEND_CLOSED",
+    "content": "Heartbeat #794: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 794,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 343,
+    "timestamp": "2026-09-12 02:09:34 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #795: WEEKEND_CLOSED",
+    "content": "Heartbeat #795: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 795,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 344,
+    "timestamp": "2026-09-12 02:10:37 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #796: WEEKEND_CLOSED",
+    "content": "Heartbeat #796: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 796,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 345,
+    "timestamp": "2026-09-12 02:11:41 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #797: WEEKEND_CLOSED",
+    "content": "Heartbeat #797: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 797,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 346,
+    "timestamp": "2026-09-12 02:12:44 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #798: WEEKEND_CLOSED",
+    "content": "Heartbeat #798: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 798,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 347,
+    "timestamp": "2026-09-12 02:13:47 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #799: WEEKEND_CLOSED",
+    "content": "Heartbeat #799: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 799,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 348,
+    "timestamp": "2026-09-12 02:14:50 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #800: WEEKEND_CLOSED",
+    "content": "Heartbeat #800: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 800,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 349,
+    "timestamp": "2026-09-12 02:16:12 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #801: WEEKEND_CLOSED",
+    "content": "Heartbeat #801: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 801,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": 0.0
+    }
+  },
+  {
+    "id": 350,
+    "timestamp": "2026-09-12 02:17:15 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #802: WEEKEND_CLOSED",
+    "content": "Heartbeat #802: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 802,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 351,
+    "timestamp": "2026-09-12 02:18:18 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #803: WEEKEND_CLOSED",
+    "content": "Heartbeat #803: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 803,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 352,
+    "timestamp": "2026-09-12 02:19:23 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #804: WEEKEND_CLOSED",
+    "content": "Heartbeat #804: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 804,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 353,
+    "timestamp": "2026-09-12 02:20:26 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #805: WEEKEND_CLOSED",
+    "content": "Heartbeat #805: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 805,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 354,
+    "timestamp": "2026-09-12 02:21:29 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #806: WEEKEND_CLOSED",
+    "content": "Heartbeat #806: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 806,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 355,
+    "timestamp": "2026-09-12 02:22:33 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #807: WEEKEND_CLOSED",
+    "content": "Heartbeat #807: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 807,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 356,
+    "timestamp": "2026-09-12 02:23:36 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #808: WEEKEND_CLOSED",
+    "content": "Heartbeat #808: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 808,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 357,
+    "timestamp": "2026-09-12 02:24:39 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #809: WEEKEND_CLOSED",
+    "content": "Heartbeat #809: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 809,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 358,
+    "timestamp": "2026-09-12 02:25:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #810: WEEKEND_CLOSED",
+    "content": "Heartbeat #810: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 810,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 359,
+    "timestamp": "2026-09-12 02:26:45 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #811: WEEKEND_CLOSED",
+    "content": "Heartbeat #811: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 811,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 360,
+    "timestamp": "2026-09-12 02:27:50 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #812: WEEKEND_CLOSED",
+    "content": "Heartbeat #812: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 812,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 361,
+    "timestamp": "2026-09-12 02:28:53 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #813: WEEKEND_CLOSED",
+    "content": "Heartbeat #813: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 813,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 362,
+    "timestamp": "2026-09-12 02:29:56 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #814: WEEKEND_CLOSED",
+    "content": "Heartbeat #814: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 814,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 363,
+    "timestamp": "2026-09-12 02:30:59 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #815: WEEKEND_CLOSED",
+    "content": "Heartbeat #815: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 815,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 364,
+    "timestamp": "2026-09-12 02:32:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #816: WEEKEND_CLOSED",
+    "content": "Heartbeat #816: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 816,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 365,
+    "timestamp": "2026-09-12 02:33:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #817: WEEKEND_CLOSED",
+    "content": "Heartbeat #817: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 817,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 366,
+    "timestamp": "2026-09-12 02:34:08 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #818: WEEKEND_CLOSED",
+    "content": "Heartbeat #818: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 818,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 367,
+    "timestamp": "2026-09-12 02:35:11 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #819: WEEKEND_CLOSED",
+    "content": "Heartbeat #819: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 819,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 368,
+    "timestamp": "2026-09-12 02:36:14 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #820: WEEKEND_CLOSED",
+    "content": "Heartbeat #820: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 820,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 369,
+    "timestamp": "2026-09-12 02:37:17 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #821: WEEKEND_CLOSED",
+    "content": "Heartbeat #821: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 821,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 370,
+    "timestamp": "2026-09-12 02:38:20 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #822: WEEKEND_CLOSED",
+    "content": "Heartbeat #822: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 822,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 371,
+    "timestamp": "2026-09-12 02:39:22 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #823: WEEKEND_CLOSED",
+    "content": "Heartbeat #823: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 823,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 372,
+    "timestamp": "2026-09-12 02:40:26 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #824: WEEKEND_CLOSED",
+    "content": "Heartbeat #824: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 824,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 373,
+    "timestamp": "2026-09-12 02:41:29 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #825: WEEKEND_CLOSED",
+    "content": "Heartbeat #825: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 825,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 374,
+    "timestamp": "2026-09-12 02:42:32 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #826: WEEKEND_CLOSED",
+    "content": "Heartbeat #826: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 826,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 375,
+    "timestamp": "2026-09-12 02:43:36 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #827: WEEKEND_CLOSED",
+    "content": "Heartbeat #827: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 827,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 376,
+    "timestamp": "2026-09-12 02:44:39 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #828: WEEKEND_CLOSED",
+    "content": "Heartbeat #828: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 828,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 377,
+    "timestamp": "2026-09-12 02:45:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #829: WEEKEND_CLOSED",
+    "content": "Heartbeat #829: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 829,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 378,
+    "timestamp": "2026-09-12 02:46:45 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #830: WEEKEND_CLOSED",
+    "content": "Heartbeat #830: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 830,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 379,
+    "timestamp": "2026-09-12 02:47:48 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #831: WEEKEND_CLOSED",
+    "content": "Heartbeat #831: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 831,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 380,
+    "timestamp": "2026-09-12 02:48:51 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #832: WEEKEND_CLOSED",
+    "content": "Heartbeat #832: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 832,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 381,
+    "timestamp": "2026-09-12 02:49:55 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #833: WEEKEND_CLOSED",
+    "content": "Heartbeat #833: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 833,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 382,
+    "timestamp": "2026-09-12 02:50:58 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #834: WEEKEND_CLOSED",
+    "content": "Heartbeat #834: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 834,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 383,
+    "timestamp": "2026-09-12 02:52:01 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #835: WEEKEND_CLOSED",
+    "content": "Heartbeat #835: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 835,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 384,
+    "timestamp": "2026-09-12 02:53:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #836: WEEKEND_CLOSED",
+    "content": "Heartbeat #836: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 836,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 385,
+    "timestamp": "2026-09-12 02:54:07 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #837: WEEKEND_CLOSED",
+    "content": "Heartbeat #837: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 837,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 386,
+    "timestamp": "2026-09-12 02:55:10 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #838: WEEKEND_CLOSED",
+    "content": "Heartbeat #838: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 838,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 387,
+    "timestamp": "2026-09-12 02:56:13 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #839: WEEKEND_CLOSED",
+    "content": "Heartbeat #839: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 839,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 388,
+    "timestamp": "2026-09-12 02:57:16 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #840: WEEKEND_CLOSED",
+    "content": "Heartbeat #840: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 840,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 389,
+    "timestamp": "2026-09-12 02:58:20 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #841: WEEKEND_CLOSED",
+    "content": "Heartbeat #841: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 841,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 390,
+    "timestamp": "2026-09-12 02:59:23 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #842: WEEKEND_CLOSED",
+    "content": "Heartbeat #842: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 842,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 391,
+    "timestamp": "2026-09-12 12:05:23 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #843: WEEKEND_CLOSED",
+    "content": "Heartbeat #843: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 843,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": 0.0
+    }
+  },
+  {
+    "id": 392,
+    "timestamp": "2026-09-12 12:06:29 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #844: WEEKEND_CLOSED",
+    "content": "Heartbeat #844: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 844,
+      "session": "WEEKEND_CLOSED",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-12 12:51:51 IST",
     "category": "WEBHOOK_SIGNAL",
     "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
     "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
@@ -99,8 +2515,8 @@
     }
   },
   {
-    "id": 9,
-    "timestamp": "2026-09-10 15:19:28 IST",
+    "id": 202,
+    "timestamp": "2026-09-12 12:51:51 IST",
     "category": "WEBHOOK_SIGNAL",
     "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
     "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
@@ -118,8 +2534,8 @@
     }
   },
   {
-    "id": 10,
-    "timestamp": "2026-09-10 17:27:37 IST",
+    "id": 201,
+    "timestamp": "2026-09-12 14:47:33 IST",
     "category": "WEBHOOK_SIGNAL",
     "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
     "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
@@ -137,8 +2553,8 @@
     }
   },
   {
-    "id": 11,
-    "timestamp": "2026-09-10 17:27:37 IST",
+    "id": 202,
+    "timestamp": "2026-09-12 14:47:33 IST",
     "category": "WEBHOOK_SIGNAL",
     "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
     "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
@@ -156,142 +2572,79 @@
     }
   },
   {
-    "id": 12,
-    "timestamp": "2026-09-11 09:20:16 IST",
-    "category": "BRIEFING",
-    "title": "Morning Briefing Dispatched",
-    "content": "🌅 *BHARAT TRADE AGENT — MORNING BRIEFING*\n📅 _Friday, 11 September 2026 | 09:19 IST_\n🛡️ *Broker Mode:* `LIVE` (Angel One)\n\n🌐 *Global & Benchmark Cues:*\n• Nifty 50 Prev Close: *-0.95%*\n• India VIX: *14.20* (Low/Calm)\n• Survival Tier: *CIRCUIT_BREAKER* (0.0x sizing multiplier)\n\n💼 *Account Snapshot:*\n• Total Equity: *₹49,986.10*\n• Available Cash: *₹4,224.80*\n• Invested Margin: *₹42,867.30*\n• Overall P&L: *🟢 ₹+2,894.00 (+6.75%)*\n\n📊 *Open Positions (7):*\n• *PNB*: 1 qty @ ₹115.2 (🟢 ₹+10.0)\n• *TMCV*: 38 qty @ ₹427.1 (🟢 ₹+6,685.0)\n• *MANAPPURAM*: 1 qty @ ₹327.6 (🟢 ₹+122.0)\n• *COALINDIA*: 1 qty @ ₹433.9 (🔴 ₹-74.0)\n• *GOLDBEES*: 71 qty @ ₹124.1 (🔴 ₹-242.0)\n\n🎯 *Multi-Asset Tactical Battle Plan:*\n• *NIFTYBEES* [INDEX MEAN REVERSION]: Entry ₹265.7 | SL ₹264.4 | TP ₹267.5 (Conviction: 8/10)\n• *BANKBEES* [INDEX MEAN REVERSION]: Entry ₹579.0 | SL ₹576.1 | TP ₹584.7 (Conviction: 8/10)\n\n⚖️ _Risk Mandate: Strict 1% ATR Volatility-Parity sizing per trade._",
+    "id": 201,
+    "timestamp": "2026-09-12 14:55:34 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
     "metadata": {
-      "status": true,
-      "message": "Message sent successfully"
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
     }
   },
   {
-    "id": 13,
-    "timestamp": "2026-09-11 09:21:55 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #1: MARKET_OPEN",
-    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.95%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 208,450.00.",
+    "id": 202,
+    "timestamp": "2026-09-12 14:55:34 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
     "metadata": {
-      "cycle": 1,
-      "session": "MARKET_OPEN",
-      "tier": "NORMAL",
-      "nifty_change": -0.95
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
     }
   },
   {
-    "id": 14,
-    "timestamp": "2026-09-11 09:56:20 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #6: MARKET_OPEN",
-    "content": "Heartbeat #6: Market OPEN. Nifty 50: -0.94%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 208,450.00.",
+    "id": 201,
+    "timestamp": "2026-09-12 14:57:03 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
     "metadata": {
-      "cycle": 6,
-      "session": "MARKET_OPEN",
-      "tier": "NORMAL",
-      "nifty_change": -0.94
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
     }
   },
   {
-    "id": 15,
-    "timestamp": "2026-09-11 10:08:13 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #1: MARKET_OPEN",
-    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.88%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 208,450.00.",
+    "id": 202,
+    "timestamp": "2026-09-12 14:57:03 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
     "metadata": {
-      "cycle": 1,
-      "session": "MARKET_OPEN",
-      "tier": "NORMAL",
-      "nifty_change": -0.88
-    }
-  },
-  {
-    "id": 16,
-    "timestamp": "2026-09-11 10:08:29 IST",
-    "category": "EXECUTION",
-    "title": "Autonomous Trade: BUY 670x IDFCFIRSTB",
-    "content": "🤖 *AUTONOMOUS TRADE EXECUTED (SIMULATION)*\n\n• Stock: *IDFCFIRSTB*\n• Action: *BUY 670 shares* @ ₹86.14\n• Stop-Loss: ₹83.03 | Target: ₹92.36\n• Conviction: 9/10\n• Order ID: `SIM-HKQQU6WB`\n\n_Validated by Constitution & Risk Tier: NORMAL_",
-    "metadata": {
-      "status": true,
-      "mode": "SIMULATION",
-      "order_id": "SIM-HKQQU6WB",
-      "symbol": "IDFCFIRSTB",
-      "quantity": 670,
-      "transaction_type": "BUY",
-      "order_type": "MARKET",
-      "price": 86.14,
-      "message": "Trade execution locked per user safety instructions. Paper simulated BUY 670 shares of IDFCFIRSTB at INR 86.14."
-    }
-  },
-  {
-    "id": 17,
-    "timestamp": "2026-09-11 10:15:32 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #1: MARKET_OPEN",
-    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.80%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 50,965.10.",
-    "metadata": {
-      "cycle": 1,
-      "session": "MARKET_OPEN",
-      "tier": "NORMAL",
-      "nifty_change": -0.8
-    }
-  },
-  {
-    "id": 18,
-    "timestamp": "2026-09-11 10:25:01 IST",
-    "category": "EXECUTION",
-    "title": "LIVE Trade: BUY 13x IDFCFIRSTB",
-    "content": "🤖 *AUTONOMOUS LIVE TRADE EXECUTED*\n\n• Broker: *Angel One (LIVE)*\n• Stock: *IDFCFIRSTB* (IDFC First Bank)\n• Action: *BUY 13 shares* @ ₹86.15\n• Total Value: *₹1,120.00*\n• Stop-Loss: *₹83.07* | Target: *₹92.34*\n• Conviction: *9/10*\n• Exchange Order ID: 260911000270430\n\n_Validated by Constitution Article I & II (Risk: 0.95% of equity)_",
-    "metadata": {
-      "order_id": "260911000270430",
-      "symbol": "IDFCFIRSTB",
-      "quantity": 13,
-      "price": 86.15,
-      "mode": "LIVE",
-      "status": true
-    }
-  },
-  {
-    "id": 19,
-    "timestamp": "2026-09-11 10:30:56 IST",
-    "category": "EXECUTION",
-    "title": "LIVE Trade: BUY 8x TATAPOWER",
-    "content": "🤖 *AUTONOMOUS LIVE TRADE EXECUTED*\n\n• Broker: *Angel One (LIVE)*\n• Stock: *TATAPOWER* (Tata Power)\n• Action: *BUY 8 shares* @ ₹364.95\n• Total Value: *₹2,919.60*\n• Stop-Loss: *₹346.95* | Target: *₹400.95*\n• Conviction: *9/10*\n• Exchange Order ID: 260911000287670\n\n_Validated by Constitution Article I & II (Risk: 0.29% of equity)_",
-    "metadata": {
-      "status": true,
-      "mode": "LIVE",
-      "order_id": "260911000287670",
-      "symbol": "TATAPOWER",
-      "quantity": 8,
-      "transaction_type": "BUY",
-      "price": 364.95,
-      "message": "LIVE order executed on Angel One! Order ID: 260911000287670"
-    }
-  },
-  {
-    "id": 20,
-    "timestamp": "2026-09-11 10:49:42 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #1: MARKET_OPEN",
-    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.78%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 50,751.00.",
-    "metadata": {
-      "cycle": 1,
-      "session": "MARKET_OPEN",
-      "tier": "NORMAL",
-      "nifty_change": -0.78
-    }
-  },
-  {
-    "id": 21,
-    "timestamp": "2026-09-11 11:04:42 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #1: MARKET_OPEN",
-    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.83%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 50,972.00.",
-    "metadata": {
-      "cycle": 1,
-      "session": "MARKET_OPEN",
-      "tier": "NORMAL",
-      "nifty_change": -0.83
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
     }
   }
 ]
