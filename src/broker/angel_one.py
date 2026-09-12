@@ -76,9 +76,16 @@ class AngelOneClient:
         self.client_code = os.getenv("ANGEL_CLIENT_CODE", "")
         self.pin = os.getenv("ANGEL_PIN", "")
         self.totp_key = os.getenv("ANGEL_TOTP_KEY", "")
-        self.public_ip = os.getenv("ANGEL_CLIENT_PUBLIC_IP", "152.59.151.52")
+        try:
+            from src.broker.ip_guard import ip_guard
+            sync_res = ip_guard.check_and_sync_ip(notify_telegram=False)
+            self.public_ip = sync_res.get("current_ip") or os.getenv("ANGEL_CLIENT_PUBLIC_IP", "49.37.102.190")
+        except Exception:
+            self.public_ip = os.getenv("ANGEL_CLIENT_PUBLIC_IP", "49.37.102.190")
+
         self.proxy_url = os.getenv("STATIC_PROXY_URL") or os.getenv("FIXIE_URL") or os.getenv("QUOTAGUARDSTATIC_URL")
         self.proxies = {"http": self.proxy_url, "https": self.proxy_url} if self.proxy_url else None
+
         
         self.jwt_token: Optional[str] = None
         self.refresh_token: Optional[str] = None

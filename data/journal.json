@@ -1,31 +1,5 @@
 [
   {
-    "id": 207,
-    "timestamp": "2026-09-11 22:56:02 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #611: MARKET_CLOSED",
-    "content": "Heartbeat #611: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 611,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 208,
-    "timestamp": "2026-09-11 23:01:16 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #616: MARKET_CLOSED",
-    "content": "Heartbeat #616: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 616,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
     "id": 209,
     "timestamp": "2026-09-11 23:06:33 IST",
     "category": "HEARTBEAT",
@@ -2682,6 +2656,44 @@
       "risk_reward": "1:1.58",
       "risk_pct": 0.99,
       "status": "ACTIVE"
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-12 17:49:30 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-12 17:49:30 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
     }
   }
 ]
