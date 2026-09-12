@@ -309,3 +309,134 @@ def analyze_order_flow(df: pd.DataFrame) -> Dict[str, Any]:
         "liquidity_sweeps": sweeps,
         "wyckoff_vsa": vsa
     }
+def detect_ict_order_blocks(df: pd.DataFrame, impulse_threshold_pct: float = 0.8) -> Dict[str, Any]:
+    """
+    ICT (Michael Huddleston) Order Block Detection.
+    Bullish OB: The last BEARISH (red) candle before a significant bullish impulse move.
+    Bearish OB: The last BULLISH (green) candle before a significant bearish impulse move.
+    An 'impulse' is defined as a move of impulse_threshold_pct% or more in a single bar.
+    OBs remain valid until price trades back through them (mitigation).
+    """
+    if len(df) < 5 or not all(c in df.columns for c in ['Open', 'High', 'Low', 'Close']):
+        return {"bullish_obs": [], "bearish_obs": [], "nearest_bullish_ob": None,
+                "nearest_bearish_ob": None, "status": "INSUFFICIENT_DATA"}
+
+    bullish_obs = []
+    bearish_obs = []
+    n = len(df)
+
+    for i in range(1, n - 1):
+        curr_open = float(df['Open'].iloc[i])
+        curr_close = float(df['Close'].iloc[i])
+        next_open = float(df['Open'].iloc[i + 1])
+        next_close = float(df['Close'].iloc[i + 1])
+        next_high = float(df['High'].iloc[i + 1])
+        next_low = float(df['Low'].iloc[i + 1])
+        curr_high = float(df['High'].iloc[i])
+        curr_low = float(df['Low'].iloc[i])
+
+        next_bar_move_pct = abs(next_close - next_open) / next_open * 100.0 if next_open > 0 else 0.0
+
+        # Bullish OB: current bar is bearish (red), next bar is a strong bullish impulse
+        if curr_close < curr_open and next_close > next_open and next_bar_move_pct >= impulse_threshold_pct:
+            mitigated = False
+            for j in range(i + 2, n):
+                if float(df['Low'].iloc[j]) <= curr_low:
+                    mitigated = True
+                    break
+            bullish_obs.append({
+                "bar_index": int(i),
+                "ob_high": round(curr_high, 2),
+                "ob_low": round(curr_low, 2),
+                "ob_mid": round((curr_high + curr_low) / 2.0, 2),
+                "mitigated": mitigated,
+                "type": "BULLISH_ORDER_BLOCK"
+            })
+
+        # Bearish OB: current bar is bullish (green), next bar is a strong bearish impulse
+        elif curr_close > curr_open and next_close < next_open and next_bar_move_pct >= impulse_threshold_pct:
+            mitigated = False
+            for j in range(i + 2, n):
+                if float(df['High'].iloc[j]) >= curr_high:
+                    mitigated = True
+                    break
+            bearish_obs.append({
+                "bar_index": int(i),
+                "ob_high": round(curr_high, 2),
+                "ob_low": round(curr_low, 2),
+                "ob_mid": round((curr_high + curr_low) / 2.0, 2),
+                "mitigated": mitigated,
+                "type": "BEARISH_ORDER_BLOCK"
+            })
+
+    current_price = float(df['Close'].iloc[-1])
+
+    # Find nearest unmitigated OBs
+    active_bullish = [ob for ob in bullish_obs if not ob['mitigated']]
+    active_bearish = [ob for ob in bearish_obs if not ob['mitigated']]
+
+    nearest_bullish = None
+    if active_bullish:
+        below_price = [ob for ob in active_bullish if ob['ob_high'] < current_price]
+        if below_price:
+            nearest_bullish = max(below_price, key=lambda x: x['ob_high'])
+
+    nearest_bearish = None
+    if active_bearish:
+        above_price = [ob for ob in active_bearish if ob['ob_low'] > current_price]
+        if above_price:
+            nearest_bearish = min(above_price, key=lambda x: x['ob_low'])
+
+    return {
+        "bullish_obs": active_bullish[-5:],   # last 5 active
+        "bearish_obs": active_bearish[-5:],
+        "nearest_bullish_ob": nearest_bullish,
+        "nearest_bearish_ob": nearest_bearish,
+        "total_bullish_obs": len(active_bullish),
+        "total_bearish_obs": len(active_bearish),
+        "status": "OK"
+    }
+
+
+def get_ict_killzone_status() -> Dict[str, Any]:
+    """
+    ICT Killzone time-of-day filter (IST times).
+    London Open Killzone: 12:00 PM - 3:00 PM IST (7:00-10:00 AM London / 6:30-9:30 UTC)
+    New York Open Killzone: 6:30 PM - 9:30 PM IST (1:00-4:00 PM NY)
+    Asian Session: 5:00 AM - 10:00 AM IST
+    High-probability ICT setups (Silver Bullet, FVG entries) only during killzones.
+    """
+    from datetime import datetime, timezone, timedelta
+    IST = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(IST)
+    hour = now.hour
+    minute = now.minute
+    time_decimal = hour + minute / 60.0
+
+    # London Open KZ: 12:00 - 15:00 IST
+    london_kz = 12.0 <= time_decimal < 15.0
+    # New York Open KZ: 18:30 - 21:30 IST  
+    ny_kz = 18.5 <= time_decimal < 21.5
+    # Asian session: 05:00 - 10:00 IST
+    asian_session = 5.0 <= time_decimal < 10.0
+    # NSE regular session: 09:15 - 15:30 IST
+    nse_open = 9.25 <= time_decimal <= 15.5
+
+    active_kz = []
+    if london_kz:
+        active_kz.append("LONDON_OPEN")
+    if ny_kz:
+        active_kz.append("NY_OPEN")
+    if asian_session:
+        active_kz.append("ASIAN_SESSION")
+
+    return {
+        "current_time_ist": now.strftime("%H:%M IST"),
+        "active_killzones": active_kz,
+        "in_killzone": len(active_kz) > 0,
+        "nse_market_open": nse_open,
+        "london_open_kz": london_kz,
+        "ny_open_kz": ny_kz,
+        "asian_session": asian_session,
+        "ict_recommendation": "HIGH_PROBABILITY_WINDOW" if active_kz else "AVOID_RANDOM_ENTRIES"
+    }

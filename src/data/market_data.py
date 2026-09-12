@@ -1,7 +1,10 @@
 import yfinance as yf
 import pandas as pd
+import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 NIFTY_50_POPULAR = [
     {"symbol": "RELIANCE.NS", "name": "Reliance Industries", "sector": "Energy"},
@@ -52,8 +55,8 @@ def get_stock_quote(symbol: str) -> Dict[str, Any]:
             day_low = float(fast_info.day_low or current_price)
             year_high = float(fast_info.year_high or current_price)
             year_low = float(fast_info.year_low or current_price)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Market data fetch warning: %s", str(e))
             
     info = ticker.info or {}
     if not current_price:

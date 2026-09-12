@@ -58,6 +58,11 @@ from src.notifications.daily_briefings import (
 )
 from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
 from src.analysis.nifty500_scanner import scan_nifty500_breakouts
+from src.analysis.screener import scan_vcp_candidates, scan_momentum_rotation, scan_donchian_breakouts
+from src.analysis.frvp import get_frvp_analysis
+from src.analysis.order_flow import detect_ict_order_blocks, get_ict_killzone_status
+from src.analysis.technical import calculate_india_vix_regime
+from src.data.macro_data import get_indian_macro_indicators as _get_macro
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -384,6 +389,81 @@ def get_creator_playbook():
                         "name": "Time-of-Day Discipline",
                         "description": "Avoid placing mechanical entries in the first 30 minutes (9:15 - 9:45 AM) to let institutional opening balance form.",
                         "rule": "High-probability entries occur post 9:45 AM and 10:45 AM."
+                    }
+                ]
+            },
+            "minervini": {
+                "handle": "@markminervini",
+                "name": "Mark Minervini",
+                "title": "SEPA Volatility Contraction Pattern (VCP)",
+                "core_concepts": [
+                    {
+                        "name": "Trend Template Filter",
+                        "description": "Stock price must be above 50 EMA, 150 SMA, and 200 SMA, with all three moving averages in ascending order.",
+                        "rule": "No entry unless Trend Template is fully verified."
+                    },
+                    {
+                        "name": "Progressive Volatility Contraction (VCP)",
+                        "description": "Each successive price correction in the base must be 30-50% shallower than the prior one (e.g. 20% -> 10% -> 4%).",
+                        "rule": "Volume must dry up dramatically during final contraction before breakout."
+                    }
+                ]
+            },
+            "turtle_dennis": {
+                "handle": "Turtle Traders",
+                "name": "Richard Dennis & Ed Seykota",
+                "title": "Trend Following & Donchian Breakouts",
+                "core_concepts": [
+                    {
+                        "name": "20-Day Donchian Breakout",
+                        "description": "Enter on a breakout of the 20-day high with ADX confirming trend strength (> 20).",
+                        "rule": "Stop loss strictly set at 2.0x ATR below entry price."
+                    },
+                    {
+                        "name": "Fixed Volatility Unit Sizing",
+                        "description": "Position size is computed so that 2 ATRs equals exactly 1.0% of portfolio equity.",
+                        "rule": "Scale up to 4 units at every 0.5 ATR favorable move."
+                    }
+                ]
+            },
+            "frvp_booming_bulls": {
+                "handle": "@algotrader.sahil / Booming Bulls",
+                "name": "Anish Singh Thakur (Algorithmic FRVP)",
+                "title": "Fixed Range Volume Profile VAH/VAL Strategy",
+                "core_concepts": [
+                    {
+                        "name": "Value Area Boundaries (70% Volume)",
+                        "description": "Value Area Low (VAL) and Value Area High (VAH) define institutional boundaries.",
+                        "rule": "Buy at VAL discount rejection; short at VAH premium rejection; target POC then opposite extreme."
+                    },
+                    {
+                        "name": "Volume-Confirmed Breakout Retest",
+                        "description": "A breakout past VAH with 2x average volume converts VAH into rock-solid support on retest.",
+                        "rule": "Enter on retest of VAH targeting equal range extension."
+                    }
+                ]
+            },
+            "pr_sundar": {
+                "handle": "@PRSundar64",
+                "name": "PR Sundar",
+                "title": "Non-Directional Options Selling & VIX Regimes",
+                "core_concepts": [
+                    {
+                        "name": "VIX Regime Filter",
+                        "description": "India VIX determines whether to sell options and which delta strikes to choose.",
+                        "rule": "VIX 13-18 is optimal for 0.20-0.25 delta strangles; reduce size if VIX > 18; avoid if VIX < 13."
+                    }
+                ]
+            },
+            "alok_jain": {
+                "handle": "@WeekendInvestng",
+                "name": "Alok Jain (Weekend Investing)",
+                "title": "12-1 Month Momentum Rotation",
+                "core_concepts": [
+                    {
+                        "name": "12-1 Momentum Formula",
+                        "description": "Rank Nifty 500 stocks by 12-month return skipping the most recent month to avoid mean reversion.",
+                        "rule": "Hold top 20 ranked stocks with weekly rebalancing."
                     }
                 ]
             },
@@ -721,6 +801,62 @@ def nifty500_screener_endpoint(limit: int = 50, sector: Optional[str] = None):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/options/vix-regime")
+def get_vix_regime_endpoint(vix: Optional[float] = None):
+    try:
+        if vix is None or vix <= 0:
+            macro = _get_macro()
+            vix = float(macro.get("INDIA_VIX", {}).get("value", 14.5))
+        return calculate_india_vix_regime(vix)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/vcp")
+def get_vcp_screener_endpoint(limit: int = 10):
+    try:
+        return scan_vcp_candidates(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/momentum-rotation")
+def get_momentum_rotation_endpoint(limit: int = 20):
+    try:
+        return scan_momentum_rotation(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/donchian")
+def get_donchian_breakouts_endpoint(period: int = 20, limit: int = 10):
+    try:
+        return scan_donchian_breakouts(period=period, limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analysis/frvp/{symbol}")
+def get_frvp_endpoint(symbol: str, lookback: int = 30):
+    try:
+        df = get_historical_bars(symbol, period="6mo", interval="1d")
+        res = get_frvp_analysis(df, lookback_bars=lookback)
+        res["symbol"] = normalize_indian_symbol(symbol)
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/analysis/ict/{symbol}")
+def get_ict_order_blocks_endpoint(symbol: str):
+    try:
+        df = get_historical_bars(symbol, period="6mo", interval="1d")
+        obs = detect_ict_order_blocks(df)
+        obs["symbol"] = normalize_indian_symbol(symbol)
+        obs["killzone_status"] = get_ict_killzone_status()
+        return obs
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/ict/killzones")
+def get_killzones_endpoint():
+    return get_ict_killzone_status()
 
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):

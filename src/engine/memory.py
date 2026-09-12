@@ -1,7 +1,10 @@
-﻿import os
+import os
 import json
+import logging
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 IST = timezone(timedelta(hours=5, minutes=30))
 
@@ -33,8 +36,8 @@ class AgentMemoryJournal:
         try:
             with open(self.storage_path, "w", encoding="utf-8") as f:
                 json.dump(self.entries[-200:], f, indent=2, ensure_ascii=False)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Memory journal write error: %s", str(e))
 
     def _seed_initial_entries(self):
         now_str = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST")

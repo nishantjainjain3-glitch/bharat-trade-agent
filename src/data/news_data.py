@@ -3,8 +3,11 @@ import requests
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
+import logging
 from typing import List, Dict, Any
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 import time
 
@@ -72,8 +75,8 @@ def fetch_tavily_stock_news(symbol: str, company_name: str = "") -> List[Dict[st
                 "results": items
             }
             return items
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("News fetch error: %s", str(e))
     return []
 
 def fetch_rss_items(url: str, headers: dict, default_source: str = "Financial Press") -> List[Dict[str, Any]]:
@@ -96,8 +99,8 @@ def fetch_rss_items(url: str, headers: dict, default_source: str = "Financial Pr
                         "link": link,
                         "published_at": pub_date
                     })
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("News fetch error: %s", str(e))
     return items
 
 def get_indian_stock_news(symbol: str, company_name: str = "") -> List[Dict[str, Any]]:

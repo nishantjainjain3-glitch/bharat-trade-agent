@@ -11,6 +11,15 @@ from src.analysis.personas import (
     evaluate_all_investor_personas
 )
 from src.data.macro_data import get_nse_sector_heatmap
+from src.analysis.technical import (
+    calculate_donchian_channel,
+    calculate_williams_r,
+    calculate_india_vix_regime
+)
+from src.analysis.frvp import calculate_frvp, evaluate_frvp_setup, get_frvp_analysis
+from src.analysis.order_flow import detect_ict_order_blocks, get_ict_killzone_status
+import pandas as pd
+import numpy as np
 
 class TestFinceptFeatures(unittest.TestCase):
     def setUp(self):
@@ -153,5 +162,105 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertIn("change_pct", first_sector)
         self.assertIn("status", first_sector)
 
+    def test_donchian_channel_calculation(self):
+        dates = pd.date_range("2026-01-01", periods=30)
+        df = pd.DataFrame({
+            "High": np.linspace(100, 130, 30),
+            "Low": np.linspace(90, 115, 30),
+            "Close": np.linspace(95, 125, 30),
+            "Open": np.linspace(92, 120, 30),
+            "Volume": [1000] * 30
+        }, index=dates)
+        res = calculate_donchian_channel(df, period=20)
+        self.assertIn("upper", res)
+        self.assertIn("lower", res)
+        self.assertIn("mid", res)
+        self.assertGreater(res["upper"], res["lower"])
+        self.assertEqual(res["period"], 20)
+
+    def test_williams_r_indicator(self):
+        dates = pd.date_range("2026-01-01", periods=30)
+        df = pd.DataFrame({
+            "High": [100 + i for i in range(30)],
+            "Low": [90 + i for i in range(30)],
+            "Close": [95 + i for i in range(30)],
+            "Open": [92 + i for i in range(30)],
+            "Volume": [1000] * 30
+        }, index=dates)
+        res = calculate_williams_r(df, period=14)
+        self.assertIn("williams_r", res)
+        self.assertGreaterEqual(res["williams_r"], -100.0)
+        self.assertLessEqual(res["williams_r"], 0.0)
+        self.assertIn("status", res)
+
+    def test_india_vix_regime_classification(self):
+        low_vol = calculate_india_vix_regime(11.5)
+        self.assertEqual(low_vol["regime"], "LOW_VOL")
+        self.assertEqual(low_vol["position_size_multiplier"], 0.0)
+
+        sweet = calculate_india_vix_regime(15.2)
+        self.assertEqual(sweet["regime"], "SWEET_SPOT")
+        self.assertEqual(sweet["position_size_multiplier"], 1.0)
+        self.assertAlmostEqual(sweet["recommended_delta"], 0.22)
+
+        elevated = calculate_india_vix_regime(21.0)
+        self.assertEqual(elevated["regime"], "ELEVATED")
+        self.assertEqual(elevated["position_size_multiplier"], 0.5)
+
+        crisis = calculate_india_vix_regime(29.0)
+        self.assertEqual(crisis["regime"], "CRISIS")
+        self.assertEqual(crisis["position_size_multiplier"], 0.0)
+
+    def test_frvp_profile_and_setup_calculation(self):
+        dates = pd.date_range("2026-01-01", periods=25)
+        df = pd.DataFrame({
+            "Open": [100, 102, 101, 103, 105] * 5,
+            "High": [105, 107, 104, 108, 110] * 5,
+            "Low": [98, 99, 97, 100, 102] * 5,
+            "Close": [102, 104, 100, 106, 108] * 5,
+            "Volume": [50000, 60000, 45000, 80000, 90000] * 5
+        }, index=dates)
+        profile = calculate_frvp(df, n_bins=30)
+        self.assertIn("poc", profile)
+        self.assertIn("vah", profile)
+        self.assertIn("val", profile)
+        self.assertGreater(profile["vah"], profile["val"])
+        self.assertGreaterEqual(profile["poc"], profile["val"])
+        self.assertLessEqual(profile["poc"], profile["vah"])
+
+        # Test long VAL bounce setup
+        setup = evaluate_frvp_setup(
+            current_price=profile["val"],
+            vah=profile["vah"],
+            val=profile["val"],
+            poc=profile["poc"],
+            atr=2.0,
+            candle_bullish=True,
+            volume_above_avg=True
+        )
+        self.assertEqual(setup["setup"], "LONG_VAL_BOUNCE")
+        self.assertLess(setup["stop"], setup["entry"])
+        self.assertGreater(setup["risk_reward"], 0)
+
+    def test_ict_order_blocks_and_killzones(self):
+        kz = get_ict_killzone_status()
+        self.assertIn("current_time_ist", kz)
+        self.assertIn("active_killzones", kz)
+        self.assertIn("ict_recommendation", kz)
+
+        dates = pd.date_range("2026-01-01", periods=20)
+        df = pd.DataFrame({
+            "Open": [100, 95, 96, 105, 104, 103, 98, 90, 89, 98] * 2,
+            "High": [102, 97, 106, 107, 106, 104, 99, 91, 99, 100] * 2,
+            "Low": [98, 94, 95, 103, 102, 97, 91, 88, 88, 96] * 2,
+            "Close": [99, 96, 105, 106, 103, 98, 91, 89, 98, 99] * 2,
+            "Volume": [10000] * 20
+        }, index=dates)
+        obs = detect_ict_order_blocks(df)
+        self.assertIn("bullish_obs", obs)
+        self.assertIn("bearish_obs", obs)
+        self.assertIn("status", obs)
+
 if __name__ == "__main__":
     unittest.main()
+

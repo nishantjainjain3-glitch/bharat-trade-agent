@@ -493,3 +493,126 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
         "bullish_factors": bullish_factors,
         "bearish_factors": bearish_factors
     }
+
+def calculate_donchian_channel(df: pd.DataFrame, period: int = 20) -> Dict[str, Any]:
+    """
+    Richard Dennis / Ed Seykota Donchian Channel.
+    N-period highest high and lowest low. Breakout above upper = long signal.
+    System 1: 20-day. System 2: 55-day.
+    """
+    if len(df) < period:
+        price = float(df['Close'].iloc[-1]) if len(df) > 0 else 0.0
+        return {"upper": price, "lower": price, "mid": price, "breakout": "NONE", "channel_width_pct": 0.0}
+
+    upper = float(df['High'].tail(period).max())
+    lower = float(df['Low'].tail(period).min())
+    mid = round((upper + lower) / 2.0, 2)
+    current_price = float(df['Close'].iloc[-1])
+    channel_width_pct = round((upper - lower) / mid * 100.0, 2) if mid > 0 else 0.0
+
+    if current_price >= upper * 0.998:
+        breakout = "BULLISH_BREAKOUT"
+    elif current_price <= lower * 1.002:
+        breakout = "BEARISH_BREAKDOWN"
+    elif current_price > mid:
+        breakout = "UPPER_HALF"
+    else:
+        breakout = "LOWER_HALF"
+
+    return {
+        "upper": round(upper, 2),
+        "lower": round(lower, 2),
+        "mid": mid,
+        "breakout": breakout,
+        "channel_width_pct": channel_width_pct,
+        "period": period
+    }
+
+
+def calculate_williams_r(df: pd.DataFrame, period: int = 14) -> Dict[str, Any]:
+    """
+    Larry Williams %R oscillator.
+    %R = -100 × (Highest High − Close) / (Highest High − Lowest Low)
+    Below -80: oversold (potential reversal long). Above -20: overbought (potential reversal short).
+    Williams trade rule: enter long when %R crosses above -80 after being below -80 for at least 2 bars.
+    """
+    if len(df) < period:
+        return {"williams_r": -50.0, "status": "NEUTRAL", "signal": "NONE"}
+
+    hh = df['High'].tail(period).max()
+    ll = df['Low'].tail(period).min()
+    close = float(df['Close'].iloc[-1])
+
+    denom = hh - ll
+    wr = -100.0 * (hh - close) / denom if denom > 0 else -50.0
+    wr = round(wr, 2)
+
+    # Signal: cross from oversold / overbought
+    if len(df) >= period + 1:
+        hh_prev = df['High'].iloc[-(period+1):-1].max()
+        ll_prev = df['Low'].iloc[-(period+1):-1].min()
+        close_prev = float(df['Close'].iloc[-2])
+        denom_prev = hh_prev - ll_prev
+        wr_prev = -100.0 * (hh_prev - close_prev) / denom_prev if denom_prev > 0 else -50.0
+    else:
+        wr_prev = wr
+
+    if wr > -80 and wr_prev <= -80:
+        signal = "BULLISH_CROSS_OVERSOLD"
+    elif wr < -20 and wr_prev >= -20:
+        signal = "BEARISH_CROSS_OVERBOUGHT"
+    else:
+        signal = "NONE"
+
+    if wr <= -80:
+        status = "OVERSOLD"
+    elif wr >= -20:
+        status = "OVERBOUGHT"
+    else:
+        status = "NEUTRAL"
+
+    return {
+        "williams_r": wr,
+        "status": status,
+        "signal": signal,
+        "period": period
+    }
+
+
+def calculate_india_vix_regime(india_vix: float) -> Dict[str, Any]:
+    """
+    PR Sundar's India VIX regime classifier for options premium selling.
+    VIX < 13: Low vol — premiums are thin, avoid selling.
+    VIX 13-18: Sweet spot — sell strangles at 0.20-0.25 delta.
+    VIX 18-25: Elevated — sell only if IV rank > 50, tighten strikes.
+    VIX > 25: Crisis mode — do NOT sell naked options; use defined risk spreads only.
+    """
+    if india_vix < 13:
+        regime = "LOW_VOL"
+        action = "AVOID_SELLING — Premiums too thin for worthwhile risk-reward"
+        size_multiplier = 0.0
+        delta_target = None
+    elif india_vix < 18:
+        regime = "SWEET_SPOT"
+        action = "SELL_STRANGLES — Optimal premium selling zone"
+        size_multiplier = 1.0
+        delta_target = 0.22
+    elif india_vix < 25:
+        regime = "ELEVATED"
+        action = "REDUCED_SIZE_SELL — Tighten strikes; sell only if IV rank > 50"
+        size_multiplier = 0.5
+        delta_target = 0.15
+    else:
+        regime = "CRISIS"
+        action = "NO_NAKED_SELLING — Use defined-risk spreads only (Iron Condor / Bull Put Spread)"
+        size_multiplier = 0.0
+        delta_target = None
+
+    return {
+        "india_vix": round(india_vix, 2),
+        "regime": regime,
+        "recommended_action": action,
+        "position_size_multiplier": size_multiplier,
+        "recommended_delta": delta_target,
+        "target_exit_pct": 0.35 if india_vix < 25 else None
+    }

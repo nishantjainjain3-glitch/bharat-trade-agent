@@ -1,57 +1,5 @@
 [
   {
-    "id": 201,
-    "timestamp": "2026-09-11 22:24:32 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #581: MARKET_CLOSED",
-    "content": "Heartbeat #581: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 581,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 202,
-    "timestamp": "2026-09-11 22:29:45 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #586: MARKET_CLOSED",
-    "content": "Heartbeat #586: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 586,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 203,
-    "timestamp": "2026-09-11 22:34:58 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #591: MARKET_CLOSED",
-    "content": "Heartbeat #591: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 591,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 204,
-    "timestamp": "2026-09-11 22:40:12 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #596: MARKET_CLOSED",
-    "content": "Heartbeat #596: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 596,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
     "id": 205,
     "timestamp": "2026-09-11 22:45:26 IST",
     "category": "HEARTBEAT",
@@ -2631,6 +2579,82 @@
   {
     "id": 202,
     "timestamp": "2026-09-12 14:57:03 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-12 15:10:15 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-12 15:10:15 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-12 17:22:48 IST",
+    "category": "WEBHOOK_SIGNAL",
+    "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
+    "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",
+    "metadata": {
+      "symbol": "RELIANCE.NS",
+      "qty": 10,
+      "price": 1280.0,
+      "strategy": "TradingView Supertrend",
+      "result": {
+        "status": true,
+        "mode": "SIMULATION",
+        "order_id": "SIM-TEST1234",
+        "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
+      }
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-12 17:22:48 IST",
     "category": "WEBHOOK_SIGNAL",
     "title": "Webhook Alert: BUY 10x RELIANCE.NS [TradingView Supertrend]",
     "content": "Price: ₹1280.00, SL: ₹1250.00, Target: ₹1340.00. Result: True",

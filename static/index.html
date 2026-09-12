@@ -652,7 +652,7 @@
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs" id="investorPersonasGrid">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-3 text-xs" id="investorPersonasGrid">
             <!-- Buffett -->
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
               <div class="flex items-center justify-between">
@@ -706,6 +706,28 @@
               <div class="text-[11px] text-slate-400 font-mono" id="gurujiKeyMetric">CPR & Liquidity Sweep</div>
               <div class="text-base font-extrabold text-white" id="gurujiScore">-- / 100</div>
               <p class="text-slate-300 text-[11px] leading-relaxed pt-2 border-t border-slate-800/80" id="gurujiRationale">Checking CPR width, institutional stop runs, and volume absorption...</p>
+            </div>
+
+            <!-- Mark Minervini -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-rose-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-rose-400">Mark Minervini</span>
+                <span id="minerviniBadge" class="text-[10px] bg-rose-500/10 text-rose-300 px-2 py-0.5 rounded font-mono">--</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-mono" id="minerviniKeyMetric">SEPA & VCP Base</div>
+              <div class="text-base font-extrabold text-white" id="minerviniScore">-- / 100</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed pt-2 border-t border-slate-800/80" id="minerviniRationale">Checking Trend Template alignment, ATR contraction, and 52W high proximity...</p>
+            </div>
+
+            <!-- Turtle Traders (Richard Dennis) -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-teal-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-teal-400">Turtle Trading</span>
+                <span id="turtleBadge" class="text-[10px] bg-teal-500/10 text-teal-300 px-2 py-0.5 rounded font-mono">--</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-mono" id="turtleKeyMetric">Donchian & 2-ATR Stop</div>
+              <div class="text-base font-extrabold text-white" id="turtleScore">-- / 100</div>
+              <p class="text-slate-300 text-[11px] leading-relaxed pt-2 border-t border-slate-800/80" id="turtleRationale">Checking 20-day channel breakout, ADX trend strength, and 2-ATR unit risk...</p>
             </div>
           </div>
           <p class="text-xs text-slate-400 italic bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60" id="guruConsensusSummary">Consensus analysis pending...</p>
@@ -1635,8 +1657,181 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
           </div>
         </div>
 
+      <!-- SECTION 4: FIXED RANGE VOLUME PROFILE (FRVP) STUDIO -->
+      <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-5 shadow-lg space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">📊</span>
+            <div>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">Fixed Range Volume Profile (FRVP) Studio</h2>
+              <p class="text-xs text-slate-400">Institutional Value Area (VAH / VAL), Point of Control (POC), and Mean Reversion Setups (@algotrader.sahil / Booming Bulls).</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">70% Value Area</span>
+        </div>
+
+        <!-- Interactive FRVP Setup Calculator -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🧮</span> Interactive FRVP Trade Setup & R:R Calculator
+            </h3>
+            <span class="text-[10px] text-slate-400 font-mono">Targets: TP1 = POC, TP2 = Opposite Value Edge</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">Current Price (₹)</label>
+              <input type="number" id="frvpPrice" value="5000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none" oninput="calculateFrvpLevels()">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">VAH - Value High (₹)</label>
+              <input type="number" id="frvpVah" value="5120" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none" oninput="calculateFrvpLevels()">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">POC - Fair Price (₹)</label>
+              <input type="number" id="frvpPoc" value="5040" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none" oninput="calculateFrvpLevels()">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">VAL - Value Low (₹)</label>
+              <input type="number" id="frvpVal" value="4960" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none" oninput="calculateFrvpLevels()">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">ATR Stop Buffer (₹)</label>
+              <input type="number" id="frvpAtr" value="25" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono focus:border-amber-500 focus:outline-none" oninput="calculateFrvpLevels()">
+            </div>
+          </div>
+
+          <!-- FRVP Output Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-800/80 font-mono text-center">
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Active Setup</span>
+              <strong class="text-amber-400 text-xs" id="frvpSetupName">VAL Long Bounce</strong>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Stop Loss (1.0x ATR)</span>
+              <strong class="text-rose-400 text-xs" id="frvpStopLoss">₹4,935.00</strong>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">TP1 (POC) / TP2 (VAH)</span>
+              <strong class="text-emerald-400 text-xs" id="frvpTargets">₹5,040 / ₹5,120</strong>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
+              <span class="text-[10px] text-slate-400 block font-sans">Projected Risk:Reward</span>
+              <strong class="text-indigo-400 text-xs" id="frvpRR">1 : 2.5 RR</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: ICT SMART MONEY CONCEPTS & LIVE KILLZONE RADAR -->
+      <div class="bg-slate-900 border border-teal-500/30 rounded-xl p-5 shadow-lg space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">🎯</span>
+            <div>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">ICT Smart Money Concepts & Live Killzone Radar</h2>
+              <p class="text-xs text-slate-400">Order Blocks, Fair Value Gaps (FVG), Liquidity Sweeps, and Time-of-Day Execution Windows.</p>
+            </div>
+          </div>
+          <button onclick="checkLiveIctKillzones()" class="text-xs font-mono bg-teal-600/20 hover:bg-teal-600/30 text-teal-300 border border-teal-500/30 px-3 py-1 rounded-lg transition flex items-center gap-1.5">
+            <span>🕒 Check Live Killzone</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2" id="kzStatusCard">
+            <span class="font-bold text-teal-400 flex items-center gap-1.5">
+              <span>⏰</span> Current Killzone Status
+            </span>
+            <div class="text-sm font-bold text-white font-mono" id="kzActiveNames">Click 'Check Live Killzone'</div>
+            <p class="text-slate-400 text-[11px]" id="kzAdvice">ICT Silver Bullet trades are valid strictly inside London & New York Open windows.</p>
+          </div>
+
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <span class="font-bold text-sky-400 flex items-center gap-1.5">
+              <span>🧱</span> Bullish & Bearish Order Blocks
+            </span>
+            <p class="text-slate-300 text-[11px] leading-relaxed">
+              <strong>Bullish OB:</strong> Last down-close candle prior to an aggressive impulse that creates market structure shift (MSS).
+              <br><strong>Bearish OB:</strong> Last up-close candle prior to an aggressive sell impulse.
+            </p>
+          </div>
+
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <span class="font-bold text-amber-400 flex items-center gap-1.5">
+              <span>⚡</span> FVG & Silver Bullet Setup
+            </span>
+            <p class="text-slate-300 text-[11px] leading-relaxed">
+              Enter on a retest of an unfilled <strong>Fair Value Gap (FVG)</strong> that formed during a liquidity run between 10:00 - 11:00 AM NY or 12:00 - 3:00 PM IST.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: INSTITUTIONAL VIX REGIME & MOMENTUM RADAR -->
+      <div class="bg-slate-900 border border-emerald-500/30 rounded-xl p-5 shadow-lg space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">🏆</span>
+            <div>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">Indian Market Legends Radar (Sundar, Jain, Minervini)</h2>
+              <p class="text-xs text-slate-400">Live India VIX options seller filter, 12-1 momentum rotation, and SEPA VCP breakout scanner.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="checkLiveVixRegime()" class="text-xs font-mono bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-lg transition">
+              ⚡ Check VIX Regime
+            </button>
+            <button onclick="runVcpScanner()" class="text-xs font-mono bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-lg transition">
+              🎯 Scan VCP Base
+            </button>
+            <button onclick="runMomentumRotationScanner()" class="text-xs font-mono bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition">
+              🚀 12-1 Momentum
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <!-- VIX Regime Card -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-indigo-400">PR Sundar VIX Regime</span>
+              <span id="vixBadge" class="text-[10px] bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded font-mono">--</span>
+            </div>
+            <div class="text-sm font-bold text-white font-mono" id="vixAction">Click 'Check VIX Regime'</div>
+            <p class="text-slate-400 text-[11px]" id="vixDetail">VIX 13-18 represents the institutional sweet spot for 0.22 delta strangles.</p>
+          </div>
+
+          <!-- VCP Card -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-rose-400">Minervini VCP Screener</span>
+              <span id="vcpCount" class="text-[10px] bg-rose-500/10 text-rose-300 px-2 py-0.5 rounded font-mono">Ready</span>
+            </div>
+            <div class="text-sm font-bold text-white font-mono" id="vcpStatus">Click 'Scan VCP Base'</div>
+            <p class="text-slate-400 text-[11px]" id="vcpDetail">Filters for stocks in 50>150>200 EMA uptrends with 3 contracting ATR pivots.</p>
+          </div>
+
+          <!-- Momentum Rotation Card -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-400">Alok Jain 12-1 Momentum</span>
+              <span id="momCount" class="text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded font-mono">Ready</span>
+            </div>
+            <div class="text-sm font-bold text-white font-mono" id="momStatus">Click '12-1 Momentum'</div>
+            <p class="text-slate-400 text-[11px]" id="momDetail">Ranks stocks by 12-month return skipping the most recent month to avoid reversal drag.</p>
+          </div>
+        </div>
+
+        <!-- Dynamic Results Container -->
+        <div id="playbookResultsContainer" class="hidden bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono space-y-2 max-h-60 overflow-y-auto">
+          <div class="text-slate-400 font-bold uppercase tracking-wider" id="playbookResultsTitle">Scanner Results</div>
+          <div id="playbookResultsBody" class="text-slate-300 space-y-1"></div>
+        </div>
       </div>
     </div>
+
 
   </main>
 
@@ -1725,6 +1920,7 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
       loadMacro().catch(e => console.error("Macro error", e));
       loadSectorHeatmap().catch(e => console.error("Heatmap error", e));
       calculateAtrSizing();
+      calculateFrvpLevels();
       loadSectorRotation().catch(e => console.error("Rotation error", e));
       loadRecommendations().catch(e => console.error("Recommendations error", e));
       loadMomentumBreakouts().catch(e => console.error("Momentum breakouts error", e));
@@ -2762,6 +2958,23 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
         document.getElementById('gurujiRationale').textContent = guruji.rationale || '--';
       }
 
+      const mv = personas.minervini || {};
+      if (document.getElementById('minerviniScore')) {
+        document.getElementById('minerviniScore').textContent = `${mv.score || '--'} / 100`;
+        document.getElementById('minerviniBadge').textContent = mv.badge || '--';
+        document.getElementById('minerviniKeyMetric').textContent = mv.key_metric || '--';
+        document.getElementById('minerviniRationale').textContent = mv.rationale || '--';
+      }
+
+      const tt = personas.turtle || {};
+      if (document.getElementById('turtleScore')) {
+        document.getElementById('turtleScore').textContent = `${tt.score || '--'} / 100`;
+        document.getElementById('turtleBadge').textContent = tt.badge || '--';
+        document.getElementById('turtleKeyMetric').textContent = tt.key_metric || '--';
+        document.getElementById('turtleRationale').textContent = tt.rationale || '--';
+      }
+
+
       const pill = document.getElementById('guruConsensusPill');
       if (pill) {
         pill.textContent = `Council Score: ${personas.composite_guru_score || personas.composite_score || '--'} / 100`;
@@ -3070,13 +3283,163 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
       });
     }
 
-    function copyCodegenPrompt() {
-      const text = document.getElementById('codegenPromptText').textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copyCodegenBtn');
-        btn.textContent = '✓ Copied!';
-        setTimeout(() => { btn.textContent = 'Copy Prompt'; }, 2000);
-      });
+    function calculateFrvpLevels() {
+      const price = parseFloat(document.getElementById('frvpPrice').value) || 5000;
+      const vah = parseFloat(document.getElementById('frvpVah').value) || 5120;
+      const poc = parseFloat(document.getElementById('frvpPoc').value) || 5040;
+      const val = parseFloat(document.getElementById('frvpVal').value) || 4960;
+      const atr = parseFloat(document.getElementById('frvpAtr').value) || 25;
+
+      const atVal = price <= (val * 1.005);
+      const atVah = price >= (vah * 0.995);
+
+      let setupName, stopLoss, targets, rr;
+
+      if (atVal) {
+        setupName = "VAL Long Bounce (Discount Zone)";
+        stopLoss = Math.max(0, val - atr);
+        const risk = price - stopLoss;
+        const reward = vah - price;
+        targets = `₹${poc.toFixed(0)} (TP1) / ₹${vah.toFixed(0)} (TP2)`;
+        rr = risk > 0 ? `1 : ${(reward / risk).toFixed(1)} RR` : "N/A";
+      } else if (atVah) {
+        setupName = "VAH Short Fade (Premium Zone)";
+        stopLoss = vah + atr;
+        const risk = stopLoss - price;
+        const reward = price - val;
+        targets = `₹${poc.toFixed(0)} (TP1) / ₹${val.toFixed(0)} (TP2)`;
+        rr = risk > 0 ? `1 : ${(reward / risk).toFixed(1)} RR` : "N/A";
+      } else {
+        setupName = "Value Area Rotation (No Setup)";
+        stopLoss = val - atr;
+        targets = `POC: ₹${poc.toFixed(0)}`;
+        rr = "Neutral Zone";
+      }
+
+      document.getElementById('frvpSetupName').textContent = setupName;
+      document.getElementById('frvpStopLoss').textContent = '₹' + stopLoss.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById('frvpTargets').textContent = targets;
+      document.getElementById('frvpRR').textContent = rr;
+    }
+
+    async function checkLiveVixRegime() {
+      const actionEl = document.getElementById('vixAction');
+      const badgeEl = document.getElementById('vixBadge');
+      const detailEl = document.getElementById('vixDetail');
+      actionEl.textContent = "Fetching India VIX...";
+
+      try {
+        const res = await fetch('/api/options/vix-regime');
+        const data = await res.json();
+        badgeEl.textContent = `VIX: ${data.india_vix} (${data.regime})`;
+        actionEl.textContent = data.recommended_action;
+        detailEl.textContent = `Size Multiplier: ${data.position_size_multiplier}x | Target Delta: ${data.recommended_delta || 'N/A'}`;
+      } catch (e) {
+        actionEl.textContent = "Error fetching VIX";
+        console.error(e);
+      }
+    }
+
+    async function checkLiveIctKillzones() {
+      const activeEl = document.getElementById('kzActiveNames');
+      const adviceEl = document.getElementById('kzAdvice');
+      activeEl.textContent = "Checking timezones...";
+
+      try {
+        const res = await fetch('/api/ict/killzones');
+        const data = await res.json();
+        const kzs = data.active_killzones || [];
+        if (kzs.length > 0) {
+          activeEl.textContent = "ACTIVE: " + kzs.join(', ') + ` (${data.current_time_ist})`;
+          activeEl.className = "text-sm font-bold text-emerald-400 font-mono";
+          adviceEl.textContent = `Status: ${data.ict_recommendation} — High institutional liquidity flow window.`;
+        } else {
+          activeEl.textContent = `OUTSIDE KILLZONES (${data.current_time_ist})`;
+          activeEl.className = "text-sm font-bold text-amber-400 font-mono";
+          adviceEl.textContent = "Avoid random intraday entries. Wait for London (12-3 PM IST) or NY (6:30-9:30 PM IST).";
+        }
+      } catch (e) {
+        activeEl.textContent = "Error checking killzones";
+        console.error(e);
+      }
+    }
+
+    async function runVcpScanner() {
+      const statusEl = document.getElementById('vcpStatus');
+      const countEl = document.getElementById('vcpCount');
+      const box = document.getElementById('playbookResultsContainer');
+      const title = document.getElementById('playbookResultsTitle');
+      const body = document.getElementById('playbookResultsBody');
+
+      statusEl.textContent = "Scanning Nifty base contractions...";
+      box.classList.remove('hidden');
+      title.textContent = "🎯 Mark Minervini SEPA VCP Candidates";
+      body.innerHTML = "<div>Running volatility contraction scan across watchlist...</div>";
+
+      try {
+        const res = await fetch('/api/screener/vcp?limit=6');
+        const data = await res.json();
+        countEl.textContent = `${data.total_found || 0} Found`;
+        statusEl.textContent = `${data.total_found || 0} Candidates Qualified`;
+
+        if (!data.candidates || data.candidates.length === 0) {
+          body.innerHTML = "<div class='text-slate-400'>No stocks currently exhibiting 3 consecutive ATR contractions in a confirmed 50>150>200 EMA uptrend.</div>";
+        } else {
+          body.innerHTML = data.candidates.map(c => `
+            <div class="flex items-center justify-between p-2 bg-slate-900 rounded border border-slate-800 hover:border-rose-500/50 cursor-pointer" onclick="analyzeSymbol('${c.symbol}')">
+              <div>
+                <strong class="text-rose-300">${c.symbol}</strong>
+                <span class="text-slate-400 ml-2">₹${c.price} (${c.proximity_to_52w_high_pct}% of 52W High)</span>
+              </div>
+              <div class="text-right">
+                <span class="text-emerald-400">ATR Contraction: ${c.atr_contraction_ratio_pct}%</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        body.innerHTML = "<div class='text-rose-400'>Scan request failed. Check server logs.</div>";
+      }
+    }
+
+    async function runMomentumRotationScanner() {
+      const statusEl = document.getElementById('momStatus');
+      const countEl = document.getElementById('momCount');
+      const box = document.getElementById('playbookResultsContainer');
+      const title = document.getElementById('playbookResultsTitle');
+      const body = document.getElementById('playbookResultsBody');
+
+      statusEl.textContent = "Calculating 12-1 returns...";
+      box.classList.remove('hidden');
+      title.textContent = "🚀 Alok Jain 12-1 Month Momentum Leaderboard";
+      body.innerHTML = "<div>Computing 12-1 momentum rotation across Nifty sample...</div>";
+
+      try {
+        const res = await fetch('/api/screener/momentum-rotation?limit=10');
+        const data = await res.json();
+        countEl.textContent = `${data.top_stocks ? data.top_stocks.length : 0} Ranked`;
+        statusEl.textContent = "Leaderboard Ready";
+
+        if (!data.top_stocks || data.top_stocks.length === 0) {
+          body.innerHTML = "<div class='text-slate-400'>No momentum data returned.</div>";
+        } else {
+          body.innerHTML = data.top_stocks.map(s => `
+            <div class="flex items-center justify-between p-2 bg-slate-900 rounded border border-slate-800 hover:border-emerald-500/50 cursor-pointer" onclick="analyzeSymbol('${s.symbol}')">
+              <div>
+                <span class="font-bold text-slate-400 mr-2">#${s.momentum_rank}</span>
+                <strong class="text-emerald-300">${s.symbol}</strong>
+                <span class="text-slate-400 ml-2">₹${s.price}</span>
+              </div>
+              <div class="text-right font-bold text-emerald-400">
+                12-1 Ret: +${s.momentum_12_1_pct}%
+                <span class="text-slate-500 text-[10px] ml-1.5">(1M: ${s.return_1m_pct}%)</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        body.innerHTML = "<div class='text-rose-400'>Momentum rotation scan failed. Check server logs.</div>";
+      }
     }
 
     window.onload = init;

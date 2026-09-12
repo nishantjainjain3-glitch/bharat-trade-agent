@@ -1,4 +1,5 @@
 import concurrent.futures
+import pandas as pd
 from typing import List, Dict, Any
 from src.data.market_data import get_stock_quote, get_historical_bars, get_company_fundamentals
 from src.analysis.technical import analyze_technical_indicators
@@ -441,3 +442,230 @@ def get_high_momentum_breakouts(limit: int = 5, target_pct: float = 5.5, stop_pc
 
     candidates.sort(key=lambda x: (-x["day_change_pct"], -x["volume"]))
     return candidates[:limit]
+
+
+def scan_vcp_candidates(limit: int = 10) -> Dict[str, Any]:
+    """
+    Volatility Contraction Pattern (VCP) Scanner — Mark Minervini's signature setup.
+    Scans stocks from the default watchlist for the VCP pattern:
+    1. Stock must be in Minervini Trend Template (price > 50 EMA > 150 SMA > 200 SMA)
+    2. ATR% must be contracting over the last 3 price pivots (each 30-50% smaller)
+    3. Stock must be within 10% of its 52-week high
+    Returns stocks that qualify as VCP breakout candidates.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    import logging
+    logger = logging.getLogger(__name__)
+
+    candidates = []
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+
+    for symbol in symbols[:30]:  # limit API calls
+        try:
+            df = get_historical_bars(symbol, period="1y", interval="1d")
+            if len(df) < 60:
+                continue
+
+            close = df['Close']
+            current_price = float(close.iloc[-1])
+
+            # Trend Template check
+            ema50 = float(close.ewm(span=50, adjust=False).mean().iloc[-1])
+            sma150 = float(close.rolling(150).mean().iloc[-1]) if len(df) >= 150 else ema50
+            sma200 = float(close.rolling(200).mean().iloc[-1]) if len(df) >= 200 else sma150
+
+            trend_template_pass = (
+                current_price > ema50 > sma150 > sma200
+            )
+            if not trend_template_pass:
+                continue
+
+            # 52-week proximity check: within 10% of 52-week high
+            high_52w = float(df['High'].tail(252).max()) if len(df) >= 252 else float(df['High'].max())
+            near_high = current_price >= high_52w * 0.90
+            if not near_high:
+                continue
+
+            # ATR% contraction check over last 3 pivots (proxied by 3 rolling windows)
+            atr_pcts = []
+            for window_start in [-60, -40, -20]:
+                window_df = df.iloc[window_start:]
+                tr = pd.concat([
+                    window_df['High'] - window_df['Low'],
+                    (window_df['High'] - window_df['Close'].shift(1)).abs(),
+                    (window_df['Low'] - window_df['Close'].shift(1)).abs()
+                ], axis=1).max(axis=1)
+                window_atr_pct = float(tr.mean() / current_price * 100.0)
+                atr_pcts.append(window_atr_pct)
+
+            # VCP: each window should have lower ATR% than the previous
+            atr_contracting = atr_pcts[0] > atr_pcts[1] > atr_pcts[2]
+            if not atr_contracting:
+                continue
+
+            contraction_ratio = round(atr_pcts[2] / atr_pcts[0] * 100.0, 1)
+
+            candidates.append({
+                "symbol": symbol,
+                "price": round(current_price, 2),
+                "ema50": round(ema50, 2),
+                "sma200": round(sma200, 2),
+                "high_52w": round(high_52w, 2),
+                "proximity_to_52w_high_pct": round((current_price / high_52w) * 100, 1),
+                "atr_pct_60d": round(atr_pcts[0], 2),
+                "atr_pct_40d": round(atr_pcts[1], 2),
+                "atr_pct_20d": round(atr_pcts[2], 2),
+                "atr_contraction_ratio_pct": contraction_ratio,
+                "setup": "VCP_BREAKOUT_CANDIDATE",
+                "rule": "Minervini SEPA Trend Template + Volatility Contraction Pattern"
+            })
+
+            if len(candidates) >= limit:
+                break
+
+        except Exception as e:
+            logger.warning("VCP scan error for %s: %s", symbol, str(e))
+            continue
+
+    return {
+        "scan_type": "VCP_MINERVINI",
+        "candidates": sorted(candidates, key=lambda x: x.get("atr_contraction_ratio_pct", 100)),
+        "total_found": len(candidates)
+    }
+
+
+def scan_momentum_rotation(limit: int = 20) -> Dict[str, Any]:
+    """
+    12-1 Momentum Rotation Scanner — Alok Jain (Weekend Investing) style.
+    Ranks Nifty 500 stocks by 12-month return excluding the most recent 1 month
+    (to avoid reversal bias). Returns the top limit stocks by momentum score.
+    This is the core of a weekly momentum rotation strategy.
+    """
+    from src.data.market_data import get_historical_bars
+    from src.data.nifty500 import NIFTY_500_SYMBOLS
+    import logging
+    logger = logging.getLogger(__name__)
+
+    scored = []
+    # Sample 80 stocks to keep API calls manageable (rotate through full list in prod)
+    sample = NIFTY_500_SYMBOLS[:80]
+
+    for symbol in sample:
+        try:
+            df = get_historical_bars(symbol, period="13mo", interval="1mo")
+            if len(df) < 13:
+                continue
+
+            price_now = float(df['Close'].iloc[-1])       # current month end
+            price_1m_ago = float(df['Close'].iloc[-2])    # 1 month ago end
+            price_12m_ago = float(df['Close'].iloc[-13])  # 12 months ago end
+
+            if price_12m_ago <= 0 or price_1m_ago <= 0:
+                continue
+
+            # 12-1 momentum: return from 12 months ago to 1 month ago (skip recent month)
+            momentum_12_1 = (price_1m_ago - price_12m_ago) / price_12m_ago * 100.0
+            # Recent 1-month return (for context)
+            return_1m = (price_now - price_1m_ago) / price_1m_ago * 100.0
+
+            scored.append({
+                "symbol": symbol,
+                "price": round(price_now, 2),
+                "momentum_12_1_pct": round(momentum_12_1, 2),
+                "return_1m_pct": round(return_1m, 2),
+                "momentum_rank": 0  # filled after sort
+            })
+        except Exception as e:
+            logger.warning("Momentum scan error for %s: %s", symbol, str(e))
+            continue
+
+    # Rank by 12-1 momentum descending
+    scored.sort(key=lambda x: x["momentum_12_1_pct"], reverse=True)
+    for rank, item in enumerate(scored[:limit], start=1):
+        item["momentum_rank"] = rank
+
+    return {
+        "scan_type": "MOMENTUM_ROTATION_12_1",
+        "strategy": "Alok Jain Weekend Investing — Buy top 20 Nifty 500 by 12-1 month momentum, rebalance weekly",
+        "top_stocks": scored[:limit],
+        "total_ranked": len(scored)
+    }
+
+
+def scan_donchian_breakouts(period: int = 20, limit: int = 10) -> Dict[str, Any]:
+    """
+    Donchian Channel Breakout Scanner — Richard Dennis / Ed Seykota Turtle System.
+    Finds stocks making new N-day high breakouts with:
+    - ADX > 20 (confirming trend has energy)
+    - Volume >= 1.5x 20-day average (institutional participation)
+    Classic Turtle System 1 uses 20-day. System 2 uses 55-day.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.technical import calculate_adx
+    import logging
+    logger = logging.getLogger(__name__)
+
+    breakouts = []
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+
+    for symbol in symbols[:40]:
+        try:
+            df = get_historical_bars(symbol, period="6mo", interval="1d")
+            if len(df) < period + 5:
+                continue
+
+            current_high = float(df['High'].iloc[-1])
+            channel_high = float(df['High'].tail(period + 1).iloc[:-1].max())  # exclude today
+
+            # Breakout: today's high >= N-day channel high
+            if current_high < channel_high * 0.998:
+                continue
+
+            # ADX filter
+            adx_info = calculate_adx(df, 14)
+            if adx_info.get("adx", 0) < 20:
+                continue
+
+            # Volume filter
+            avg_vol = float(df['Volume'].tail(20).mean()) if 'Volume' in df.columns else 1.0
+            current_vol = float(df['Volume'].iloc[-1]) if 'Volume' in df.columns else avg_vol
+            vol_ratio = round(current_vol / avg_vol, 2) if avg_vol > 0 else 1.0
+            if vol_ratio < 1.5:
+                continue
+
+            current_price = float(df['Close'].iloc[-1])
+            atr = float(pd.concat([
+                df['High'] - df['Low'],
+                (df['High'] - df['Close'].shift(1)).abs(),
+                (df['Low'] - df['Close'].shift(1)).abs()
+            ], axis=1).max(axis=1).tail(14).mean())
+
+            turtle_stop = round(current_price - 2 * atr, 2)
+
+            breakouts.append({
+                "symbol": symbol,
+                "price": round(current_price, 2),
+                "channel_high": round(channel_high, 2),
+                "channel_period": period,
+                "adx": adx_info.get("adx"),
+                "volume_ratio": vol_ratio,
+                "turtle_stop_2atr": turtle_stop,
+                "setup": f"DONCHIAN_{period}D_BREAKOUT",
+                "rule": "Turtle System 1: New N-day high + ADX > 20 + Volume 1.5x avg"
+            })
+
+            if len(breakouts) >= limit:
+                break
+
+        except Exception as e:
+            logger.warning("Donchian scan error for %s: %s", symbol, str(e))
+            continue
+
+    return {
+        "scan_type": "DONCHIAN_BREAKOUT",
+        "period": period,
+        "breakouts": breakouts,
+        "total_found": len(breakouts)
+    }
