@@ -398,11 +398,24 @@ def get_high_momentum_breakouts(limit: int = 5, target_pct: float = 5.5, stop_pc
 
         tp = round(ltp * (1.0 + target_pct / 100.0), 2)
         sl = round(ltp * (1.0 - stop_pct / 100.0), 2)
-        conviction = 8
-        if day_chg >= 4.0:
-            conviction = 9
-        if volume > 10000000:
-            conviction = min(10, conviction + 1)
+        
+        # OpenTerminalUI classification logic
+        rvol = round(volume / 5000000.0, 2) if volume > 0 else 1.0
+        if day_chg >= 5.0 and volume > 15000000:
+            setup_type = "VOLUME_SPIKE_BREAKOUT"
+            event_type = "TRIGGERED"
+            conviction = 10
+            catalyst = "Massive volume expansion with explosive price breakout above resistance."
+        elif day_chg >= 3.0:
+            setup_type = "RANGE_BREAKOUT_UP"
+            event_type = "TRIGGERED"
+            conviction = 9 if volume > 5000000 else 8
+            catalyst = "Sustained upward price momentum clearing near-term consolidation band."
+        else:
+            setup_type = "MOMENTUM_EXPANSION"
+            event_type = "NEAR_TRIGGER"
+            conviction = 8
+            catalyst = "Accumulation volume rising with price testing breakout threshold."
 
         candidates.append({
             "symbol": raw_sym,
@@ -410,6 +423,7 @@ def get_high_momentum_breakouts(limit: int = 5, target_pct: float = 5.5, stop_pc
             "price": ltp,
             "day_change_pct": round(day_chg, 2),
             "volume": volume,
+            "rvol": rvol,
             "day_high": day_high,
             "day_low": day_low,
             "target_price": tp,
@@ -419,7 +433,10 @@ def get_high_momentum_breakouts(limit: int = 5, target_pct: float = 5.5, stop_pc
             "risk_reward_ratio": round(target_pct / stop_pct, 2),
             "expected_hold": "Same day to 2 days",
             "conviction": conviction,
-            "strategy": "High-Volume Real-Time Breakout"
+            "setup_type": setup_type,
+            "event_type": event_type,
+            "strategy": "High-Volume Real-Time Breakout",
+            "catalyst_summary": catalyst
         })
 
     candidates.sort(key=lambda x: (-x["day_change_pct"], -x["volume"]))
