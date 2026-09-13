@@ -111,80 +111,117 @@ class PortfolioRecycler:
         actions = []
         accumulated_cash = 0.0
 
-        # Phase 1: Liquidate stagnant dust positions
-        for d in audit["dust_positions"]:
-            if accumulated_cash >= cash_deficit:
-                break
-            val = d["market_value"]
-            actions.append({
-                "action": "SELL_ALL",
-                "symbol": d["symbol"],
-                "quantity": d["quantity"],
-                "price": d["ltp"],
-                "estimated_cash_released": val,
-                "rationale": f"Prune micro dust holding ({d['weight_pct']}% of portfolio) to free trading slot."
-            })
-            accumulated_cash += val
+        from src.broker.execution_microstructure import calculate_statutory_friction
 
-        # Phase 2: Trim overconcentrated positions down to 20%
+        actions = []
+        accumulated_gross = 0.0
+        accumulated_net = 0.0
+
+        # Phase 1: Trim overconcentrated positions first (Maximum cash release, tiny <0.5% statutory friction)
         for oc in audit["overconcentrated_positions"]:
-            if accumulated_cash >= cash_deficit:
+            if accumulated_net >= cash_deficit:
                 break
             ltp = oc["ltp"]
             excess_val = oc["excess_capital_inr"]
             trim_qty = oc["shares_to_trim"]
 
-            # Adjust trim quantity if we need less than full excess
-            needed = cash_deficit - accumulated_cash
+            needed = cash_deficit - accumulated_net
             if needed < excess_val and ltp > 0:
                 trim_qty = min(trim_qty, int(needed / ltp) + 1)
 
-            cash_released = round(trim_qty * ltp, 2)
-            actions.append({
-                "action": "TRIM",
-                "symbol": oc["symbol"],
-                "quantity": trim_qty,
-                "price": ltp,
-                "estimated_cash_released": cash_released,
-                "rationale": f"Trim concentration from {oc['weight_pct']}% toward 20% risk ceiling."
-            })
-            accumulated_cash += cash_released
+            if trim_qty > 0:
+                gross_released = round(trim_qty * ltp, 2)
+                friction = calculate_statutory_friction(oc["symbol"], "SELL", ltp, trim_qty, "DELIVERY")
+                net_released = round(gross_released - friction["total_friction_inr"], 2)
+
+                actions.append({
+                    "action": "TRIM",
+                    "symbol": oc["symbol"],
+                    "quantity": trim_qty,
+                    "price": ltp,
+                    "gross_cash_released": gross_released,
+                    "statutory_friction_inr": friction["total_friction_inr"],
+                    "friction_pct": friction["friction_pct"],
+                    "net_cash_released": net_released,
+                    "rationale": f"Trim concentration from {oc['weight_pct']}% toward 20% risk ceiling (Friction: {friction['friction_pct']:.2f}%)."
+                })
+                accumulated_gross += gross_released
+                accumulated_net += net_released
+
+        # Phase 2: If still deficient, prune dust positions (Warn if DP charge > 2.0% of value)
+        if accumulated_net < cash_deficit:
+            for d in audit["dust_positions"]:
+                if accumulated_net >= cash_deficit:
+                    break
+                qty = d["quantity"]
+                ltp = d["ltp"]
+                gross_val = d["market_value"]
+                friction = calculate_statutory_friction(d["symbol"], "SELL", ltp, qty, "DELIVERY")
+                net_released = round(max(0.0, gross_val - friction["total_friction_inr"]), 2)
+
+                actions.append({
+                    "action": "SELL_DUST",
+                    "symbol": d["symbol"],
+                    "quantity": qty,
+                    "price": ltp,
+                    "gross_cash_released": gross_val,
+                    "statutory_friction_inr": friction["total_friction_inr"],
+                    "friction_pct": friction["friction_pct"],
+                    "net_cash_released": net_released,
+                    "is_fee_prohibitive": friction["is_fee_prohibitive"],
+                    "rationale": (
+                        f"Prune micro dust position ({d['weight_pct']}% of portfolio). "
+                        + (f"⚠️ High statutory friction ({friction['friction_pct']:.1f}%) due to DP charges on small lot." if friction["is_fee_prohibitive"] else "")
+                    )
+                })
+                accumulated_gross += gross_val
+                accumulated_net += net_released
 
         # Phase 3: If still deficient, trim largest non-gold core holding
-        if accumulated_cash < cash_deficit:
+        if accumulated_net < cash_deficit:
             for c in audit["core_positions"]:
                 if "GOLD" in c["symbol"]:
-                    continue # Preserve Gold hedge
-                if accumulated_cash >= cash_deficit:
+                    continue  # 100% preserve Gold hedge
+                if accumulated_net >= cash_deficit:
                     break
                 ltp = c["ltp"]
-                needed = cash_deficit - accumulated_cash
+                needed = cash_deficit - accumulated_net
                 trim_qty = min(c["quantity"], int(needed / ltp) + 1) if ltp > 0 else 0
                 if trim_qty > 0:
-                    cash_released = round(trim_qty * ltp, 2)
+                    gross_released = round(trim_qty * ltp, 2)
+                    friction = calculate_statutory_friction(c["symbol"], "SELL", ltp, trim_qty, "DELIVERY")
+                    net_released = round(gross_released - friction["total_friction_inr"], 2)
                     actions.append({
                         "action": "TRIM_CORE",
                         "symbol": c["symbol"],
                         "quantity": trim_qty,
                         "price": ltp,
-                        "estimated_cash_released": cash_released,
+                        "gross_cash_released": gross_released,
+                        "statutory_friction_inr": friction["total_friction_inr"],
+                        "friction_pct": friction["friction_pct"],
+                        "net_cash_released": net_released,
                         "rationale": f"Reallocate from {c['symbol']} to higher-conviction setup {target_symbol}."
                     })
-                    accumulated_cash += cash_released
+                    accumulated_gross += gross_released
+                    accumulated_net += net_released
 
-        plan_viable = (accumulated_cash + avail_cash) >= required_cash
+        plan_viable = (accumulated_net + avail_cash) >= required_cash
 
         return {
             "status": "RECYCLING_PLAN_READY" if plan_viable else "PARTIAL_CAPITAL_AVAILABLE",
             "required_cash": round(required_cash, 2),
             "available_cash": round(avail_cash, 2),
             "cash_deficit": round(cash_deficit, 2),
-            "total_cash_to_be_released": round(accumulated_cash, 2),
-            "projected_total_cash": round(accumulated_cash + avail_cash, 2),
+            "total_cash_to_be_released": round(accumulated_net, 2),
+            "net_cash_released": round(accumulated_net, 2),
+            "gross_cash_released": round(accumulated_gross, 2),
+            "total_statutory_friction": round(accumulated_gross - accumulated_net, 2),
+            "projected_total_cash": round(accumulated_net + avail_cash, 2),
             "actions_needed": actions,
             "target_symbol": target_symbol,
             "message": (
-                f"Generated {len(actions)} capital recycling trims to raise INR {round(accumulated_cash, 2)} "
+                f"Generated {len(actions)} capital recycling trims to raise net INR {round(accumulated_net, 2)} "
+                f"(Gross: ₹{round(accumulated_gross, 2)}, Friction: ₹{round(accumulated_gross - accumulated_net, 2)}) "
                 f"from internal portfolio equity to fund {target_symbol}."
             )
         }

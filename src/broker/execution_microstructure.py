@@ -112,3 +112,85 @@ def calculate_realistic_execution(
         "execution_type": execution_type,
         "recommendation": "USE_LIMIT_ORDER" if total_slippage_bps > 25.0 else "MARKET_ORDER_ACCEPTABLE"
     }
+
+
+def calculate_statutory_friction(
+    symbol: str,
+    action: str,  # "BUY", "SELL", or "ROUND_TRIP"
+    price: float,
+    quantity: int,
+    trade_type: str = "DELIVERY"  # "DELIVERY" or "INTRADAY"
+) -> Dict[str, Any]:
+    """
+    Statutory Indian Transaction Charges & Fee Arithmetic (The Penniless Agent Doctrine):
+    Calculates exact statutory taxes and exchange levies:
+    - Brokerage: ₹0 for Delivery on Angel One
+    - STT (Securities Transaction Tax): 0.1% on buy & sell (Delivery)
+    - Exchange Turnover Charges: 0.00297%
+    - Stamp Duty: 0.015% (Buy delivery)
+    - SEBI Turnover Fee: ₹10 / crore (0.0001%)
+    - DP Charges: ₹15.34 + 18% GST = ₹18.10 per scrip per day (Delivery SELL only)
+    - GST: 18% on (brokerage + exchange charges + sebi fee)
+
+    Protects small portfolios by flagging FEE_PROHIBITIVE micro-trades (>2.5% friction).
+    """
+    turnover = price * quantity
+    if turnover <= 0:
+        return {"total_friction_inr": 0.0, "friction_pct": 0.0, "is_fee_prohibitive": False}
+
+    # 1. Brokerage (Angel One: Flat ₹0 for Delivery)
+    brokerage = 0.0 if trade_type.upper() == "DELIVERY" else min(20.0, round(turnover * 0.0003, 2))
+
+    # 2. STT (Securities Transaction Tax)
+    if trade_type.upper() == "DELIVERY":
+        stt = round(turnover * 0.001, 2) if action.upper() in ("BUY", "SELL") else round(turnover * 0.002, 2)
+    else:
+        stt = round(turnover * 0.00025, 2) if action.upper() in ("SELL", "ROUND_TRIP") else 0.0
+
+    # 3. Exchange turnover charges (NSE ~0.00297%)
+    exchange_charges = round(turnover * 0.0000297, 2)
+
+    # 4. Stamp duty (0.015% on Buy)
+    stamp_duty = round(turnover * 0.00015, 2) if action.upper() in ("BUY", "ROUND_TRIP") else 0.0
+
+    # 5. SEBI turnover fee (₹10 / crore)
+    sebi_fee = round(turnover * 0.000001, 2)
+
+    # 6. DP Charges (₹18.10 per scrip on Delivery SELL)
+    dp_charges = 18.10 if (trade_type.upper() == "DELIVERY" and action.upper() in ("SELL", "ROUND_TRIP")) else 0.0
+
+    # 7. GST (18% on Brokerage + Exchange charges + SEBI fee)
+    gst = round((brokerage + exchange_charges + sebi_fee) * 0.18, 2)
+
+    total_friction = round(brokerage + stt + exchange_charges + stamp_duty + sebi_fee + dp_charges + gst, 2)
+    friction_pct = round((total_friction / turnover) * 100.0, 3)
+
+    # Economic viability check: Flag trades where statutory friction eats > 2.0% of principal
+    is_fee_prohibitive = bool(friction_pct > 2.0)
+    min_viable_lot_for_delivery = max(1, math.ceil(1500.0 / price)) if price > 0 else 1
+
+    return {
+        "symbol": symbol,
+        "action": action.upper(),
+        "trade_type": trade_type.upper(),
+        "price": price,
+        "quantity": quantity,
+        "turnover": round(turnover, 2),
+        "brokerage": brokerage,
+        "stt": stt,
+        "exchange_charges": exchange_charges,
+        "stamp_duty": stamp_duty,
+        "sebi_fee": sebi_fee,
+        "dp_charges": dp_charges,
+        "gst": gst,
+        "total_friction_inr": total_friction,
+        "friction_pct": friction_pct,
+        "is_fee_prohibitive": is_fee_prohibitive,
+        "min_viable_lot_size": min_viable_lot_for_delivery,
+        "warning": (
+            f"FEE_PROHIBITIVE: Statutory charges (₹{total_friction:.2f}) consume {friction_pct:.2f}% of position value. "
+            f"DP charges (₹18.10) make 1-share delivery sales economically irrational. Minimum viable lot is {min_viable_lot_for_delivery} shares."
+            if is_fee_prohibitive else None
+        )
+    }
+

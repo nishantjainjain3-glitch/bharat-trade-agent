@@ -367,6 +367,28 @@ class TestFinceptFeatures(unittest.TestCase):
             self.assertTrue(deleted)
             self.assertIsNone(vault.get_dossier("INFY"))
 
+    def test_statutory_friction_and_penniless_agent_rules(self):
+        from src.broker.execution_microstructure import calculate_statutory_friction
+        # Micro-lot 1 share delivery sale must be flagged as fee-prohibitive due to ₹18.10 DP charges
+        dust_res = calculate_statutory_friction("TATASTEEL", "SELL", 150.0, 1, "DELIVERY")
+        self.assertTrue(dust_res["is_fee_prohibitive"])
+        self.assertGreater(dust_res["friction_pct"], 10.0)
+        self.assertIn("FEE_PROHIBITIVE", dust_res["warning"])
+
+        # Full-sized 33 share BHEL buy order must have negligible friction (<0.3%)
+        standard_res = calculate_statutory_friction("BHEL", "BUY", 431.0, 33, "DELIVERY")
+        self.assertFalse(standard_res["is_fee_prohibitive"])
+        self.assertLess(standard_res["friction_pct"], 0.5)
+        self.assertIsNone(standard_res["warning"])
+
+    def test_order_settlement_read_after_write(self):
+        from src.broker.angel_one import angel_client
+        # Simulated order settlement check
+        sim_settlement = angel_client.verify_order_settlement("SIM-12345678")
+        self.assertTrue(sim_settlement["verified"])
+        self.assertTrue(sim_settlement["read_after_write_confirmed"])
+        self.assertEqual(sim_settlement["order_status"], "complete")
+
 if __name__ == "__main__":
     unittest.main()
 

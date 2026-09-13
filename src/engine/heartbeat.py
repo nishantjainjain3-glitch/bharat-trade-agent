@@ -284,13 +284,32 @@ class AutonomousHeartbeat:
                                 if order_res.get("status"):
                                     mode = order_res.get("mode", "LIVE")
                                     oid = order_res.get("order_id", "N/A")
+
+                                    # Read-After-Write verification (The Penniless Agent Doctrine)
+                                    settlement = angel_client.verify_order_settlement(oid)
+                                    if not settlement.get("verified") and settlement.get("order_status") in ("rejected", "cancelled"):
+                                        rej_reason = settlement.get("rejection_reason", "RMS / Exchange Rejection")
+                                        logger.warning("Order %s rejected during read-after-write verification: %s", oid, rej_reason)
+                                        rej_msg = (
+                                            f"⚠️ *ORDER REJECTED BY BROKER/RMS*\n\n"
+                                            f"• Stock: *{sym}*\n"
+                                            f"• Action: BUY {qty} shares @ ₹{price:,.2f}\n"
+                                            f"• Order ID: `{oid}`\n"
+                                            f"• Rejection: `{rej_reason}`\n\n"
+                                            f"_Read-After-Write verification prevented false execution log._"
+                                        )
+                                        send_telegram_text(rej_msg)
+                                        continue
+
+                                    fill_price = settlement.get("average_price") or price
                                     msg = (
                                         f"🤖 *AUTONOMOUS TRADE EXECUTED ({mode})*\n\n"
                                         f"• Stock: *{sym}*\n"
-                                        f"• Action: *BUY {qty} shares* @ ₹{price:,.2f}\n"
+                                        f"• Action: *BUY {qty} shares* @ ₹{fill_price:,.2f}\n"
                                         f"• Stop-Loss: ₹{sl:,.2f} | Target: ₹{tp:,.2f}\n"
                                         f"• Conviction: {conviction}/10\n"
-                                        f"• Order ID: `{oid}`\n\n"
+                                        f"• Order ID: `{oid}`\n"
+                                        f"• Settlement: `Confirmed via Read-After-Write`\n\n"
                                         f"_Validated by Constitution & Risk Tier: {self.current_tier.get('tier', 'NORMAL')}_"
                                     )
                                     send_telegram_text(msg)

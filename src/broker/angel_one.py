@@ -310,6 +310,111 @@ class AngelOneClient:
         except Exception as e:
             return {"status": False, "mode": "LIVE_ERROR", "message": f"Order placement failed: {str(e)}"}
 
+    def get_order_book(self) -> List[Dict[str, Any]]:
+        """
+        Fetches live order book directly from Angel One SmartAPI.
+        Required for Read-After-Write delivery and fill verification.
+        """
+        if not self.is_configured:
+            return []
+        if not self.jwt_token:
+            self.login()
+
+        headers = {
+            "Authorization": f"Bearer {self.jwt_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-UserType": "USER",
+            "X-SourceID": "WEB",
+            "X-ClientLocalIP": "127.0.0.1",
+            "X-ClientPublicIP": self.public_ip,
+            "X-MACAddress": "MAC_ADDRESS",
+            "X-PrivateKey": self.api_key
+        }
+        url = "https://apiconnect.angelone.in/rest/secure/angelbroking/order/v1/getOrderBook"
+        try:
+            res = requests.get(url, headers=headers, proxies=self.proxies, timeout=10)
+            data = res.json()
+            if data.get("status"):
+                return data.get("data", []) or []
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning("Order book fetch error: %s", str(e))
+        return []
+
+    def verify_order_settlement(self, order_id: str, max_retries: int = 2, delay_sec: float = 0.5) -> Dict[str, Any]:
+        """
+        Read-After-Write verification loop (Penniless Agent Principle):
+        Never assume an API response means delivery.
+        Reads back the order book to confirm actual exchange settlement, fill price,
+        or RMS rejection reason.
+        """
+        if str(order_id).startswith("SIM-"):
+            return {
+                "verified": True,
+                "mode": "SIMULATION",
+                "order_id": order_id,
+                "order_status": "complete",
+                "filled_shares": 0,
+                "average_price": 0.0,
+                "rejection_reason": None,
+                "read_after_write_confirmed": True
+            }
+
+        import time
+        for attempt in range(max_retries):
+            if attempt > 0:
+                time.sleep(delay_sec)
+
+            orders = self.get_order_book()
+            for order in orders:
+                if str(order.get("orderid")) == str(order_id):
+                    raw_status = str(order.get("orderstatus", "")).lower()
+                    avg_price = float(order.get("averageprice", 0.0) or 0.0)
+                    filled_qty = int(order.get("filledshares", 0) or 0)
+                    reason = order.get("text") or order.get("rejectionreason")
+
+                    if raw_status in ("complete", "traded"):
+                        return {
+                            "verified": True,
+                            "order_id": order_id,
+                            "order_status": "complete",
+                            "filled_shares": filled_qty,
+                            "average_price": avg_price,
+                            "rejection_reason": None,
+                            "read_after_write_confirmed": True
+                        }
+                    elif raw_status in ("rejected", "cancelled"):
+                        return {
+                            "verified": False,
+                            "order_id": order_id,
+                            "order_status": raw_status,
+                            "filled_shares": 0,
+                            "average_price": 0.0,
+                            "rejection_reason": reason or f"Broker {raw_status} order",
+                            "read_after_write_confirmed": True
+                        }
+                    elif raw_status in ("open", "trigger pending"):
+                        return {
+                            "verified": True,
+                            "order_id": order_id,
+                            "order_status": raw_status,
+                            "filled_shares": filled_qty,
+                            "average_price": avg_price,
+                            "rejection_reason": None,
+                            "read_after_write_confirmed": True
+                        }
+
+        return {
+            "verified": False,
+            "order_id": order_id,
+            "order_status": "UNKNOWN_PENDING",
+            "filled_shares": 0,
+            "average_price": 0.0,
+            "rejection_reason": "Order ID not yet reflected in broker order book after read-after-write audit.",
+            "read_after_write_confirmed": False
+        }
+
     def get_market_gainers(self, datatype: str = "PercPriceGainers", expirytype: str = "NEAR") -> List[Dict[str, Any]]:
         """Fetches real-time market gainers directly from Angel One."""
         if not self.is_configured:

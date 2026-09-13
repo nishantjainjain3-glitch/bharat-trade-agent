@@ -1012,6 +1012,40 @@ def save_vault_dossier_endpoint(req: VaultSaveRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/api/analysis/friction")
+def get_statutory_friction(
+    symbol: str = "BHEL",
+    price: float = 431.0,
+    quantity: int = 33,
+    action: str = "BUY",
+    trade_type: str = "DELIVERY"
+):
+    try:
+        from src.broker.execution_microstructure import calculate_statutory_friction
+        return calculate_statutory_friction(
+            symbol=normalize_indian_symbol(symbol),
+            action=action,
+            price=price,
+            quantity=quantity,
+            trade_type=trade_type
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/broker/order-book")
+def get_broker_order_book():
+    try:
+        return angel_client.get_order_book()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/broker/verify-order/{order_id}")
+def verify_broker_order(order_id: str):
+    try:
+        return angel_client.verify_order_settlement(order_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):
