@@ -58,7 +58,8 @@ from src.notifications.daily_briefings import (
 )
 from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
 from src.analysis.nifty500_scanner import scan_nifty500_breakouts
-from src.analysis.screener import scan_vcp_candidates, scan_momentum_rotation, scan_donchian_breakouts, scan_5ema_setups
+from src.analysis.screener import scan_vcp_candidates, scan_momentum_rotation, scan_donchian_breakouts, scan_5ema_setups, scan_pbd_setups
+from src.analysis.pbd_model import evaluate_patrick_nill_setup, detect_pbd_structure
 from src.analysis.frvp import get_frvp_analysis
 from src.analysis.order_flow import detect_ict_order_blocks, get_ict_killzone_status
 from src.analysis.technical import calculate_india_vix_regime, calculate_5ema_setup
@@ -1061,6 +1062,26 @@ def get_5ema_analysis_endpoint(symbol: str, period: str = "1mo", interval: str =
 def get_5ema_screener_endpoint(limit: int = 10, period: str = "1mo", interval: str = "1d"):
     try:
         return scan_5ema_setups(limit=limit, period=period, interval=interval)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analysis/pbd/{symbol}")
+def get_pbd_analysis_endpoint(symbol: str, period: str = "3mo", interval: str = "1d", equity: float = 100000.0):
+    try:
+        norm_sym = normalize_indian_symbol(symbol)
+        df = get_historical_bars(norm_sym, period=period, interval=interval)
+        res = evaluate_patrick_nill_setup(df, account_equity=equity)
+        res["symbol"] = norm_sym
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/screener/pbd")
+def get_pbd_screener_endpoint(limit: int = 10, period: str = "3mo", interval: str = "1d"):
+    try:
+        portfolio = angel_client.get_portfolio_summary()
+        tot_val = float(portfolio.get("total_portfolio_value", 100000.0))
+        return scan_pbd_setups(limit=limit, period=period, interval=interval, account_equity=tot_val)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

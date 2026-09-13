@@ -19,6 +19,7 @@ from src.analysis.technical import (
 )
 from src.analysis.frvp import calculate_frvp, evaluate_frvp_setup, get_frvp_analysis
 from src.analysis.order_flow import detect_ict_order_blocks, get_ict_killzone_status
+from src.analysis.pbd_model import detect_pbd_structure, evaluate_patrick_nill_setup
 import pandas as pd
 import numpy as np
 
@@ -442,8 +443,67 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertIn("Subasish Pani", res["mentor"])
         self.assertIn("candidates", res)
 
+    def test_pbd_p_structure_detection(self):
+        bars = []
+        for p in np.linspace(100, 110, 8):
+            bars.append({"Open": p - 0.5, "High": p + 1.0, "Low": p - 0.5, "Close": p, "Volume": 50000})
+        for p in [109, 110, 108.5, 109.5, 110, 109, 108.8, 110.2, 109.5, 109, 110, 109.2]:
+            bars.append({"Open": p - 0.2, "High": p + 0.8, "Low": p - 0.8, "Close": p, "Volume": 20000})
+
+        df = pd.DataFrame(bars)
+        struct = detect_pbd_structure(df, impulse_window=8, consolidation_window=12)
+        self.assertEqual(struct["structure"], "P_STRUCTURE")
+        self.assertEqual(struct["bias"], "BULLISH_IMPULSE_PAUSE")
+        self.assertGreater(struct["impulse_change_pct"], 2.0)
+        self.assertGreater(struct["range_high"], struct["range_low"])
+
+    def test_pbd_b_structure_detection(self):
+        bars = []
+        for p in np.linspace(100, 90, 8):
+            bars.append({"Open": p + 0.5, "High": p + 0.5, "Low": p - 1.0, "Close": p, "Volume": 50000})
+        for p in [90, 89.5, 90.5, 90.2, 89.8, 90.4, 90.1, 89.6, 90.3, 90.0, 90.2, 90.1]:
+            bars.append({"Open": p - 0.2, "High": p + 0.6, "Low": p - 0.6, "Close": p, "Volume": 20000})
+
+        df = pd.DataFrame(bars)
+        struct = detect_pbd_structure(df, impulse_window=8, consolidation_window=12)
+        self.assertEqual(struct["structure"], "B_STRUCTURE")
+        self.assertEqual(struct["bias"], "BEARISH_IMPULSE_PAUSE")
+        self.assertLess(struct["impulse_change_pct"], -2.0)
+
+    def test_pbd_boundary_pingpong_setup_and_1pct_risk(self):
+        bars = []
+        for p in np.linspace(1000, 900, 8):
+            bars.append({"Open": p + 5, "High": p + 5, "Low": p - 10, "Close": p, "Volume": 50000})
+        for p in [905, 895, 902, 908, 898, 904, 906, 897, 905, 900, 903]:
+            bars.append({"Open": p - 2, "High": p + 6, "Low": p - 6, "Close": p, "Volume": 20000})
+        bars.append({"Open": 895, "High": 898, "Low": 889, "Close": 890, "Volume": 25000})
+
+        df = pd.DataFrame(bars)
+        equity = 50000.0
+        res = evaluate_patrick_nill_setup(df, account_equity=equity, max_risk_pct=1.0)
+        self.assertEqual(res["strategy"], "PATRICK_NILL_PBD")
+        self.assertTrue(res["is_active"])
+        self.assertIn("PINGPONG_LONG", res["setup"])
+        self.assertEqual(res["action"], "BUY_RANGE_LOW")
+        
+        sizing = res["sizing"]
+        self.assertEqual(sizing["risk_budget_inr"], 500.0)
+        max_loss = sizing["allowed_shares"] * res["risk_per_share"]
+        self.assertLessEqual(max_loss, 500.0)
+        self.assertGreater(res["stop_loss"], 0.0)
+        self.assertLess(res["stop_loss"], res["entry_price"])
+
+    def test_pbd_screener_structure(self):
+        from src.analysis.screener import scan_pbd_setups
+        res = scan_pbd_setups(limit=2)
+        self.assertEqual(res["scan_type"], "PATRICK_NILL_PBD")
+        self.assertIn("Patrick Nill", res["mentor"])
+        self.assertIn("candidates", res)
+        self.assertIn("active_trades", res)
+
 if __name__ == "__main__":
     unittest.main()
+
 
 
 

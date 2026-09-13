@@ -225,6 +225,70 @@ def backtest_strategy(
 
             signals.append(position)
         df['Signal'] = signals
+    elif strategy_name in ("PATRICK_NILL_PBD", "PBD_MODEL", "PBD"):
+        # Patrick Nill PBD Model Counter-Trend Swing Strategy
+        # Identifies P-structure (bullish impulse followed by range) or B-structure (bearish impulse followed by range)
+        # Playbook 1: Boundary Ping-Pong (Buy Range Low, Target POC / Range High)
+        # Playbook 2: Breakout Continuation
+        high = df['High'].astype(float)
+        low = df['Low'].astype(float)
+        
+        tr = pd.concat([
+            high - low,
+            (high - close.shift(1)).abs(),
+            (low - close.shift(1)).abs()
+        ], axis=1).max(axis=1)
+        atr = tr.rolling(14).mean()
+
+        position = 0
+        signals = []
+        stop_loss = 0.0
+        target_price = 0.0
+
+        for i in range(len(df)):
+            if i < 20:
+                signals.append(0)
+                continue
+
+            curr_c = float(close.iloc[i])
+            curr_h = float(high.iloc[i])
+            curr_l = float(low.iloc[i])
+            curr_atr = float(atr.iloc[i]) if not np.isnan(atr.iloc[i]) else (curr_h - curr_l)
+
+            # Lookback consolidation window: 10 bars
+            # Lookback impulse window: 8 bars preceding consolidation
+            cons_low = float(low.iloc[i-10:i].min())
+            cons_high = float(high.iloc[i-10:i].max())
+            cons_mid = (cons_high + cons_low) / 2.0
+            imp_start = float(close.iloc[i-18])
+            imp_end = float(close.iloc[i-10])
+            imp_move = (imp_end - imp_start) / imp_start * 100.0 if imp_start > 0 else 0.0
+
+            if position == 0:
+                # Setup A: Buy at Range Low in a B-Structure or P-Structure (Ping-Pong)
+                if curr_l <= cons_low * 1.005 and curr_c > cons_low:
+                    position = 1
+                    entry_est = curr_c
+                    stop_loss = cons_low - (0.5 * curr_atr)
+                    risk = entry_est - stop_loss
+                    if risk <= 0:
+                        risk = curr_atr if curr_atr > 0 else 1.0
+                        stop_loss = entry_est - risk
+                    target_price = cons_high
+                # Setup B: Bullish Breakout Continuation above Range High in P-Structure
+                elif imp_move >= 2.0 and curr_c > cons_high:
+                    position = 1
+                    entry_est = curr_c
+                    stop_loss = cons_mid
+                    risk = entry_est - stop_loss
+                    target_price = entry_est + (2.5 * risk)
+            elif position == 1:
+                # Exit conditions: Stop loss hit, target hit
+                if curr_l <= stop_loss or curr_h >= target_price:
+                    position = 0
+
+            signals.append(position)
+        df['Signal'] = signals
     else:
         raise ValueError(f"Unknown strategy: {strategy_name}")
 

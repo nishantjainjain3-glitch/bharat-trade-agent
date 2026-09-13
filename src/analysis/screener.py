@@ -709,6 +709,8 @@ def scan_5ema_setups(limit: int = 10, period: str = "1mo", interval: str = "1d")
                     active_setups.append(record)
                 else:
                     pending_setups.append(record)
+                if len(active_setups) + len(pending_setups) >= limit:
+                    break
         except Exception as e:
             logger.warning("5 EMA scan error for %s: %s", symbol, str(e))
             continue
@@ -723,4 +725,64 @@ def scan_5ema_setups(limit: int = 10, period: str = "1mo", interval: str = "1d")
         "total_pending": len(pending_setups),
         "candidates": all_candidates[:limit]
     }
+
+
+def scan_pbd_setups(limit: int = 10, period: str = "3mo", interval: str = "1d", account_equity: float = 100000.0) -> Dict[str, Any]:
+    """
+    Patrick Nill PBD Model Screener.
+    Scans the watchlist for:
+    - Active Boundary Ping-Pong setups (price at Range High / VAH or Range Low / VAL).
+    - Breakout Pullback continuation setups (retesting broken consolidation boundary).
+    - Identifies 'P' (bullish pause) and 'B' (bearish pause) structural regimes.
+    Enforces the 1.0% portfolio risk budget rule.
+    """
+    from src.analysis.pbd_model import evaluate_patrick_nill_setup
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    import logging
+    logger = logging.getLogger(__name__)
+
+    active_trades = []
+    watching_setups = []
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    for symbol in symbols[:30]:
+        try:
+            df = get_historical_bars(symbol, period=period, interval=interval)
+            if len(df) < 25:
+                continue
+            res = evaluate_patrick_nill_setup(df, account_equity=account_equity)
+            if res.get("status") == "INSUFFICIENT_DATA":
+                continue
+
+            record = {
+                "symbol": symbol,
+                "clean_symbol": symbol.replace(".NS", "").replace(".BO", ""),
+                **res
+            }
+            if res.get("is_active"):
+                active_trades.append(record)
+            else:
+                watching_setups.append(record)
+            if len(active_trades) + len(watching_setups) >= limit:
+                break
+        except Exception as e:
+            logger.warning("PBD scan error for %s: %s", symbol, str(e))
+            continue
+
+    all_candidates = active_trades + watching_setups
+    return {
+        "scan_type": "PATRICK_NILL_PBD",
+        "mentor": "Patrick Nill (World Trading Championship)",
+        "source": "TradeIQ (@tradeiq.with.nitz)",
+        "active_trades": active_trades[:limit],
+        "watching_consolidations": watching_setups[:limit],
+        "total_active": len(active_trades),
+        "total_watching": len(watching_setups),
+        "candidates": all_candidates[:limit]
+    }
+
 
