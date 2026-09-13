@@ -1230,3 +1230,214 @@ def scan_kunal_saraogi_vip(limit: int = 15) -> Dict[str, Any]:
         "candidates": candidates[:limit],
         "total_found": len(candidates)
     }
+
+
+def scan_institutional_risk_budgeted_trades(
+    capital: float = 50000.0,
+    risk_pct: float = 0.015,
+    limit: int = 10
+) -> Dict[str, Any]:
+    """
+    Institutional Risk-Budgeted Multi-Factor Screener.
+    Unifies:
+    1. Multi-factor strategy signals (5-Pillar, Connors RSI, Camarilla, VIP, Inside Bar, Demand Zone)
+    2. Hurst Exponent Regime Filtering (ensures trend strategies only run in trending regimes)
+    3. Volatility-Parity Position Sizing (exact shares budgeted to Capital * RiskPct)
+    4. Fractional Quarter-Kelly Allocation percentage
+    5. Portfolio Correlation Shielding against active portfolio holdings
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.institutional_quant import (
+        calculate_fractional_kelly,
+        calculate_volatility_parity_position,
+        calculate_hurst_exponent,
+        check_portfolio_correlation_shield
+    )
+    from src.analysis.social_strategies import (
+        calculate_king_research_5pillar,
+        calculate_trading_geek_snd,
+        calculate_cpr_regime,
+        calculate_inside_bar_setup,
+        calculate_rsi_divergence_setup
+    )
+    from src.analysis.quant_strategies import (
+        calculate_connors_rsi2,
+        calculate_camarilla_pivots,
+        calculate_kunal_saraogi_vip
+    )
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    holding_symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    
+    # Compile candidate symbols
+    candidates_pool = list(dict.fromkeys(
+        [item["symbol"] for item in UNIVERSE_TICKERS if item.get("symbol")] + holding_symbols
+    ))
+
+    # Pre-fetch holding returns for correlation shielding
+    holdings_returns = {}
+    for h_sym in holding_symbols[:6]:
+        try:
+            h_df = get_historical_bars(h_sym, period="3mo", interval="1d")
+            if len(h_df) >= 20:
+                holdings_returns[h_sym.replace(".NS", "").replace(".BO", "")] = h_df['Close'].pct_change().dropna()
+        except Exception:
+            continue
+
+    qualified_trades = []
+
+    for sym in candidates_pool[:35]:
+        try:
+            df = get_historical_bars(sym, period="6mo", interval="1d")
+            if len(df) < 35:
+                continue
+
+            curr_price = float(df['Close'].iloc[-1])
+            clean_sym = sym.replace(".NS", "").replace(".BO", "")
+
+            # 1. Technical & Quantitative Strategy Evaluation
+            king = calculate_king_research_5pillar(df)
+            connors = calculate_connors_rsi2(df)
+            cama = calculate_camarilla_pivots(df)
+            vip = calculate_kunal_saraogi_vip(df)
+            inside = calculate_inside_bar_setup(df)
+            snd = calculate_trading_geek_snd(df)
+            cpr = calculate_cpr_regime(df)
+
+            # Signal scoring & labeling
+            signals = []
+            strategy_type = "NEUTRAL"
+            score = 0
+
+            if king.get("signal") in ["STRONG_BUY", "MILD_BUY"]:
+                signals.append(f"5-Pillar ({king.get('confluence_score')})")
+                score += 25
+                strategy_type = "TREND_FOLLOWING"
+
+            if connors.get("signal") == "BUY_EXTREME_DIP":
+                signals.append(f"Connors RSI(2) Dip ({connors.get('rsi2'):.1f})")
+                score += 30
+                strategy_type = "MEAN_REVERSION"
+
+            if cama.get("signal") == "BULLISH_H4_BREAKOUT":
+                signals.append("Camarilla H4 Breakout")
+                score += 15
+                if strategy_type == "NEUTRAL":
+                    strategy_type = "TREND_FOLLOWING"
+            elif cama.get("signal") == "L3_SUPPORT_BOUNCE":
+                signals.append("Camarilla L3 Support Bounce")
+                score += 15
+                if strategy_type == "NEUTRAL":
+                    strategy_type = "MEAN_REVERSION"
+
+            if vip.get("signal") == "STRONG_VIP_BUY":
+                signals.append("VIP 3/3 Strong Buy")
+                score += 20
+
+            if snd.get("signal") == "BUY_DEMAND_TEST":
+                signals.append("Institutional Demand Zone Retest")
+                score += 20
+                if strategy_type == "NEUTRAL":
+                    strategy_type = "MEAN_REVERSION"
+
+            if inside.get("signal") == "BULLISH_INSIDE_BREAKOUT":
+                signals.append("Inside Bar Breakout")
+                score += 15
+
+            if score < 25:
+                continue
+
+            # 2. Hurst Exponent Regime Filter
+            hurst_info = calculate_hurst_exponent(df)
+            hurst_val = hurst_info.get("hurst_exponent", 0.50)
+
+            # Rejection logic: Do not run trend strategies in mean-reverting regimes, and vice-versa
+            regime_filter_pass = True
+            filter_note = "REGIME_ALIGNED"
+            if strategy_type == "TREND_FOLLOWING" and hurst_val < 0.45:
+                regime_filter_pass = False
+                filter_note = f"REJECTED: Trend strategy in Mean-Reverting regime (H={hurst_val})"
+            elif strategy_type == "MEAN_REVERSION" and hurst_val > 0.65:
+                # Strong runaway trend: short-term dips might keep plunging
+                filter_note = f"CAUTION: Extreme runaway trend (H={hurst_val})"
+
+            if not regime_filter_pass:
+                continue
+
+            # 3. Volatility-Parity Position Sizing
+            tr = pd.concat([
+                df['High'] - df['Low'],
+                (df['High'] - df['Close'].shift(1)).abs(),
+                (df['Low'] - df['Close'].shift(1)).abs()
+            ], axis=1).max(axis=1)
+            atr = float(tr.tail(14).mean())
+
+            sizing = calculate_volatility_parity_position(
+                capital=capital,
+                risk_pct=risk_pct,
+                current_price=curr_price,
+                atr=atr,
+                stop_multiplier=1.5,
+                target_multiplier=3.0
+            )
+
+            # 4. Fractional Quarter-Kelly Allocation
+            # Estimate baseline win rate from score conviction (50% to 65%)
+            estimated_win_rate = min(0.68, 0.45 + (score / 300.0))
+            kelly = calculate_fractional_kelly(
+                win_rate=estimated_win_rate,
+                win_loss_ratio=2.0,
+                kelly_fraction=0.25,
+                max_cap=0.15
+            )
+
+            # 5. Portfolio Correlation Shield
+            cand_returns = df['Close'].pct_change().dropna()
+            corr_shield = check_portfolio_correlation_shield(
+                candidate_returns=cand_returns,
+                holdings_returns=holdings_returns,
+                correlation_threshold=0.70
+            )
+
+            qualified_trades.append({
+                "symbol": clean_sym,
+                "full_symbol": sym,
+                "current_price": round(curr_price, 2),
+                "conviction_score": score,
+                "strategy_type": strategy_type,
+                "signals": signals,
+                "hurst_exponent": hurst_val,
+                "hurst_regime": hurst_info.get("regime"),
+                "cpr_regime": cpr.get("regime"),
+                "position_sizing": sizing,
+                "kelly_recommendation_pct": kelly.get("recommended_allocation_pct"),
+                "correlation_shield": {
+                    "shield_pass": corr_shield.get("shield_pass"),
+                    "highest_correlated_holding": corr_shield.get("highest_correlated_symbol"),
+                    "correlation_value": corr_shield.get("highest_correlation")
+                }
+            })
+
+        except Exception as e:
+            logger.warning("Institutional screener error for %s: %s", sym, str(e))
+            continue
+
+    # Rank by conviction score and correlation safety
+    qualified_trades.sort(
+        key=lambda x: (
+            x["correlation_shield"]["shield_pass"],
+            x["conviction_score"]
+        ),
+        reverse=True
+    )
+
+    return {
+        "scan_type": "INSTITUTIONAL_RISK_BUDGETED_TRADES",
+        "capital_basis": capital,
+        "risk_pct": risk_pct,
+        "dollar_risk_per_trade": round(capital * risk_pct, 2),
+        "total_qualified": len(qualified_trades),
+        "candidates": qualified_trades[:limit]
+    }

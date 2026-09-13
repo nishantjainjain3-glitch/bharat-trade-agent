@@ -1,5 +1,7 @@
 import socket
 import os
+import pandas as pd
+import numpy as np
 from dotenv import load_dotenv
 load_dotenv()
 import asyncio
@@ -1203,6 +1205,95 @@ def get_vip_screener_endpoint(limit: int = 15):
         return scan_kunal_saraogi_vip(limit=limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/quant/institutional-sizing")
+def get_institutional_sizing_endpoint(
+    symbol: str = "BHEL",
+    capital: float = 50000.0,
+    risk_pct: float = 0.015,
+    stop_multiplier: float = 1.5,
+    target_multiplier: float = 3.0
+):
+    try:
+        from src.data.market_data import get_historical_bars
+        from src.analysis.institutional_quant import calculate_volatility_parity_position
+        norm_sym = normalize_indian_symbol(symbol)
+        df = get_historical_bars(norm_sym, period="3mo", interval="1d")
+        if len(df) < 15:
+            raise HTTPException(status_code=400, detail="Insufficient bar data")
+        
+        tr = pd.concat([
+            df['High'] - df['Low'],
+            (df['High'] - df['Close'].shift(1)).abs(),
+            (df['Low'] - df['Close'].shift(1)).abs()
+        ], axis=1).max(axis=1)
+        atr = float(tr.tail(14).mean())
+        curr_price = float(df['Close'].iloc[-1])
+
+        sizing = calculate_volatility_parity_position(
+            capital=capital,
+            risk_pct=risk_pct,
+            current_price=curr_price,
+            atr=atr,
+            stop_multiplier=stop_multiplier,
+            target_multiplier=target_multiplier
+        )
+        sizing["symbol"] = norm_sym
+        sizing["atr"] = round(atr, 2)
+        return sizing
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/quant/hurst/{symbol}")
+def get_hurst_exponent_endpoint(symbol: str, period: str = "1y", interval: str = "1d"):
+    try:
+        from src.data.market_data import get_historical_bars
+        from src.analysis.institutional_quant import calculate_hurst_exponent
+        norm_sym = normalize_indian_symbol(symbol)
+        df = get_historical_bars(norm_sym, period=period, interval=interval)
+        res = calculate_hurst_exponent(df)
+        res["symbol"] = norm_sym
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/quant/kelly")
+def get_kelly_sizing_endpoint(
+    win_rate: float = 0.55,
+    win_loss_ratio: float = 2.0,
+    kelly_fraction: float = 0.25,
+    max_cap: float = 0.15
+):
+    try:
+        from src.analysis.institutional_quant import calculate_fractional_kelly
+        return calculate_fractional_kelly(
+            win_rate=win_rate,
+            win_loss_ratio=win_loss_ratio,
+            kelly_fraction=kelly_fraction,
+            max_cap=max_cap
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/screener/institutional-trades")
+def get_institutional_trades_screener_endpoint(
+    capital: float = 50000.0,
+    risk_pct: float = 0.015,
+    limit: int = 10
+):
+    try:
+        from src.analysis.screener import scan_institutional_risk_budgeted_trades
+        return scan_institutional_risk_budgeted_trades(
+            capital=capital,
+            risk_pct=risk_pct,
+            limit=limit
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):
