@@ -1,0 +1,49 @@
+{
+  "symbol": "TEXMOPIPES",
+  "saved_at": "2026-09-13 10:51:36 IST",
+  "verdict": "TRIM",
+  "conviction": 7,
+  "time_horizon": "Portfolio Rebalancing",
+  "entry_range": "INR 92.00 - INR 96.00",
+  "target_price": "INR 105.00",
+  "stop_loss": "INR 88.00",
+  "risk_reward_ratio": "1 : 1.8",
+  "executive_summary": "Massive 40.3% portfolio concentration (₹20,727.60). Prune 131 shares to release ₹12,471.20 capital while retaining core exposure.",
+  "technical_summary": "Consolidating below resistance. RSI neutral at 52.4. Over-weighted in portfolio relative to ATR risk.",
+  "fundamental_summary": "Small-cap piping manufacturer with modest ROE and cyclical raw material exposure.",
+  "bull_case": "Infra and Jal Jeevan Mission agricultural piping demand.",
+  "bear_case": "Extreme portfolio concentration risk; PVC raw material cost volatility.",
+  "sentiment_velocity": "STABLE",
+  "news_headlines": [
+    "Texmo Pipes reports steady quarterly volumes amid infra capex."
+  ],
+  "adversarial_audit": {
+    "verdict": "APPROVED_WITH_ADVERSARIAL_CAVEATS",
+    "overall_score": 74.5,
+    "component_scores": {
+      "fact_score": 80.0,
+      "bear_survival_score": 70.0,
+      "math_score": 85.0,
+      "media_independence_score": 50.0
+    },
+    "objections": [
+      "Extreme portfolio concentration risk: single asset exceeds 40% of total liquid net worth."
+    ],
+    "caveats": [
+      "Small-cap liquidity limits exit velocity during high-volatility sessions."
+    ],
+    "forensic_bear_case": "Over-concentration and sensitivity to resin prices.",
+    "math_metrics": {
+      "reward_to_risk": 1.8,
+      "risk_per_share": 7.2,
+      "reward_per_share": 13.0,
+      "stop_atr_multiple": 1.6
+    },
+    "media_analysis": {
+      "unique_stories_count": 1,
+      "syndication_ratio": 1.0
+    }
+  },
+  "maker_checker_audit": {},
+  "extra_metadata": {}
+}

@@ -1,0 +1,49 @@
+{
+  "symbol": "TMCV",
+  "saved_at": "2026-09-13 10:51:36 IST",
+  "verdict": "TRIM",
+  "conviction": 7,
+  "time_horizon": "Portfolio Rebalancing",
+  "entry_range": "INR 338.00 - INR 344.00",
+  "target_price": "INR 380.00",
+  "stop_loss": "INR 320.00",
+  "risk_reward_ratio": "1 : 2.0",
+  "executive_summary": "Heavy 32.1% portfolio concentration (₹16,512.90). Prune 8 shares to release ₹2,746.00 and restore diversified risk parity.",
+  "technical_summary": "Trending above 50 EMA with strong commercial vehicle sector backdrop.",
+  "fundamental_summary": "Tata Motors Commercial Vehicles division beneficiary of fleet modernization.",
+  "bull_case": "Commercial vehicle replacement cycle and infra tonnage growth.",
+  "bear_case": "Fuel cost sensitivity and margin pressure from high commodity prices.",
+  "sentiment_velocity": "ACCELERATING_BULLISH",
+  "news_headlines": [
+    "Tata commercial vehicle segment reports robust monthly dispatches."
+  ],
+  "adversarial_audit": {
+    "verdict": "APPROVED_WITH_ADVERSARIAL_CAVEATS",
+    "overall_score": 82.0,
+    "component_scores": {
+      "fact_score": 90.0,
+      "bear_survival_score": 80.0,
+      "math_score": 90.0,
+      "media_independence_score": 50.0
+    },
+    "objections": [
+      "Portfolio concentration exceeds prudent 15% single-stock ceiling."
+    ],
+    "caveats": [
+      "Commercial vehicle cycle exhibits late-cycle volatility."
+    ],
+    "forensic_bear_case": "Cyclical auto demand slowdown.",
+    "math_metrics": {
+      "reward_to_risk": 2.0,
+      "risk_per_share": 21.0,
+      "reward_per_share": 42.0,
+      "stop_atr_multiple": 1.7
+    },
+    "media_analysis": {
+      "unique_stories_count": 1,
+      "syndication_ratio": 1.0
+    }
+  },
+  "maker_checker_audit": {},
+  "extra_metadata": {}
+}

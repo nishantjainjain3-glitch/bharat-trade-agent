@@ -1,0 +1,45 @@
+{
+  "symbol": "BHEL",
+  "saved_at": "2026-09-13 10:49:20 IST",
+  "verdict": "BUY",
+  "conviction": 8,
+  "time_horizon": "Swing (1-3 weeks)",
+  "entry_range": "INR 428.00 - INR 432.00",
+  "target_price": "INR 465.00",
+  "stop_loss": "INR 415.48",
+  "risk_reward_ratio": "1 : 2.1",
+  "executive_summary": "Strong momentum setup following 2-year multi-year breakout.",
+  "technical_summary": "Donchian channel breakout above 20-day high with ADX 28.5.",
+  "fundamental_summary": "Robust order book expansion with Indian power sector tailwinds.",
+  "bull_case": "NTPC and PSU thermal/green tenders driving record multi-year pipeline.",
+  "bear_case": "Short-term market volatility or project execution bottlenecks.",
+  "sentiment_velocity": "ACCELERATING_BULLISH",
+  "news_headlines": [
+    "BHEL bags ₹11,000 crore contract for thermal power units."
+  ],
+  "adversarial_audit": {
+    "verdict": "PASSED_CLEAN_AUDIT",
+    "overall_score": 91.8,
+    "component_scores": {
+      "fact_score": 100.0,
+      "bear_survival_score": 85.0,
+      "math_score": 90.0,
+      "media_independence_score": 100.0
+    },
+    "objections": [],
+    "caveats": [],
+    "forensic_bear_case": "No severe forensic headwinds detected.",
+    "math_metrics": {
+      "reward_to_risk": 2.12,
+      "risk_per_share": 15.52,
+      "reward_per_share": 34.0,
+      "stop_atr_multiple": 1.85
+    },
+    "media_analysis": {
+      "unique_stories_count": 1,
+      "syndication_ratio": 1.0
+    }
+  },
+  "maker_checker_audit": {},
+  "extra_metadata": {}
+}

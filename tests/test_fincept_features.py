@@ -277,6 +277,96 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertGreater(plan["total_cash_to_be_released"], 4500.0)
         self.assertGreaterEqual(len(plan["actions_needed"]), 1)
 
+    def test_adversarial_council_clean_pass(self):
+        from src.agents.adversarial_council import adversarial_council
+        audit = adversarial_council.audit_trade_proposal(
+            symbol="BHEL",
+            price=430.0,
+            stop_loss=415.0,
+            target_price=465.0,
+            technicals={"rsi": 55.0, "adx": {"adx": 26.0}, "atr": 8.0},
+            fundamentals={"metrics": {"pe_ratio": 28.0, "roe_pct": 14.0, "debt_to_equity": 0.40}},
+            news_headlines=["BHEL bags multi-crore infrastructure order."]
+        )
+        self.assertEqual(audit["verdict"], "PASSED_CLEAN_AUDIT")
+        self.assertGreaterEqual(audit["overall_audit_score"], 80.0)
+        self.assertEqual(len(audit["objections"]), 0)
+        self.assertGreaterEqual(audit["math_metrics"]["reward_to_risk"], 1.5)
+
+    def test_adversarial_council_rejection_and_caveats(self):
+        from src.agents.adversarial_council import adversarial_council
+        # Violates R:R and overbought RSI
+        audit = adversarial_council.audit_trade_proposal(
+            symbol="OVERPRICED",
+            price=100.0,
+            stop_loss=95.0,
+            target_price=103.0,  # 3 reward / 5 risk = 0.6 RR (< 1.5)
+            technicals={"rsi": 78.0, "adx": {"adx": 12.0}, "atr": 2.0},
+            fundamentals={"metrics": {"pe_ratio": 95.0, "roe_pct": "N/A", "debt_to_equity": "N/A"}},
+            news_headlines=["Stock rises"]
+        )
+        self.assertEqual(audit["verdict"], "REJECTED_BY_ADVERSARIAL_COUNCIL")
+        self.assertLess(audit["overall_audit_score"], 60.0)
+        self.assertTrue(any("CRITICAL" in o for o in audit["objections"]))
+
+    def test_media_syndication_deduplicator(self):
+        from src.agents.adversarial_council import adversarial_council
+        syndicated = [
+            "XYZ Corporation signs definitive pact for green hydrogen facility in Gujarat",
+            "Gujarat green hydrogen facility definitive pact signed by XYZ Corporation",
+            "Definitive agreement for green hydrogen plant signed by XYZ Corporation in Gujarat",
+            "XYZ Corporation enters into pact for new green hydrogen facility in Gujarat"
+        ]
+        media_audit = adversarial_council._critic_media_syndication(syndicated)
+        self.assertEqual(media_audit["unique_stories_count"], 1)
+        self.assertTrue(media_audit["is_syndication_spam"])
+        self.assertLess(media_audit["syndication_ratio"], 0.5)
+
+    def test_research_vault_lifecycle(self):
+        import tempfile
+        from src.data.research_vault import ResearchVault
+        with tempfile.TemporaryDirectory() as tmpdir:
+            vault = ResearchVault(vault_dir=tmpdir)
+            save_res = vault.save_dossier("INFY", {
+                "verdict": "BUY",
+                "conviction": 8,
+                "time_horizon": "Swing",
+                "entry_range": "INR 1800 - INR 1820",
+                "target_price": "INR 1950",
+                "stop_loss": "INR 1740",
+                "risk_reward_ratio": "1 : 2.1",
+                "executive_summary": "Tier-1 IT major with deal renewal momentum.",
+                "technical_summary": "Bounce from 200 EMA support.",
+                "fundamental_summary": "Low debt, consistent operating cash flows.",
+                "bull_case": "Large cloud modernization deal pipeline.",
+                "bear_case": "US discretionary tech spend delay.",
+                "adversarial_council_audit": {
+                    "verdict": "PASSED_CLEAN_AUDIT",
+                    "overall_audit_score": 92.0,
+                    "component_scores": {"fact_score": 100.0, "bear_survival_score": 85.0, "math_score": 90.0, "media_independence_score": 100.0}
+                }
+            })
+            self.assertEqual(save_res["status"], "SAVED")
+            dossier = vault.get_dossier("INFY")
+            self.assertIsNotNone(dossier)
+            self.assertEqual(dossier["symbol"], "INFY")
+            self.assertEqual(dossier["verdict"], "BUY")
+
+            md = vault.get_dossier_markdown("INFY")
+            self.assertIn("# 🏛️ Research Vault Dossier: INFY", md)
+            self.assertIn("Operational Trade Boundaries", md)
+
+            results = vault.list_dossiers()
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0]["symbol"], "INFY")
+
+            search_res = vault.search_vault("modernization")
+            self.assertEqual(len(search_res), 1)
+
+            deleted = vault.delete_dossier("INFY")
+            self.assertTrue(deleted)
+            self.assertIsNone(vault.get_dossier("INFY"))
+
 if __name__ == "__main__":
     unittest.main()
 

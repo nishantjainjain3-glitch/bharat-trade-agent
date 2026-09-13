@@ -82,6 +82,19 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
             )
             data = json.loads(response.choices[0].message.content)
             data["provider"] = provider
+            try:
+                from src.agents.adversarial_council import adversarial_council
+                data["adversarial_council_audit"] = adversarial_council.audit_trade_proposal(
+                    symbol=symbol,
+                    price=price,
+                    stop_loss=data.get("stop_loss", price * 0.95),
+                    target_price=data.get("target_price", price * 1.05),
+                    technicals=technicals,
+                    fundamentals=fundamentals,
+                    news_headlines=news_headlines
+                )
+            except Exception:
+                pass
             return data
         except Exception:
             pass
@@ -179,6 +192,23 @@ def run_multi_agent_research(quote: Dict[str, Any], technicals: Dict[str, Any], 
         technicals=technicals,
         fundamentals=fundamentals
     )
+
+    # 4-Critic Adversarial Council Audit (Hyperresearch Architecture)
+    try:
+        from src.agents.adversarial_council import adversarial_council
+        research_payload["adversarial_council_audit"] = adversarial_council.audit_trade_proposal(
+            symbol=symbol,
+            price=price,
+            stop_loss=stop_loss_val,
+            target_price=target_val,
+            technicals=technicals,
+            fundamentals=fundamentals,
+            news_headlines=news_headlines
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("Adversarial council audit error for %s: %s", symbol, str(e))
+        research_payload["adversarial_council_audit"] = {"verdict": "ERROR", "error": str(e)}
 
     return research_payload
 

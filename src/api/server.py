@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from src.data.market_data import (
     get_stock_quote, 
@@ -63,6 +63,8 @@ from src.analysis.frvp import get_frvp_analysis
 from src.analysis.order_flow import detect_ict_order_blocks, get_ict_killzone_status
 from src.analysis.technical import calculate_india_vix_regime
 from src.data.macro_data import get_indian_macro_indicators as _get_macro
+from src.agents.adversarial_council import adversarial_council
+from src.data.research_vault import research_vault
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -134,6 +136,20 @@ class WebhookTradeAlert(BaseModel):
     strategy: Optional[str] = "TradingView Alert"
     timeframe: Optional[str] = "15m"
     message: Optional[str] = None
+
+class AdversarialAuditRequest(BaseModel):
+    symbol: str
+    price: Optional[float] = None
+    stop_loss: Optional[float] = None
+    target_price: Optional[float] = None
+    technicals: Optional[Dict[str, Any]] = None
+    fundamentals: Optional[Dict[str, Any]] = None
+    news_headlines: Optional[List[str]] = None
+
+class VaultSaveRequest(BaseModel):
+    symbol: str
+    research: Optional[Dict[str, Any]] = None
+    extra_metadata: Optional[Dict[str, Any]] = None
 
 @app.get("/health")
 @app.get("/api/health")
@@ -879,6 +895,122 @@ def get_portfolio_recycling_plan(required_cash: float = 14200.0, target_symbol: 
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/research/adversarial-audit")
+def post_adversarial_audit(req: AdversarialAuditRequest):
+    try:
+        symbol = normalize_indian_symbol(req.symbol)
+        price = req.price
+        technicals = req.technicals
+        fundamentals = req.fundamentals
+        news_headlines = req.news_headlines or []
+
+        if price is None or price <= 0:
+            quote = get_stock_quote(symbol)
+            price = quote.get("price", 0.0)
+
+        if technicals is None:
+            df = get_historical_bars(symbol, period="6mo", interval="1d")
+            technicals = analyze_technical_indicators(df)
+
+        if fundamentals is None:
+            raw_fund = get_company_fundamentals(symbol)
+            fundamentals = evaluate_fundamentals(raw_fund)
+
+        if not news_headlines:
+            from src.data.news_data import get_indian_stock_news
+            raw_news = get_indian_stock_news(symbol, limit=4)
+            news_headlines = [n.get("title", "") for n in raw_news if n.get("title")]
+
+        levels = technicals.get("levels", {})
+        atr = levels.get("atr", price * 0.025)
+        stop_loss = req.stop_loss if req.stop_loss and req.stop_loss > 0 else round(price - (1.5 * atr), 2)
+        target_price = req.target_price if req.target_price and req.target_price > 0 else round(price + (2.5 * atr), 2)
+
+        audit_res = adversarial_council.audit_trade_proposal(
+            symbol=symbol,
+            price=price,
+            stop_loss=stop_loss,
+            target_price=target_price,
+            technicals=technicals,
+            fundamentals=fundamentals,
+            news_headlines=news_headlines
+        )
+        return audit_res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/vault/list")
+def get_vault_list(q: Optional[str] = None):
+    try:
+        if q:
+            return research_vault.search_vault(q)
+        return research_vault.list_dossiers()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/vault/{symbol}")
+def get_vault_dossier(symbol: str, auto_generate: bool = True):
+    try:
+        norm_sym = normalize_indian_symbol(symbol)
+        dossier = research_vault.get_dossier(norm_sym)
+        if dossier:
+            return dossier
+        
+        if not auto_generate:
+            raise HTTPException(status_code=404, detail=f"Dossier for {norm_sym} not found in research vault.")
+
+        quote = get_stock_quote(norm_sym)
+        df = get_historical_bars(norm_sym, period="6mo", interval="1d")
+        technicals = analyze_technical_indicators(df)
+        raw_fund = get_company_fundamentals(norm_sym)
+        fundamentals = evaluate_fundamentals(raw_fund)
+        from src.data.news_data import get_indian_stock_news
+        news = get_indian_stock_news(norm_sym, limit=4)
+        
+        research = run_multi_agent_research(quote, technicals, fundamentals, news)
+        research_vault.save_dossier(norm_sym, research)
+        return research_vault.get_dossier(norm_sym)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/vault/{symbol}/markdown")
+def get_vault_dossier_markdown(symbol: str):
+    try:
+        norm_sym = normalize_indian_symbol(symbol)
+        md = research_vault.get_dossier_markdown(norm_sym)
+        if not md:
+            dossier = research_vault.get_dossier(norm_sym)
+            if not dossier:
+                raise HTTPException(status_code=404, detail=f"Dossier for {norm_sym} not found.")
+            md = research_vault._render_markdown_dossier(dossier)
+        return {"symbol": norm_sym, "markdown": md}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/vault/save")
+def save_vault_dossier_endpoint(req: VaultSaveRequest):
+    try:
+        norm_sym = normalize_indian_symbol(req.symbol)
+        if req.research:
+            saved = research_vault.save_dossier(norm_sym, req.research, extra_metadata=req.extra_metadata)
+        else:
+            quote = get_stock_quote(norm_sym)
+            df = get_historical_bars(norm_sym, period="6mo", interval="1d")
+            technicals = analyze_technical_indicators(df)
+            raw_fund = get_company_fundamentals(norm_sym)
+            fundamentals = evaluate_fundamentals(raw_fund)
+            from src.data.news_data import get_indian_stock_news
+            news = get_indian_stock_news(norm_sym, limit=4)
+            research = run_multi_agent_research(quote, technicals, fundamentals, news)
+            saved = research_vault.save_dossier(norm_sym, research, extra_metadata=req.extra_metadata)
+        return saved
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")

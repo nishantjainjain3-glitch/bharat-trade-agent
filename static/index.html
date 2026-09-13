@@ -109,6 +109,9 @@
       <button onclick="switchTab('playbook')" id="tab-btn-playbook" class="py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5">
         <span>📖</span> Playbook & Creators
       </button>
+      <button onclick="switchTab('vault')" id="tab-btn-vault" class="py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5">
+        <span>🏛️</span> Research Vault
+      </button>
       <button onclick="switchTab('settings')" id="tab-btn-settings" class="py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200">
         Settings & Credentials
       </button>
@@ -1833,6 +1836,53 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
     </div>
 
 
+
+    <!-- TAB: RESEARCH VAULT & ADVERSARIAL COUNCIL (HYPERRESEARCH) -->
+    <div id="tab-vault" class="hidden space-y-6">
+      <!-- Header Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-5 rounded-2xl border border-indigo-500/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🏛️</span>
+            <h2 class="text-lg font-bold text-white tracking-tight">Institutional Research Vault</h2>
+            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-mono">Hyperresearch Architecture</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Persistent stock wiki with 4-critic adversarial defense (Facts, Forensic Bear, Math Rigor, Media Deduplication).</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <input type="text" id="vaultSearchInput" onkeyup="filterVaultList()" placeholder="Filter symbols or themes..." class="bg-slate-950/80 border border-slate-700/80 text-white text-xs rounded-xl px-3 py-2 pl-8 focus:outline-none focus:border-indigo-500 w-48 sm:w-56 font-mono">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+          <button onclick="loadVaultDossiers()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-2 rounded-xl text-xs font-medium transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Vault Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Stock List Sidebar (4 cols) -->
+        <div class="lg:col-span-4 space-y-3">
+          <div class="flex items-center justify-between text-xs text-slate-400 px-1 font-mono">
+            <span>SAVED DOSSIERS (<span id="vaultCount">0</span>)</span>
+            <span class="text-[10px] text-slate-500">SORT: RECENT</span>
+          </div>
+          <div id="vaultListContainer" class="space-y-2 max-h-[640px] overflow-y-auto pr-1">
+            <div class="text-slate-500 text-xs p-4 text-center">Loading vault dossiers...</div>
+          </div>
+        </div>
+
+        <!-- Right: Active Dossier Deep-Dive (8 cols) -->
+        <div class="lg:col-span-8">
+          <div id="vaultDetailContainer" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 space-y-6">
+            <div class="text-slate-500 text-xs text-center py-12">Select a dossier from the left list to view the full adversarial audit and research thesis.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Mobile Bottom Tab Bar -->
@@ -1860,6 +1910,10 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
     <button onclick="switchTab('playbook')" id="mobile-tab-playbook" class="flex flex-col items-center text-slate-400 text-[10px] font-medium">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
       <span>Playbook</span>
+    </button>
+    <button onclick="switchTab('vault')" id="mobile-tab-vault" class="flex flex-col items-center text-slate-400 text-[10px] font-medium">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+      <span>Vault</span>
     </button>
     <button onclick="switchTab('settings')" id="mobile-tab-settings" class="flex flex-col items-center text-slate-400 text-[10px] font-medium">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -2179,7 +2233,7 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
     }
 
     function switchTab(tabId) {
-      ['research', 'backtest', 'watchlist', 'portfolio', 'automaton', 'settings', 'playbook'].forEach(t => {
+      ['research', 'backtest', 'watchlist', 'portfolio', 'automaton', 'settings', 'playbook', 'vault'].forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         if (el) el.classList.add('hidden');
         
@@ -2215,6 +2269,8 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
         loadPortfolio();
       } else if (tabId === 'automaton') {
         loadAutomatonState();
+      } else if (tabId === 'vault') {
+        loadVaultDossiers();
       }
     }
 
@@ -3443,6 +3499,261 @@ Rules: [PASTE EXTRACTED RULES HERE]</pre>
     }
 
     window.onload = init;
+
+    // ==========================================
+    // HYPERRESEARCH: VAULT & ADVERSARIAL AUDIT
+    // ==========================================
+    let cachedVaultList = [];
+    let selectedVaultSymbol = null;
+
+    async function loadVaultDossiers() {
+      try {
+        const res = await fetch('/api/vault/list');
+        const list = await res.json();
+        cachedVaultList = list;
+        document.getElementById('vaultCount').textContent = list.length;
+        renderVaultList(list);
+
+        if (list.length > 0 && !selectedVaultSymbol) {
+          selectVaultDossier(list[0].symbol);
+        } else if (selectedVaultSymbol) {
+          selectVaultDossier(selectedVaultSymbol);
+        }
+      } catch (err) {
+        console.error("Error loading vault dossiers:", err);
+        document.getElementById('vaultListContainer').innerHTML = `<div class="p-4 text-xs text-rose-400 bg-rose-500/10 rounded-xl border border-rose-500/20">Failed to load research vault.</div>`;
+      }
+    }
+
+    function filterVaultList() {
+      const q = (document.getElementById('vaultSearchInput').value || '').toLowerCase().trim();
+      if (!q) {
+        renderVaultList(cachedVaultList);
+        return;
+      }
+      const filtered = cachedVaultList.filter(item => 
+        item.symbol.toLowerCase().includes(q) || 
+        (item.verdict && item.verdict.toLowerCase().includes(q))
+      );
+      renderVaultList(filtered);
+    }
+
+    function renderVaultList(list) {
+      const c = document.getElementById('vaultListContainer');
+      if (!list || list.length === 0) {
+        c.innerHTML = `<div class="text-slate-500 text-xs p-6 text-center border border-dashed border-slate-800 rounded-xl">No dossiers in vault matching search.</div>`;
+        return;
+      }
+
+      c.innerHTML = list.map(item => {
+        const isSelected = item.symbol === selectedVaultSymbol;
+        const v = item.verdict || 'HOLD';
+        const vColor = v.includes('BUY') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+                       v.includes('TRIM') || v.includes('SELL') ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+                       'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
+        const score = item.overall_audit_score || 0;
+        const scoreColor = score >= 85 ? 'text-emerald-400' : score >= 70 ? 'text-amber-400' : 'text-rose-400';
+
+        return `
+          <div onclick="selectVaultDossier('${item.symbol}')" class="cursor-pointer p-3 rounded-xl border transition ${isSelected ? 'bg-indigo-950/40 border-indigo-500/50 shadow-lg shadow-indigo-950/50' : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'}">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-sm text-white font-mono">${item.symbol}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded border font-mono font-medium ${vColor}">${v}</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span class="flex items-center gap-1">
+                <span class="text-[9px] text-slate-500 uppercase">Audit</span>
+                <span class="font-bold ${scoreColor}">${score}/100</span>
+              </span>
+              <span class="text-[10px] text-slate-500">${(item.saved_at || '').split(' ')[0]}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectVaultDossier(symbol) {
+      selectedVaultSymbol = symbol;
+      renderVaultList(cachedVaultList);
+      const detail = document.getElementById('vaultDetailContainer');
+      detail.innerHTML = `<div class="text-center py-12 text-xs text-slate-400 font-mono animate-pulse">Loading ${symbol} dossier & 4-critic adversarial audit...</div>`;
+
+      try {
+        const res = await fetch(`/api/vault/${symbol}`);
+        const d = await res.json();
+        renderVaultDetail(d);
+      } catch (err) {
+        detail.innerHTML = `<div class="p-4 text-xs text-rose-400 bg-rose-500/10 rounded-xl border border-rose-500/20">Failed loading dossier details for ${symbol}.</div>`;
+      }
+    }
+
+    function renderVaultDetail(d) {
+      const detail = document.getElementById('vaultDetailContainer');
+      const audit = d.adversarial_audit || {};
+      const comp = audit.component_scores || {};
+      const math = audit.math_metrics || {};
+      const objections = audit.objections || [];
+      const caveats = audit.caveats || [];
+      const news = d.news_headlines || [];
+      const score = audit.overall_score || 0;
+
+      const scoreColor = score >= 85 ? 'text-emerald-400' : score >= 70 ? 'text-amber-400' : 'text-rose-400';
+      const scoreBg = score >= 85 ? 'bg-emerald-500' : score >= 70 ? 'bg-amber-500' : 'bg-rose-500';
+
+      const objHtml = objections.length > 0 ? objections.map(o => `
+        <div class="flex items-start gap-2 p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+          <span class="text-rose-400 shrink-0">❌</span>
+          <span>${o}</span>
+        </div>
+      `).join('') : `<div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center gap-1.5 font-mono"><span>✅</span> No critical objections raised by critics.</div>`;
+
+      const cavHtml = caveats.length > 0 ? caveats.map(c => `
+        <div class="flex items-start gap-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
+          <span class="text-amber-400 shrink-0">⚠️</span>
+          <span>${c}</span>
+        </div>
+      `).join('') : `<div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 text-xs flex items-center gap-1.5 font-mono"><span>✅</span> All financial filings and metrics verified.</div>`;
+
+      const newsHtml = news.length > 0 ? news.map(n => `
+        <div class="flex items-start gap-2 text-xs text-slate-300 p-2 rounded-lg bg-slate-950/60 border border-slate-800/80">
+          <span class="text-slate-500">📰</span>
+          <span>${n}</span>
+        </div>
+      `).join('') : `<div class="text-xs text-slate-500 italic">No fresh headlines logged.</div>`;
+
+      detail.innerHTML = `
+        <!-- Top Dossier Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-3">
+              <h3 class="text-2xl font-black text-white font-mono tracking-tight">${d.symbol}</h3>
+              <span class="text-xs px-2.5 py-1 rounded-lg border font-mono font-bold ${d.verdict.includes('BUY') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}">${d.verdict}</span>
+              <span class="text-xs text-slate-400 font-mono">Conviction: <strong class="text-white">${d.conviction}/10</strong></span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 font-mono">Horizon: ${d.time_horizon || 'Swing'} | Logged: ${d.saved_at || 'N/A'}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="viewVaultMarkdown('${d.symbol}')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+              <span>📄</span>
+              <span>Wiki Markdown</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Operational Boundaries -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 font-mono text-center">
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase">Entry Range</div>
+            <div class="text-xs font-bold text-slate-200 mt-0.5">${d.entry_range || 'N/A'}</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase">Target Price</div>
+            <div class="text-xs font-bold text-emerald-400 mt-0.5">${d.target_price || 'N/A'}</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase">Stop Loss</div>
+            <div class="text-xs font-bold text-rose-400 mt-0.5">${d.stop_loss || 'N/A'}</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase">Projected R:R</div>
+            <div class="text-xs font-bold text-indigo-300 mt-0.5">${d.risk_reward_ratio || 'N/A'}</div>
+          </div>
+        </div>
+
+        <!-- Adversarial 4-Critic Audit Card -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-indigo-500/30 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🛡️</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono">Adversarial 4-Critic Audit</span>
+              <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">${audit.verdict || 'UNAUDITED'}</span>
+            </div>
+            <div class="flex items-center gap-2 font-mono">
+              <span class="text-xs text-slate-400">Score:</span>
+              <span class="text-base font-black ${scoreColor}">${score} / 100</span>
+            </div>
+          </div>
+
+          <!-- 4 Sub-Scores Bar -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
+            <div class="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-500">1. Provenance</div>
+              <div class="font-bold text-slate-200 mt-0.5">${comp.fact_score || 0}/100</div>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-500">2. Forensic Bear</div>
+              <div class="font-bold text-slate-200 mt-0.5">${comp.bear_survival_score || 0}/100</div>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-500">3. Math Rigor</div>
+              <div class="font-bold text-slate-200 mt-0.5">${comp.math_score || 0}/100</div>
+            </div>
+            <div class="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-500">4. Media Indep.</div>
+              <div class="font-bold text-slate-200 mt-0.5">${comp.media_independence_score || 0}/100</div>
+            </div>
+          </div>
+
+          <!-- Objections -->
+          <div class="space-y-1.5">
+            <div class="text-[11px] font-bold text-slate-400 font-mono uppercase">Critic Objections & Flags</div>
+            ${objHtml}
+          </div>
+
+          <!-- Forensic Bear Case -->
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
+            <span class="text-[10px] font-bold text-slate-400 uppercase font-mono block mb-1">Forensic Bear Thesis</span>
+            <em>${audit.forensic_bear_case || 'No severe forensic headwinds detected.'}</em>
+          </div>
+        </div>
+
+        <!-- Research Thesis Pillars -->
+        <div class="space-y-3">
+          <div class="text-xs font-bold text-slate-300 font-mono uppercase">Research Thesis & Pillars</div>
+          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 space-y-2">
+            <p><strong>Executive Summary:</strong> ${d.executive_summary || 'N/A'}</p>
+            <p><strong>Technical Pillar:</strong> ${d.technical_summary || 'N/A'}</p>
+            <p><strong>Fundamental Pillar:</strong> ${d.fundamental_summary || 'N/A'}</p>
+          </div>
+        </div>
+
+        <!-- News Catalysts -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="font-bold text-slate-300 uppercase">Media & Sentiment Velocity</span>
+            <span class="text-[10px] text-emerald-400 font-mono">${d.sentiment_velocity || 'STABLE'}</span>
+          </div>
+          <div class="space-y-1.5">
+            ${newsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    async function viewVaultMarkdown(symbol) {
+      try {
+        const res = await fetch(`/api/vault/${symbol}/markdown`);
+        const data = await res.json();
+        const win = window.open("", "_blank");
+        win.document.write(`
+          <html>
+            <head>
+              <title>${symbol} Research Dossier Wiki</title>
+              <style>
+                body { background: #090d16; color: #cbd5e1; font-family: monospace; padding: 24px; max-width: 900px; margin: 0 auto; line-height: 1.6; }
+                pre { background: #020617; padding: 16px; border-radius: 8px; border: 1px solid #1e293b; white-space: pre-wrap; word-wrap: break-word; }
+              </style>
+            </head>
+            <body>
+              <pre>${data.markdown.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+            </body>
+          </html>
+        `);
+      } catch (err) {
+        alert("Failed to load markdown wiki for " + symbol);
+      }
+    }
+
   </script>
 </body>
 </html>

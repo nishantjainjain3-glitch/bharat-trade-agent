@@ -1,0 +1,47 @@
+{
+  "symbol": "GOLDBEES",
+  "saved_at": "2026-09-13 10:51:36 IST",
+  "verdict": "HOLD_HEDGE",
+  "conviction": 9,
+  "time_horizon": "Permanent Portfolio Hedge",
+  "entry_range": "INR 125.00 - INR 127.00",
+  "target_price": "INR 140.00",
+  "stop_loss": "INR 118.00",
+  "risk_reward_ratio": "1 : 1.7",
+  "executive_summary": "Crucial non-correlated wealth preserver (₹8,963.04). 100% protected under Constitutional Rule 4 — Zero recycling liquidations permitted.",
+  "technical_summary": "Price trading above 50 and 200 EMA. CPR above pivot showing institutional stability.",
+  "fundamental_summary": "Physical gold backed ETF with sovereign backing and minimal tracking error.",
+  "bull_case": "Global dedollarization, central bank reserve purchases, and geopolitical hedging.",
+  "bear_case": "Prolonged high US real yields dampening non-yielding gold appetite.",
+  "sentiment_velocity": "STABLE",
+  "news_headlines": [
+    "RBI adds gold reserves amid global currency diversification."
+  ],
+  "adversarial_audit": {
+    "verdict": "PASSED_CLEAN_AUDIT",
+    "overall_score": 94.0,
+    "component_scores": {
+      "fact_score": 100.0,
+      "bear_survival_score": 95.0,
+      "math_score": 85.0,
+      "media_independence_score": 100.0
+    },
+    "objections": [],
+    "caveats": [
+      "Lower beta asset designed for drawdown dampening rather than aggressive alpha."
+    ],
+    "forensic_bear_case": "Real yield spikes temporarily cooling bullion demand.",
+    "math_metrics": {
+      "reward_to_risk": 1.7,
+      "risk_per_share": 8.0,
+      "reward_per_share": 14.0,
+      "stop_atr_multiple": 2.2
+    },
+    "media_analysis": {
+      "unique_stories_count": 1,
+      "syndication_ratio": 1.0
+    }
+  },
+  "maker_checker_audit": {},
+  "extra_metadata": {}
+}
