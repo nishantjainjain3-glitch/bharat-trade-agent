@@ -58,10 +58,10 @@ from src.notifications.daily_briefings import (
 )
 from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
 from src.analysis.nifty500_scanner import scan_nifty500_breakouts
-from src.analysis.screener import scan_vcp_candidates, scan_momentum_rotation, scan_donchian_breakouts
+from src.analysis.screener import scan_vcp_candidates, scan_momentum_rotation, scan_donchian_breakouts, scan_5ema_setups
 from src.analysis.frvp import get_frvp_analysis
 from src.analysis.order_flow import detect_ict_order_blocks, get_ict_killzone_status
-from src.analysis.technical import calculate_india_vix_regime
+from src.analysis.technical import calculate_india_vix_regime, calculate_5ema_setup
 from src.data.macro_data import get_indian_macro_indicators as _get_macro
 from src.agents.adversarial_council import adversarial_council
 from src.data.research_vault import research_vault
@@ -1043,6 +1043,24 @@ def get_broker_order_book():
 def verify_broker_order(order_id: str):
     try:
         return angel_client.verify_order_settlement(order_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analysis/5ema/{symbol}")
+def get_5ema_analysis_endpoint(symbol: str, period: str = "1mo", interval: str = "1d"):
+    try:
+        norm_sym = normalize_indian_symbol(symbol)
+        df = get_historical_bars(norm_sym, period=period, interval=interval)
+        res = calculate_5ema_setup(df)
+        res["symbol"] = norm_sym
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/screener/5ema")
+def get_5ema_screener_endpoint(limit: int = 10, period: str = "1mo", interval: str = "1d"):
+    try:
+        return scan_5ema_setups(limit=limit, period=period, interval=interval)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

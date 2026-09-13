@@ -669,3 +669,58 @@ def scan_donchian_breakouts(period: int = 20, limit: int = 10) -> Dict[str, Any]
         "breakouts": breakouts,
         "total_found": len(breakouts)
     }
+
+
+def scan_5ema_setups(limit: int = 10, period: str = "1mo", interval: str = "1d") -> Dict[str, Any]:
+    """
+    Subasish Pani (Power of Stocks) 5 EMA Screener.
+    Scans the watchlist for:
+    - Active breakouts (trigger candle has breached alert candle high/low)
+    - Pending alert setups (non-touch candle completed, waiting for breakout)
+    - Forming alert setups (current candle is non-touching 5 EMA)
+    Enforces the 2.2x ATR candle size rule and minimum 1:3 reward-to-risk targets.
+    """
+    from src.analysis.technical import calculate_5ema_setup
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    import logging
+    logger = logging.getLogger(__name__)
+
+    active_setups = []
+    pending_setups = []
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    for symbol in symbols[:30]:
+        try:
+            df = get_historical_bars(symbol, period=period, interval=interval)
+            if len(df) < 10:
+                continue
+            setup_res = calculate_5ema_setup(df)
+            if setup_res.get("setup") != "NO_SETUP":
+                record = {
+                    "symbol": symbol,
+                    "clean_symbol": symbol.replace(".NS", "").replace(".BO", ""),
+                    **setup_res
+                }
+                if setup_res.get("is_active"):
+                    active_setups.append(record)
+                else:
+                    pending_setups.append(record)
+        except Exception as e:
+            logger.warning("5 EMA scan error for %s: %s", symbol, str(e))
+            continue
+
+    all_candidates = active_setups + pending_setups
+    return {
+        "scan_type": "POWER_OF_STOCKS_5EMA",
+        "mentor": "Subasish Pani (Power of Stocks)",
+        "active_breakouts": active_setups[:limit],
+        "pending_alerts": pending_setups[:limit],
+        "total_active": len(active_setups),
+        "total_pending": len(pending_setups),
+        "candidates": all_candidates[:limit]
+    }
+

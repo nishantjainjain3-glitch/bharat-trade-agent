@@ -616,3 +616,182 @@ def calculate_india_vix_regime(india_vix: float) -> Dict[str, Any]:
         "recommended_delta": delta_target,
         "target_exit_pct": 0.35 if india_vix < 25 else None
     }
+
+
+def calculate_5ema_setup(df: pd.DataFrame, target_rr: float = 3.0) -> Dict[str, Any]:
+    """
+    Subasish Pani (Power of Stocks) 5 EMA Mean-Reversion Strategy.
+    Rule 1 (The Non-Touch Alert Candle):
+      - Bearish/Short Alert: Candle's Low > 5 EMA (No part of candle touches the 5 EMA from above).
+      - Bullish/Long Alert: Candle's High < 5 EMA (No part of candle touches the 5 EMA from below).
+    Rule 2 (The Breakout Execution Trigger):
+      - Sell Trigger: When the low of the Bearish Alert candle is broken by subsequent candle.
+      - Buy Trigger: When the high of the Bullish Alert candle is broken by subsequent candle.
+    Rule 3 (Stop-Loss and Target):
+      - Stop-Loss: Alert candle's extreme (High for Short, Low for Long).
+      - Target: Minimum 1:3 Reward-to-Risk ratio (often runs to 1:4).
+    Rule 4 (Candle Size Filter):
+      - If Alert Candle range > 2.2x ATR, skip because risk is excessive.
+    """
+    if len(df) < 10 or not all(c in df.columns for c in ['Open', 'High', 'Low', 'Close']):
+        return {
+            "strategy": "5_EMA_POWER_OF_STOCKS",
+            "status": "INSUFFICIENT_DATA",
+            "setup": "NO_SETUP"
+        }
+
+    close = df['Close'].astype(float)
+    high = df['High'].astype(float)
+    low = df['Low'].astype(float)
+
+    ema5 = close.ewm(span=5, adjust=False).mean()
+    curr_ema5 = float(ema5.iloc[-1])
+    curr_close = float(close.iloc[-1])
+    curr_high = float(high.iloc[-1])
+    curr_low = float(low.iloc[-1])
+
+    # 14-period ATR for candle size validation
+    tr = pd.concat([
+        high - low,
+        (high - close.shift(1)).abs(),
+        (low - close.shift(1)).abs()
+    ], axis=1).max(axis=1)
+    atr = float(tr.tail(14).mean()) if len(df) >= 14 else (curr_high - curr_low)
+
+    setup = "NO_SETUP"
+    action = "NONE"
+    alert_candle = None
+    trigger_price = None
+    stop_loss = None
+    target_1 = None
+    target_2 = None
+    target_3 = None
+    risk = 0.0
+
+    # Scan the previous bar (iloc[-2]) and bar before that (iloc[-3]) for alert candles
+    for i in [-2, -3]:
+        bar_high = float(high.iloc[i])
+        bar_low = float(low.iloc[i])
+        bar_ema = float(ema5.iloc[i])
+        bar_range = bar_high - bar_low
+
+        # Bearish Alert (Low > 5 EMA)
+        if bar_low > bar_ema:
+            is_broken = curr_low < bar_low
+            is_pending = not is_broken and curr_close < bar_high
+            alert_size_ratio = round(bar_range / atr, 2) if atr > 0 else 1.0
+            is_valid_size = alert_size_ratio <= 2.2
+
+            if is_broken and is_valid_size:
+                setup = "5EMA_BEARISH_BREAKOUT_ACTIVE"
+                action = "SELL_SHORT"
+                alert_candle = {
+                    "bar_offset": i,
+                    "high": round(bar_high, 2),
+                    "low": round(bar_low, 2),
+                    "ema5": round(bar_ema, 2),
+                    "size_vs_atr": alert_size_ratio
+                }
+                trigger_price = round(bar_low - (0.0005 * bar_low), 2)
+                stop_loss = round(bar_high, 2)
+                risk = round(stop_loss - trigger_price, 2)
+                target_1 = round(trigger_price - (2.0 * risk), 2)
+                target_2 = round(trigger_price - (3.0 * risk), 2)
+                target_3 = round(trigger_price - (4.0 * risk), 2)
+                break
+            elif is_pending and is_valid_size:
+                setup = "5EMA_BEARISH_ALERT_PENDING"
+                action = "WATCH_FOR_BREAKDOWN"
+                alert_candle = {
+                    "bar_offset": i,
+                    "high": round(bar_high, 2),
+                    "low": round(bar_low, 2),
+                    "ema5": round(bar_ema, 2),
+                    "size_vs_atr": alert_size_ratio
+                }
+                trigger_price = round(bar_low, 2)
+                stop_loss = round(bar_high, 2)
+                risk = round(stop_loss - trigger_price, 2)
+                target_1 = round(trigger_price - (2.0 * risk), 2)
+                target_2 = round(trigger_price - (3.0 * risk), 2)
+                target_3 = round(trigger_price - (4.0 * risk), 2)
+                break
+
+        # Bullish Alert (High < 5 EMA)
+        elif bar_high < bar_ema:
+            is_broken = curr_high > bar_high
+            is_pending = not is_broken and curr_close > bar_low
+            alert_size_ratio = round(bar_range / atr, 2) if atr > 0 else 1.0
+            is_valid_size = alert_size_ratio <= 2.2
+
+            if is_broken and is_valid_size:
+                setup = "5EMA_BULLISH_BREAKOUT_ACTIVE"
+                action = "BUY_LONG"
+                alert_candle = {
+                    "bar_offset": i,
+                    "high": round(bar_high, 2),
+                    "low": round(bar_low, 2),
+                    "ema5": round(bar_ema, 2),
+                    "size_vs_atr": alert_size_ratio
+                }
+                trigger_price = round(bar_high + (0.0005 * bar_high), 2)
+                stop_loss = round(bar_low, 2)
+                risk = round(trigger_price - stop_loss, 2)
+                target_1 = round(trigger_price + (2.0 * risk), 2)
+                target_2 = round(trigger_price + (3.0 * risk), 2)
+                target_3 = round(trigger_price + (4.0 * risk), 2)
+                break
+            elif is_pending and is_valid_size:
+                setup = "5EMA_BULLISH_ALERT_PENDING"
+                action = "WATCH_FOR_BREAKOUT"
+                alert_candle = {
+                    "bar_offset": i,
+                    "high": round(bar_high, 2),
+                    "low": round(bar_low, 2),
+                    "ema5": round(bar_ema, 2),
+                    "size_vs_atr": alert_size_ratio
+                }
+                trigger_price = round(bar_high, 2)
+                stop_loss = round(bar_low, 2)
+                risk = round(trigger_price - stop_loss, 2)
+                target_1 = round(trigger_price + (2.0 * risk), 2)
+                target_2 = round(trigger_price + (3.0 * risk), 2)
+                target_3 = round(trigger_price + (4.0 * risk), 2)
+                break
+
+    # If current candle itself is forming an alert candle (not yet closed)
+    if setup == "NO_SETUP":
+        if curr_low > curr_ema5:
+            setup = "5EMA_FORMING_BEARISH_ALERT"
+            action = "WAIT_FOR_CANDLE_CLOSE"
+            trigger_price = round(curr_low, 2)
+            stop_loss = round(curr_high, 2)
+        elif curr_high < curr_ema5:
+            setup = "5EMA_FORMING_BULLISH_ALERT"
+            action = "WAIT_FOR_CANDLE_CLOSE"
+            trigger_price = round(curr_high, 2)
+            stop_loss = round(curr_low, 2)
+
+    return {
+        "strategy": "5_EMA_POWER_OF_STOCKS",
+        "mentor": "Subasish Pani (Power of Stocks)",
+        "current_price": round(curr_close, 2),
+        "ema_5": round(curr_ema5, 2),
+        "atr_14": round(atr, 2),
+        "setup": setup,
+        "action": action,
+        "is_active": "ACTIVE" in setup,
+        "is_pending": "PENDING" in setup or "FORMING" in setup,
+        "trigger_price": trigger_price,
+        "stop_loss": stop_loss,
+        "risk_per_share": risk,
+        "target_1_2rr": target_1,
+        "target_1_3rr": target_2,
+        "target_1_4rr": target_3,
+        "reward_to_risk": target_rr if risk > 0 else 0.0,
+        "alert_candle": alert_candle,
+        "rule_summary": (
+            "Subasish Pani 5 EMA Setup: Identify candle with zero touch of 5 EMA. "
+            "Enter on breakout of alert candle boundary. Target 1:3 minimum RR. Hard SL at opposite extreme."
+        )
+    }

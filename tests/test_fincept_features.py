@@ -14,7 +14,8 @@ from src.data.macro_data import get_nse_sector_heatmap
 from src.analysis.technical import (
     calculate_donchian_channel,
     calculate_williams_r,
-    calculate_india_vix_regime
+    calculate_india_vix_regime,
+    calculate_5ema_setup
 )
 from src.analysis.frvp import calculate_frvp, evaluate_frvp_setup, get_frvp_analysis
 from src.analysis.order_flow import detect_ict_order_blocks, get_ict_killzone_status
@@ -389,7 +390,60 @@ class TestFinceptFeatures(unittest.TestCase):
         self.assertTrue(sim_settlement["read_after_write_confirmed"])
         self.assertEqual(sim_settlement["order_status"], "complete")
 
+    def test_5ema_bearish_alert_and_breakdown(self):
+        bars = []
+        for p in [490, 492, 495, 498, 500, 502, 504, 505, 506, 507, 508]:
+            bars.append({"Open": p - 1, "High": p + 2, "Low": p - 2, "Close": p, "Volume": 10000})
+        bars.append({"Open": 532, "High": 540, "Low": 530, "Close": 535, "Volume": 25000})
+        bars.append({"Open": 534, "High": 536, "Low": 525, "Close": 527, "Volume": 30000})
+
+        df = pd.DataFrame(bars)
+        res = calculate_5ema_setup(df)
+        self.assertEqual(res["strategy"], "5_EMA_POWER_OF_STOCKS")
+        self.assertEqual(res["setup"], "5EMA_BEARISH_BREAKOUT_ACTIVE")
+        self.assertEqual(res["action"], "SELL_SHORT")
+        self.assertTrue(res["is_active"])
+        self.assertEqual(res["stop_loss"], 540.0)
+        self.assertLess(res["trigger_price"], 530.0)
+        self.assertIsNotNone(res["target_1_3rr"])
+
+    def test_5ema_bullish_alert_and_breakout(self):
+        bars = []
+        for p in [510, 508, 506, 504, 502, 500, 498, 496, 494, 492, 490]:
+            bars.append({"Open": p + 1, "High": p + 2, "Low": p - 2, "Close": p, "Volume": 10000})
+        bars.append({"Open": 468, "High": 470, "Low": 460, "Close": 464, "Volume": 25000})
+        bars.append({"Open": 466, "High": 475, "Low": 465, "Close": 473, "Volume": 30000})
+
+        df = pd.DataFrame(bars)
+        res = calculate_5ema_setup(df)
+        self.assertEqual(res["strategy"], "5_EMA_POWER_OF_STOCKS")
+        self.assertEqual(res["setup"], "5EMA_BULLISH_BREAKOUT_ACTIVE")
+        self.assertEqual(res["action"], "BUY_LONG")
+        self.assertTrue(res["is_active"])
+        self.assertEqual(res["stop_loss"], 460.0)
+        self.assertGreater(res["trigger_price"], 470.0)
+        self.assertIsNotNone(res["target_1_3rr"])
+
+    def test_5ema_size_filter_rejects_wide_candle(self):
+        bars = []
+        for p in [500, 501, 500, 501, 500, 501, 500, 501, 500, 501, 500, 501, 500, 501]:
+            bars.append({"Open": p, "High": p + 2, "Low": p - 2, "Close": p, "Volume": 10000})
+        bars.append({"Open": 540, "High": 580, "Low": 520, "Close": 550, "Volume": 50000})
+        bars.append({"Open": 530, "High": 535, "Low": 510, "Close": 515, "Volume": 30000})
+
+        df = pd.DataFrame(bars)
+        res = calculate_5ema_setup(df)
+        self.assertNotEqual(res["setup"], "5EMA_BEARISH_BREAKOUT_ACTIVE")
+
+    def test_5ema_screener_structure(self):
+        from src.analysis.screener import scan_5ema_setups
+        res = scan_5ema_setups(limit=2)
+        self.assertEqual(res["scan_type"], "POWER_OF_STOCKS_5EMA")
+        self.assertIn("Subasish Pani", res["mentor"])
+        self.assertIn("candidates", res)
+
 if __name__ == "__main__":
     unittest.main()
+
 
 

@@ -169,6 +169,62 @@ def backtest_strategy(
                 position = 0
             signals.append(position)
         df['Signal'] = signals
+    elif strategy_name in ("POWER_OF_STOCKS_5EMA", "5EMA"):
+        # Subasish Pani (Power of Stocks) 5 EMA Strategy
+        # Alert candle: High < 5 EMA (bullish setup for long equity swing)
+        # Entry trigger: when price breaks above alert candle high within 3 bars
+        # Stop loss: Alert candle low
+        # Target: 1:3 Reward to Risk (or close below 5 EMA)
+        ema5 = close.ewm(span=5, adjust=False).mean()
+        high = df['High'].astype(float)
+        low = df['Low'].astype(float)
+
+        tr = pd.concat([
+            high - low,
+            (high - close.shift(1)).abs(),
+            (low - close.shift(1)).abs()
+        ], axis=1).max(axis=1)
+        atr = tr.rolling(14).mean()
+
+        position = 0
+        signals = []
+        alert_high = 0.0
+        alert_low = 0.0
+        alert_bar = -99
+        stop_loss = 0.0
+        target_price = 0.0
+
+        for i in range(len(df)):
+            curr_c = float(close.iloc[i])
+            curr_h = float(high.iloc[i])
+            curr_l = float(low.iloc[i])
+            curr_ema = float(ema5.iloc[i])
+            curr_atr = float(atr.iloc[i]) if not np.isnan(atr.iloc[i]) else (curr_h - curr_l)
+
+            # Bullish Alert Candle: High < 5 EMA and candle size <= 2.2 * ATR
+            if curr_h < curr_ema and (curr_h - curr_l) <= 2.2 * curr_atr:
+                alert_high = curr_h
+                alert_low = curr_l
+                alert_bar = i
+
+            if position == 0:
+                if (i - alert_bar) <= 3 and alert_high > 0 and curr_h > alert_high:
+                    position = 1
+                    entry_est = alert_high
+                    stop_loss = alert_low
+                    risk = entry_est - stop_loss
+                    if risk <= 0:
+                        risk = curr_atr if curr_atr > 0 else 1.0
+                        stop_loss = entry_est - risk
+                    target_price = entry_est + (3.0 * risk)
+            elif position == 1:
+                # Exit on hitting stop-loss, achieving 1:3 RR target, or close breaking back below 5 EMA
+                if curr_l <= stop_loss or curr_h >= target_price or curr_c < curr_ema:
+                    position = 0
+                    alert_high = 0.0
+
+            signals.append(position)
+        df['Signal'] = signals
     else:
         raise ValueError(f"Unknown strategy: {strategy_name}")
 
