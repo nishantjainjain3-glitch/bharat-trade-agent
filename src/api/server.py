@@ -1086,6 +1086,66 @@ def get_pbd_screener_endpoint(limit: int = 10, period: str = "3mo", interval: st
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
+@app.get("/api/screener/5pillar")
+def get_5pillar_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_king_5pillar_candidates
+        return scan_king_5pillar_candidates(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/supply-demand")
+def get_supply_demand_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_supply_demand_candidates
+        return scan_supply_demand_candidates(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/dark-pool")
+def get_dark_pool_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_dark_pool_candidates
+        return scan_dark_pool_candidates(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/nifty-pivots")
+def get_nifty_pivots_screener_endpoint():
+    try:
+        from src.analysis.screener import scan_nifty_pivot_candidates
+        return scan_nifty_pivot_candidates()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analysis/social-all/{symbol}")
+def get_social_all_analysis_endpoint(symbol: str, period: str = "6mo", interval: str = "1d"):
+    try:
+        norm_sym = normalize_indian_symbol(symbol)
+        df = get_historical_bars(norm_sym, period=period, interval=interval)
+        from src.analysis.social_strategies import (
+            calculate_king_research_5pillar,
+            calculate_trading_geek_snd,
+            calculate_dark_pool_absorption,
+            calculate_mandeep_pivot_9ema,
+            calculate_mamba_fx_setup,
+            calculate_stock_burner_9_20,
+            calculate_tradeiq_9_21_ema
+        )
+        return {
+            "symbol": norm_sym,
+            "king_5pillar": calculate_king_research_5pillar(df),
+            "trading_geek_snd": calculate_trading_geek_snd(df),
+            "dark_pool": calculate_dark_pool_absorption(df),
+            "mandeep_pivot": calculate_mandeep_pivot_9ema(df),
+            "mamba_fx": calculate_mamba_fx_setup(df),
+            "stock_burner": calculate_stock_burner_9_20(df),
+            "tradeiq_ema": calculate_tradeiq_9_21_ema(df)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")

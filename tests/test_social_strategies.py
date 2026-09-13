@@ -10,6 +10,12 @@ from src.analysis.social_strategies import (
     calculate_tradeiq_9_21_ema,
     calculate_stock_burner_9_20
 )
+from src.analysis.screener import (
+    scan_king_5pillar_candidates,
+    scan_supply_demand_candidates,
+    scan_dark_pool_candidates,
+    scan_nifty_pivot_candidates
+)
 
 class TestSocialStrategies(unittest.TestCase):
     def setUp(self):
@@ -62,6 +68,12 @@ class TestSocialStrategies(unittest.TestCase):
         res = calculate_stock_burner_9_20(self.df)
         self.assertEqual(res["strategy"], "STOCK_BURNER_9_20")
         self.assertIn("signal", res)
+
+    def test_scan_nifty_pivots(self):
+        res = scan_nifty_pivot_candidates()
+        self.assertEqual(res["scan_type"], "MANDEEP_9EMA_PIVOTS")
+        self.assertIn("indices", res)
+        self.assertGreater(len(res["indices"]), 0)
 
 if __name__ == "__main__":
     unittest.main()

@@ -786,3 +786,165 @@ def scan_pbd_setups(limit: int = 10, period: str = "3mo", interval: str = "1d", 
     }
 
 
+
+
+def scan_king_5pillar_candidates(limit: int = 15) -> Dict[str, Any]:
+    """
+    Harinder Sahu (@kingresearch_academy) 5-Pillar Confluence Scanner.
+    Scans liquid universe for stocks scoring 4/5 or 5/5 across:
+    Trend (20/200 EMA), Momentum (RSI 14), Value (VWAP), Volume (>1.2x SMA20), and Risk (ATR).
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.social_strategies import calculate_king_research_5pillar
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    candidates = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="6mo", interval="1d")
+            if len(df) < 30:
+                continue
+            res = calculate_king_research_5pillar(df)
+            if res.get("signal") in ["STRONG_BUY", "MILD_BUY", "STRONG_SELL"]:
+                candidates.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("5-Pillar scan error for %s: %s", sym, str(e))
+            continue
+
+    # Sort so 5/5 and 4/5 Strong Buys appear first
+    score_map = {"STRONG_BUY": 5, "MILD_BUY": 3, "STRONG_SELL": 4, "MILD_SELL": 2, "NEUTRAL": 1}
+    candidates.sort(key=lambda x: (score_map.get(x.get("signal"), 0), x.get("bullish_pillars", 0)), reverse=True)
+
+    return {
+        "scan_type": "KING_RESEARCH_5PILLAR",
+        "mentor": "Harinder Sahu (King Research Academy)",
+        "candidates": candidates[:limit],
+        "total_found": len(candidates)
+    }
+
+
+def scan_supply_demand_candidates(limit: int = 15) -> Dict[str, Any]:
+    """
+    The Trading Geek (@algowithwahid) Supply & Demand Scanner.
+    Finds stocks actively retesting an unmitigated institutional demand or supply zone.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.social_strategies import calculate_trading_geek_snd
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    active_tests = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="6mo", interval="1d")
+            if len(df) < 25:
+                continue
+            res = calculate_trading_geek_snd(df)
+            if res.get("signal") in ["BUY_DEMAND_TEST", "SELL_SUPPLY_TEST"]:
+                active_tests.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("Supply/Demand scan error for %s: %s", sym, str(e))
+            continue
+
+    return {
+        "scan_type": "TRADING_GEEK_SND",
+        "mentor": "The Trading Geek / Algo With Wahid",
+        "candidates": active_tests[:limit],
+        "total_found": len(active_tests)
+    }
+
+
+def scan_dark_pool_candidates(limit: int = 15) -> Dict[str, Any]:
+    """
+    System Cracker (@systemcracker_1) Dark Pool & Institutional Absorption Scanner.
+    Finds stocks displaying high-volume low-spread absorption benchmarks or breakouts.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.social_strategies import calculate_dark_pool_absorption
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    absorption_setups = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="6mo", interval="1d")
+            if len(df) < 25:
+                continue
+            res = calculate_dark_pool_absorption(df)
+            if res.get("signal") in ["BULLISH_DARK_POOL_EXPANSION", "INSIDE_DARK_POOL_ZONE", "BEARISH_DARK_POOL_EXPANSION"]:
+                absorption_setups.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("Dark pool scan error for %s: %s", sym, str(e))
+            continue
+
+    return {
+        "scan_type": "DARK_POOL_ABSORPTION",
+        "source": "System Cracker (@systemcracker_1)",
+        "candidates": absorption_setups[:limit],
+        "total_found": len(absorption_setups)
+    }
+
+
+def scan_nifty_pivot_candidates() -> Dict[str, Any]:
+    """
+    Mandeep Joon (@generous_gyan) 9 EMA + Pivot Points Standard Index Scanner.
+    Evaluates NIFTY 50, BANKNIFTY, NIFTYBEES, and BANKBEES.
+    """
+    from src.data.market_data import get_historical_bars
+    from src.analysis.social_strategies import calculate_mandeep_pivot_9ema
+    import logging
+    logger = logging.getLogger(__name__)
+
+    index_symbols = ["^NSEI", "^NSEBANK", "NIFTYBEES.NS", "BANKBEES.NS"]
+    results = []
+
+    for sym in index_symbols:
+        try:
+            df = get_historical_bars(sym, period="1mo", interval="1d")
+            if len(df) < 10:
+                continue
+            res = calculate_mandeep_pivot_9ema(df)
+            label = "NIFTY 50" if sym == "^NSEI" else ("BANKNIFTY" if sym == "^NSEBANK" else sym.replace(".NS", ""))
+            results.append({
+                "symbol": sym,
+                "display_name": label,
+                **res
+            })
+        except Exception as e:
+            logger.warning("Index pivot scan error for %s: %s", sym, str(e))
+            continue
+
+    return {
+        "scan_type": "MANDEEP_9EMA_PIVOTS",
+        "mentor": "Mandeep Joon (@generous_gyan)",
+        "indices": results,
+        "total_scanned": len(results)
+    }
