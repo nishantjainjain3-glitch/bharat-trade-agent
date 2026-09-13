@@ -1146,6 +1146,39 @@ def get_social_all_analysis_endpoint(symbol: str, period: str = "6mo", interval:
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+@app.get("/api/screener/cpr-regime")
+def get_cpr_regime_screener_endpoint():
+    try:
+        from src.analysis.screener import scan_cpr_regimes
+        return scan_cpr_regimes()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/inside-bar")
+def get_inside_bar_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_inside_bar_breakouts
+        return scan_inside_bar_breakouts(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/multibaggers")
+def get_multibaggers_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_multibagger_candidates
+        return scan_multibagger_candidates(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/rsi-divergence")
+def get_rsi_divergence_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_rsi_divergence_candidates
+        return scan_rsi_divergence_candidates(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")

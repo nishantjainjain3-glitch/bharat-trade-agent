@@ -528,3 +528,352 @@ def calculate_stock_burner_9_20(df: pd.DataFrame) -> Dict[str, Any]:
         "target": target,
         "reason": reason
     }
+
+
+def calculate_cpr_regime(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Central Pivot Range (CPR) Width & Regime Classifier.
+    Popularized by Hardik Sharma (@daytradingguruji) and Mandeep Joon (@generous_gyan).
+    Pivot = (High + Low + Close) / 3
+    BC = (High + Low) / 2
+    TC = (Pivot - BC) + Pivot
+    Width % = |TC - BC| / Pivot * 100
+    - Narrow CPR (< 0.25%): 70%+ trending probability (buy breakouts).
+    - Wide CPR (> 0.60%): 80%+ range-bound probability (fade boundaries).
+    """
+    if len(df) < 5:
+        return {"strategy": "CPR_REGIME", "signal": "INSUFFICIENT_DATA"}
+
+    prev_bar = df.iloc[-2]
+    h = float(prev_bar['High'])
+    l = float(prev_bar['Low'])
+    c = float(prev_bar['Close'])
+
+    pp = (h + l + c) / 3.0
+    bc = (h + l) / 2.0
+    tc = (pp - bc) + pp
+
+    cpr_top = max(tc, bc)
+    cpr_bottom = min(tc, bc)
+    width = abs(tc - bc)
+    width_pct = (width / pp) * 100.0 if pp > 0 else 0.0
+
+    curr_p = float(df['Close'].iloc[-1])
+
+    if width_pct < 0.25:
+        regime = "NARROW_CPR_TRENDING_DAY"
+        guidance = "High statistical probability of strong trend. Trade breakouts in direction of open, trail with 9/20 EMA."
+    elif width_pct > 0.60:
+        regime = "WIDE_CPR_SIDEWAYS_DAY"
+        guidance = "High statistical probability of range-bound chop. Fade extremes near R1/TC and S1/BC. Avoid breakout chasing."
+    else:
+        regime = "AVERAGE_CPR_NORMAL_DAY"
+        guidance = "Standard volatility. Trade with primary trend and respect CPR support/resistance."
+
+    # Position relative to CPR
+    if curr_p > cpr_top:
+        location = "ABOVE_CPR_BULLISH_BIAS"
+    elif curr_p < cpr_bottom:
+        location = "BELOW_CPR_BEARISH_BIAS"
+    else:
+        location = "INSIDE_CPR_CONGESTION"
+
+    return {
+        "strategy": "CPR_REGIME",
+        "regime": regime,
+        "location": location,
+        "pivot": round(pp, 2),
+        "tc": round(tc, 2),
+        "bc": round(bc, 2),
+        "cpr_top": round(cpr_top, 2),
+        "cpr_bottom": round(cpr_bottom, 2),
+        "width": round(width, 2),
+        "width_pct": round(width_pct, 3),
+        "guidance": guidance,
+        "current_price": round(curr_p, 2)
+    }
+
+
+def calculate_inside_bar_setup(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Daily Inside Bar (Mother Candle) Contraction & Breakout Setup.
+    Popularized by Mandeep Joon (@generous_gyan) for high-probability swing breakouts.
+    - Mother Candle (bar -2)
+    - Inside Candle (bar -1): High < Mother High and Low > Mother Low
+    - Trigger (Current Bar): Close breaks above Mother High (Bullish) or below Mother Low (Bearish)
+    """
+    if len(df) < 25:
+        return {"strategy": "INSIDE_BAR_BREAKOUT", "signal": "INSUFFICIENT_DATA"}
+
+    mother_h = float(df['High'].iloc[-3])
+    mother_l = float(df['Low'].iloc[-3])
+    inside_h = float(df['High'].iloc[-2])
+    inside_l = float(df['Low'].iloc[-2])
+    curr_c = float(df['Close'].iloc[-1])
+
+    is_inside_bar = (inside_h <= mother_h) and (inside_l >= mother_l)
+
+    ema20 = float(df['Close'].ewm(span=20, adjust=False).mean().iloc[-1])
+
+    tr = pd.concat([
+        df['High'] - df['Low'],
+        (df['High'] - df['Close'].shift(1)).abs(),
+        (df['Low'] - df['Close'].shift(1)).abs()
+    ], axis=1).max(axis=1)
+    atr = float(tr.tail(14).mean())
+
+    signal = "HOLD"
+    stop = target = None
+    reason = "No active inside bar contraction"
+
+    if is_inside_bar:
+        mother_range = mother_h - mother_l
+        if curr_c > mother_h and curr_c > ema20:
+            signal = "BULLISH_INSIDE_BREAKOUT"
+            stop = round(inside_l - 0.2 * atr, 2)
+            target = round(curr_c + 1.5 * mother_range, 2)
+            reason = f"Bullish breakout above Mother High (₹{mother_h:.2f}) with 20 EMA trend support"
+        elif curr_c < mother_l and curr_c < ema20:
+            signal = "BEARISH_INSIDE_BREAKDOWN"
+            stop = round(inside_h + 0.2 * atr, 2)
+            target = round(curr_c - 1.5 * mother_range, 2)
+            reason = f"Bearish breakdown below Mother Low (₹{mother_l:.2f}) below 20 EMA"
+        else:
+            signal = "INSIDE_BAR_COMPRESSION_WATCH"
+            stop = target = None
+            reason = f"Inside bar contraction active [Low: ₹{inside_l:.2f}, High: ₹{inside_h:.2f}]. Awaiting directional breakout."
+
+    return {
+        "strategy": "INSIDE_BAR_BREAKOUT",
+        "signal": signal,
+        "is_inside_bar_detected": is_inside_bar,
+        "mother_high": round(mother_h, 2),
+        "mother_low": round(mother_l, 2),
+        "inside_high": round(inside_h, 2),
+        "inside_low": round(inside_l, 2),
+        "current_price": round(curr_c, 2),
+        "stop_loss": stop,
+        "target": target,
+        "reason": reason
+    }
+
+
+def calculate_fvg_imbalance(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Fair Value Gap (FVG) / Smart Money Concepts Imbalance Engine.
+    Extracted from Algo With Wahid (@algowithwahid) automated backtests.
+    - Bullish FVG: Low of candle 3 > High of candle 1
+    - Bearish FVG: High of candle 3 < Low of candle 1
+    Tracks active unmitigated imbalances.
+    """
+    if len(df) < 15:
+        return {"strategy": "FVG_IMBALANCE", "signal": "INSUFFICIENT_DATA"}
+
+    fvgs = []
+    n = len(df)
+
+    for i in range(1, n - 1):
+        c1_high = float(df['High'].iloc[i - 1])
+        c1_low = float(df['Low'].iloc[i - 1])
+        c3_low = float(df['Low'].iloc[i + 1])
+        c3_high = float(df['High'].iloc[i + 1])
+
+        # Bullish FVG
+        if c3_low > c1_high:
+            mitigated = False
+            for j in range(i + 2, n):
+                if float(df['Low'].iloc[j]) <= c1_high:
+                    mitigated = True
+                    break
+            fvgs.append({
+                "bar_idx": i,
+                "top": round(c3_low, 2),
+                "bottom": round(c1_high, 2),
+                "gap_size": round(c3_low - c1_high, 2),
+                "type": "BULLISH_FVG",
+                "mitigated": mitigated
+            })
+
+        # Bearish FVG
+        elif c3_high < c1_low:
+            mitigated = False
+            for j in range(i + 2, n):
+                if float(df['High'].iloc[j]) >= c1_low:
+                    mitigated = True
+                    break
+            fvgs.append({
+                "bar_idx": i,
+                "top": round(c1_low, 2),
+                "bottom": round(c3_high, 2),
+                "gap_size": round(c1_low - c3_high, 2),
+                "type": "BEARISH_FVG",
+                "mitigated": mitigated
+            })
+
+    curr_p = float(df['Close'].iloc[-1])
+    active_bull_fvgs = [f for f in fvgs if f['type'] == "BULLISH_FVG" and not f['mitigated']]
+    active_bear_fvgs = [f for f in fvgs if f['type'] == "BEARISH_FVG" and not f['mitigated']]
+
+    # Check if price is currently tapping an active FVG
+    tapping_fvg = None
+    signal = "HOLD"
+    for f in active_bull_fvgs[-3:]:
+        if f['bottom'] <= curr_p <= f['top']:
+            tapping_fvg = f
+            signal = "BUY_FVG_MITIGATION"
+            break
+
+    if not tapping_fvg:
+        for f in active_bear_fvgs[-3:]:
+            if f['bottom'] <= curr_p <= f['top']:
+                tapping_fvg = f
+                signal = "SELL_FVG_MITIGATION"
+                break
+
+    return {
+        "strategy": "FVG_IMBALANCE",
+        "signal": signal,
+        "current_price": round(curr_p, 2),
+        "tapping_fvg": tapping_fvg,
+        "active_bullish_fvgs": active_bull_fvgs[-3:],
+        "active_bearish_fvgs": active_bear_fvgs[-3:],
+        "total_unmitigated_fvgs": len(active_bull_fvgs) + len(active_bear_fvgs)
+    }
+
+
+def calculate_king_multibagger_setup(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Harinder Sahu (King Research) Multibagger Momentum Framework:
+    1. Proximity to 52-Week High (within 15%)
+    2. Volume Surge: 3-day average volume >= 1.4x 50-day average volume
+    3. Stacked Moving Averages: Price > 20 EMA > 50 EMA > 200 EMA
+    4. 3-Month Momentum > +15%
+    """
+    if len(df) < 50:
+        return {"strategy": "KING_MULTIBAGGER", "signal": "INSUFFICIENT_DATA"}
+
+    close = df['Close']
+    high = df['High']
+    volume = df['Volume'] if 'Volume' in df.columns else pd.Series(1.0, index=df.index)
+
+    curr_p = float(close.iloc[-1])
+    high_52w = float(high.tail(252).max()) if len(df) >= 252 else float(high.max())
+    proximity_pct = (curr_p / high_52w) * 100.0 if high_52w > 0 else 0.0
+
+    vol_3d = float(volume.tail(3).mean())
+    vol_50d = float(volume.tail(50).mean())
+    vol_ratio = (vol_3d / vol_50d) if vol_50d > 0 else 1.0
+
+    ema20 = float(close.ewm(span=20, adjust=False).mean().iloc[-1])
+    ema50 = float(close.ewm(span=50, adjust=False).mean().iloc[-1])
+    ema200 = float(close.ewm(span=200, adjust=False).mean().iloc[-1]) if len(df) >= 200 else ema50
+
+    p_near_52w = proximity_pct >= 85.0
+    vol_surging = vol_ratio >= 1.35
+    trend_stacked = curr_p > ema20 > ema50 > ema200
+
+    # 3-month return
+    p_3m_ago = float(close.iloc[-60]) if len(df) >= 60 else float(close.iloc[0])
+    return_3m = ((curr_p - p_3m_ago) / p_3m_ago) * 100.0 if p_3m_ago > 0 else 0.0
+
+    score = sum([p_near_52w, vol_surging, trend_stacked, return_3m >= 15.0])
+
+    if score >= 3 and trend_stacked:
+        signal = "STRONG_MULTIBAGGER_CANDIDATE"
+    elif score >= 2:
+        signal = "WATCHLIST_MOMENTUM"
+    else:
+        signal = "NEUTRAL"
+
+    return {
+        "strategy": "KING_MULTIBAGGER",
+        "signal": signal,
+        "multibagger_score": f"{score}/4",
+        "current_price": round(curr_p, 2),
+        "high_52w": round(high_52w, 2),
+        "proximity_52w_pct": round(proximity_pct, 1),
+        "volume_ratio_3d_50d": round(vol_ratio, 2),
+        "return_3m_pct": round(return_3m, 2),
+        "ema20": round(ema20, 2),
+        "ema50": round(ema50, 2),
+        "ema200": round(ema200, 2),
+        "trend_stacked": trend_stacked
+    }
+
+
+def calculate_rsi_divergence_setup(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    RSI Multi-Pivot Divergence Engine.
+    TradeIQ Day 2 of 21 Days 21 Strategies (@tradeiq.with.nitz).
+    - Bullish Divergence: Price forms Lower Low, RSI forms Higher Low (Oversold momentum exhaustion).
+    - Bearish Divergence: Price forms Higher High, RSI forms Lower High (Overbought exhaustion).
+    """
+    if len(df) < 30:
+        return {"strategy": "RSI_DIVERGENCE", "signal": "INSUFFICIENT_DATA"}
+
+    close = df['Close']
+    low = df['Low']
+    high = df['High']
+
+    delta = close.diff()
+    gain = delta.clip(lower=0).rolling(14).mean()
+    loss = (-delta.clip(upper=0)).rolling(14).mean()
+    rs = gain / loss.replace(0, np.nan)
+    rsi = 100 - (100 / (1 + rs))
+
+    curr_p = float(close.iloc[-1])
+    curr_rsi = float(rsi.iloc[-1]) if not np.isnan(rsi.iloc[-1]) else 50.0
+
+    # Window 1: bars -25 to -8; Window 2: bars -7 to -1
+    low1 = float(low.iloc[-25:-7].min())
+    idx1 = low.iloc[-25:-7].idxmin()
+    rsi1 = float(rsi.loc[idx1])
+
+    low2 = float(low.iloc[-7:].min())
+    idx2 = low.iloc[-7:].idxmin()
+    rsi2 = float(rsi.loc[idx2])
+
+    high1 = float(high.iloc[-25:-7].max())
+    idx_h1 = high.iloc[-25:-7].idxmax()
+    rsi_h1 = float(rsi.loc[idx_h1])
+
+    high2 = float(high.iloc[-7:].max())
+    idx_h2 = high.iloc[-7:].idxmax()
+    rsi_h2 = float(rsi.loc[idx_h2])
+
+    is_bull_div = (low2 < low1) and (rsi2 > rsi1) and (rsi2 < 45.0)
+    is_bear_div = (high2 > high1) and (rsi_h2 < rsi_h1) and (rsi_h2 > 55.0)
+
+    tr = pd.concat([
+        high - low,
+        (high - close.shift(1)).abs(),
+        (low - close.shift(1)).abs()
+    ], axis=1).max(axis=1)
+    atr = float(tr.tail(14).mean())
+
+    if is_bull_div:
+        signal = "BULLISH_RSI_DIVERGENCE"
+        stop = round(low2 - 0.5 * atr, 2)
+        target = round(curr_p + 2.0 * atr, 2)
+        reason = f"Bullish RSI divergence: Price lower low (₹{low1:.2f} -> ₹{low2:.2f}), RSI higher low ({rsi1:.1f} -> {rsi2:.1f})"
+    elif is_bear_div:
+        signal = "BEARISH_RSI_DIVERGENCE"
+        stop = round(high2 + 0.5 * atr, 2)
+        target = round(curr_p - 2.0 * atr, 2)
+        reason = f"Bearish RSI divergence: Price higher high (₹{high1:.2f} -> ₹{high2:.2f}), RSI lower high ({rsi_h1:.1f} -> {rsi_h2:.1f})"
+    else:
+        signal = "NO_DIVERGENCE"
+        stop = target = None
+        reason = "No confirmed RSI divergence across recent pivot windows"
+
+    return {
+        "strategy": "RSI_DIVERGENCE",
+        "signal": signal,
+        "current_price": round(curr_p, 2),
+        "current_rsi": round(curr_rsi, 2),
+        "is_bullish_divergence": is_bull_div,
+        "is_bearish_divergence": is_bear_div,
+        "stop_loss": stop,
+        "target": target,
+        "reason": reason
+    }

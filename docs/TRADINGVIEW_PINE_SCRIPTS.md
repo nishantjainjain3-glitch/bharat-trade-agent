@@ -190,3 +190,118 @@ if (isAbsorption)
 plot(darkPoolBenchmark, "Dark Pool Benchmark", color=color.new(color.yellow, 20), linewidth=3, style=plot.style_linebr)
 plotshape(isAbsorption, title="Dark Pool Accumulation", style=shape.diamond, location=location.belowbar, color=color.yellow, size=size.normal, text="DARK POOL")
 ```
+
+
+---
+
+## 6. Hardik Sharma & Mandeep Joon - Central Pivot Range (CPR) Width & Regime Indicator
+
+```pinescript
+//@version=5
+indicator("CPR Width & Regime Classifier", overlay=true)
+
+// Daily Reference Bars
+prevClose = request.security(syminfo.tickerid, "D", close[1], barmerge.gaps_off, barmerge.lookahead_on)
+prevHigh  = request.security(syminfo.tickerid, "D", high[1], barmerge.gaps_off, barmerge.lookahead_on)
+prevLow   = request.security(syminfo.tickerid, "D", low[1], barmerge.gaps_off, barmerge.lookahead_on)
+
+pp = (prevHigh + prevLow + prevClose) / 3.0
+bc = (prevHigh + prevLow) / 2.0
+tc = (pp - bc) + pp
+
+cprTop = math.max(tc, bc)
+cprBottom = math.min(tc, bc)
+cprWidthPct = (math.abs(tc - bc) / pp) * 100.0
+
+plot(pp, "Pivot", color=color.yellow, linewidth=2)
+pTop = plot(cprTop, "TC", color=color.blue, linewidth=1)
+pBot = plot(cprBottom, "BC", color=color.blue, linewidth=1)
+fill(pTop, pBot, color=cprWidthPct < 0.25 ? color.new(color.green, 80) : color.new(color.orange, 85), title="CPR Range")
+
+var table cprTable = table.new(position.top_right, 2, 2, bgcolor=color.new(color.black, 40), border_width=1)
+if (barstate.islast)
+    string regText = cprWidthPct < 0.25 ? "NARROW (TREND DAY 70%)" : (cprWidthPct > 0.60 ? "WIDE (RANGE CHOP 80%)" : "NORMAL CPR")
+    color regCol = cprWidthPct < 0.25 ? color.green : (cprWidthPct > 0.60 ? color.red : color.gray)
+    table.cell(cprTable, 0, 0, "CPR Width:", text_color=color.white, text_size=size.small)
+    table.cell(cprTable, 1, 0, str.tostring(cprWidthPct, "#.###") + "%", text_color=regCol, text_size=size.small)
+    table.cell(cprTable, 0, 1, "Regime:", text_color=color.white, text_size=size.small)
+    table.cell(cprTable, 1, 1, regText, text_color=regCol, text_size=size.small)
+```
+
+---
+
+## 7. Mandeep Joon (@generous_gyan) - Inside Bar (Mother Candle) Breakout Strategy
+
+```pinescript
+//@version=5
+strategy("Mandeep Joon Inside Bar Breakout", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=20)
+
+motherHigh = high[2]
+motherLow  = low[2]
+insideHigh = high[1]
+insideLow  = low[1]
+
+isInsideBar = (insideHigh <= motherHigh) and (insideLow >= motherLow)
+ema20 = ta.ema(close, 20)
+plot(ema20, "20 EMA", color=color.yellow, linewidth=2)
+
+bullBreakout = isInsideBar and ta.crossover(close, motherHigh) and close > ema20
+bearBreakdown = isInsideBar and ta.crossunder(close, motherLow) and close < ema20
+
+plotshape(isInsideBar and not (bullBreakout or bearBreakdown), title="Inside Bar", style=shape.circle, location=location.abovebar, color=color.gray, size=size.tiny)
+plotshape(bullBreakout, title="Bullish Inside Breakout", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small, text="IB BREAK")
+plotshape(bearBreakdown, title="Bearish Inside Breakdown", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.small, text="IB DOWN")
+
+if (bullBreakout)
+    stopLoss = insideLow
+    target = close + 1.5 * (motherHigh - motherLow)
+    strategy.entry("Long IB", strategy.long)
+    strategy.exit("TP/SL", "Long IB", limit=target, stop=stopLoss)
+
+if (bearBreakdown)
+    stopLoss = insideHigh
+    target = close - 1.5 * (motherHigh - motherLow)
+    strategy.entry("Short IB", strategy.short)
+    strategy.exit("TP/SL", "Short IB", limit=target, stop=stopLoss)
+```
+
+---
+
+## 8. Algo With Wahid - Fair Value Gap (FVG) / Imbalance Detector
+
+```pinescript
+//@version=5
+indicator("Algo With Wahid Fair Value Gap (FVG)", overlay=true)
+
+bullishFVG = low[0] > high[2]
+bearishFVG = high[0] < low[2]
+
+if (bullishFVG)
+    box.new(left=bar_index[2], top=low[0], right=bar_index + 5, bottom=high[2], bgcolor=color.new(color.green, 85), border_color=color.green)
+
+if (bearishFVG)
+    box.new(left=bar_index[2], top=low[2], right=bar_index + 5, bottom=high[0], bgcolor=color.new(color.red, 85), border_color=color.red)
+```
+
+---
+
+## 9. TradeIQ Day 2 - RSI Multi-Pivot Divergence Indicator
+
+```pinescript
+//@version=5
+indicator("TradeIQ RSI Divergence Engine", overlay=true)
+
+rsiVal = ta.rsi(close, 14)
+
+// Pivot Points in Price and RSI
+plPrice = ta.pivotlow(low, 5, 2)
+phPrice = ta.pivothigh(high, 5, 2)
+
+// Bullish Divergence: Price Lower Low, RSI Higher Low
+bullDiv = not na(plPrice) and (low[2] < ta.valuewhen(not na(plPrice), low[2], 1)) and (rsiVal[2] > ta.valuewhen(not na(plPrice), rsiVal[2], 1)) and (rsiVal[2] < 45)
+plotshape(bullDiv, title="Bullish Divergence", style=shape.labelup, location=location.belowbar, color=color.green, size=size.small, text="BULL DIV")
+
+// Bearish Divergence: Price Higher High, RSI Lower High
+bearDiv = not na(phPrice) and (high[2] > ta.valuewhen(not na(phPrice), high[2], 1)) and (rsiVal[2] < ta.valuewhen(not na(phPrice), rsiVal[2], 1)) and (rsiVal[2] > 55)
+plotshape(bearDiv, title="Bearish Divergence", style=shape.labeldown, location=location.abovebar, color=color.red, size=size.small, text="BEAR DIV")
+```

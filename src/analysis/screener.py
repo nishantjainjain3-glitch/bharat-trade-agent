@@ -948,3 +948,163 @@ def scan_nifty_pivot_candidates() -> Dict[str, Any]:
         "indices": results,
         "total_scanned": len(results)
     }
+
+
+def scan_cpr_regimes() -> Dict[str, Any]:
+    """
+    Central Pivot Range (CPR) Width & Regime Scanner across Indices and Watchlist.
+    Classifies Narrow CPR (<0.25%, Trend Day) vs Wide CPR (>0.60%, Range Day).
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.social_strategies import calculate_cpr_regime
+    import logging
+    logger = logging.getLogger(__name__)
+
+    symbols = ["^NSEI", "^NSEBANK", "NIFTYBEES.NS", "BANKBEES.NS", "RELIANCE.NS", "HDFCBANK.NS", "TCS.NS", "INFY.NS", "TATAPOWER.NS", "TEXMOPIPES.NS"]
+    regimes = []
+
+    for sym in symbols:
+        try:
+            df = get_historical_bars(sym, period="1mo", interval="1d")
+            if len(df) < 5:
+                continue
+            res = calculate_cpr_regime(df)
+            clean = sym.replace(".NS", "").replace("^", "")
+            regimes.append({
+                "symbol": sym,
+                "clean_symbol": clean,
+                **res
+            })
+        except Exception as e:
+            logger.warning("CPR regime scan error for %s: %s", sym, str(e))
+            continue
+
+    return {
+        "scan_type": "CPR_REGIME_SCAN",
+        "mentors": "Hardik Sharma (@daytradingguruji) & Mandeep Joon (@generous_gyan)",
+        "results": regimes,
+        "total_scanned": len(regimes)
+    }
+
+
+def scan_inside_bar_breakouts(limit: int = 15) -> Dict[str, Any]:
+    """
+    Mandeep Joon (@generous_gyan) Inside Bar Contraction & Breakout Scanner.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.social_strategies import calculate_inside_bar_setup
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    candidates = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="3mo", interval="1d")
+            if len(df) < 25:
+                continue
+            res = calculate_inside_bar_setup(df)
+            if res.get("is_inside_bar_detected"):
+                candidates.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("Inside bar scan error for %s: %s", sym, str(e))
+            continue
+
+    # Prioritize active breakouts over compression watch
+    candidates.sort(key=lambda x: 1 if "BREAKOUT" in x.get("signal", "") else 0, reverse=True)
+
+    return {
+        "scan_type": "INSIDE_BAR_BREAKOUT",
+        "mentor": "Mandeep Joon (@generous_gyan)",
+        "candidates": candidates[:limit],
+        "total_found": len(candidates)
+    }
+
+
+def scan_multibagger_candidates(limit: int = 15) -> Dict[str, Any]:
+    """
+    Harinder Sahu (King Research) Multibagger Momentum Scanner.
+    Finds stocks near 52-week highs with volume surges and stacked EMAs.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.social_strategies import calculate_king_multibagger_setup
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    candidates = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="1y", interval="1d")
+            if len(df) < 50:
+                continue
+            res = calculate_king_multibagger_setup(df)
+            if res.get("signal") in ["STRONG_MULTIBAGGER_CANDIDATE", "WATCHLIST_MOMENTUM"]:
+                candidates.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("Multibagger scan error for %s: %s", sym, str(e))
+            continue
+
+    candidates.sort(key=lambda x: (x.get("signal") == "STRONG_MULTIBAGGER_CANDIDATE", x.get("proximity_52w_pct", 0)), reverse=True)
+
+    return {
+        "scan_type": "KING_MULTIBAGGER_SCAN",
+        "mentor": "Harinder Sahu (King Research Academy)",
+        "candidates": candidates[:limit],
+        "total_found": len(candidates)
+    }
+
+
+def scan_rsi_divergence_candidates(limit: int = 15) -> Dict[str, Any]:
+    """
+    TradeIQ Day 2 RSI Divergence Scanner.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.social_strategies import calculate_rsi_divergence_setup
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    divergences = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="3mo", interval="1d")
+            if len(df) < 30:
+                continue
+            res = calculate_rsi_divergence_setup(df)
+            if res.get("signal") in ["BULLISH_RSI_DIVERGENCE", "BEARISH_RSI_DIVERGENCE"]:
+                divergences.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("RSI divergence scan error for %s: %s", sym, str(e))
+            continue
+
+    return {
+        "scan_type": "RSI_DIVERGENCE_SCAN",
+        "source": "TradeIQ Day 2 (@tradeiq.with.nitz)",
+        "candidates": divergences[:limit],
+        "total_found": len(divergences)
+    }
