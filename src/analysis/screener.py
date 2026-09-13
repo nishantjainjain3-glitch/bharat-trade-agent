@@ -1108,3 +1108,125 @@ def scan_rsi_divergence_candidates(limit: int = 15) -> Dict[str, Any]:
         "candidates": divergences[:limit],
         "total_found": len(divergences)
     }
+
+
+def scan_connors_rsi2_dips(limit: int = 15) -> Dict[str, Any]:
+    """
+    Larry Connors RSI(2) Quantitative Mean Reversion Screener.
+    Finds stocks trading above their long-term 200 SMA with RSI(2) < 15.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.quant_strategies import calculate_connors_rsi2
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    candidates = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="1y", interval="1d")
+            if len(df) < 50:
+                continue
+            res = calculate_connors_rsi2(df)
+            if res.get("signal") in ["BUY_EXTREME_DIP", "WATCH_MILD_DIP"]:
+                candidates.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("Connors scan error for %s: %s", sym, str(e))
+            continue
+
+    candidates.sort(key=lambda x: x.get("rsi2", 100))
+
+    return {
+        "scan_type": "CONNORS_RSI2_DIP",
+        "mentor": "Larry Connors (Short Term Trading Strategies That Work)",
+        "candidates": candidates[:limit],
+        "total_found": len(candidates)
+    }
+
+
+def scan_camarilla_breakouts(limit: int = 15) -> Dict[str, Any]:
+    """
+    Nick Stott Camarilla Pivot Screener (H4 Breakouts & L3 Bounces).
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.quant_strategies import calculate_camarilla_pivots
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    candidates = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="1mo", interval="1d")
+            if len(df) < 5:
+                continue
+            res = calculate_camarilla_pivots(df)
+            if res.get("signal") in ["BULLISH_H4_BREAKOUT", "L3_SUPPORT_BOUNCE", "BEARISH_L4_BREAKDOWN"]:
+                candidates.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("Camarilla scan error for %s: %s", sym, str(e))
+            continue
+
+    return {
+        "scan_type": "CAMARILLA_PIVOT_SCAN",
+        "mentor": "Nick Stott (Camarilla Equation)",
+        "candidates": candidates[:limit],
+        "total_found": len(candidates)
+    }
+
+
+def scan_kunal_saraogi_vip(limit: int = 15) -> Dict[str, Any]:
+    """
+    Kunal Saraogi VIP (Volume, Indicator, Price) Screener.
+    """
+    from src.data.market_data import get_historical_bars, get_watchlist_snapshots
+    from src.analysis.quant_strategies import calculate_kunal_saraogi_vip
+    import logging
+    logger = logging.getLogger(__name__)
+
+    watchlist = get_watchlist_snapshots()
+    symbols = [s.get("symbol", "") for s in watchlist if s.get("symbol")]
+    if not symbols:
+        symbols = [item.get("symbol") for item in UNIVERSE_TICKERS]
+
+    candidates = []
+    for sym in symbols[:35]:
+        try:
+            df = get_historical_bars(sym, period="3mo", interval="1d")
+            if len(df) < 30:
+                continue
+            res = calculate_kunal_saraogi_vip(df)
+            if res.get("signal") in ["STRONG_VIP_BUY", "MODERATE_VIP_SETUP"]:
+                candidates.append({
+                    "symbol": sym,
+                    "clean_symbol": sym.replace(".NS", "").replace(".BO", ""),
+                    **res
+                })
+        except Exception as e:
+            logger.warning("VIP scan error for %s: %s", sym, str(e))
+            continue
+
+    candidates.sort(key=lambda x: (x.get("signal") == "STRONG_VIP_BUY", x.get("volume_ratio", 0)), reverse=True)
+
+    return {
+        "scan_type": "KUNAL_SARAOGI_VIP_SCAN",
+        "mentor": "Kunal Saraogi (CNBC Awaaz / VIP Trading Setup)",
+        "candidates": candidates[:limit],
+        "total_found": len(candidates)
+    }

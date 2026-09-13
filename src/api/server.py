@@ -1179,6 +1179,31 @@ def get_rsi_divergence_screener_endpoint(limit: int = 15):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.get("/api/screener/connors-rsi")
+def get_connors_rsi_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_connors_rsi2_dips
+        return scan_connors_rsi2_dips(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/camarilla")
+def get_camarilla_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_camarilla_breakouts
+        return scan_camarilla_breakouts(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/screener/vip")
+def get_vip_screener_endpoint(limit: int = 15):
+    try:
+        from src.analysis.screener import scan_kunal_saraogi_vip
+        return scan_kunal_saraogi_vip(limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "static")
 if os.path.exists(static_dir):
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")

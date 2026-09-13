@@ -305,3 +305,79 @@ plotshape(bullDiv, title="Bullish Divergence", style=shape.labelup, location=loc
 bearDiv = not na(phPrice) and (high[2] > ta.valuewhen(not na(phPrice), high[2], 1)) and (rsiVal[2] < ta.valuewhen(not na(phPrice), rsiVal[2], 1)) and (rsiVal[2] > 55)
 plotshape(bearDiv, title="Bearish Divergence", style=shape.labeldown, location=location.abovebar, color=color.red, size=size.small, text="BEAR DIV")
 ```
+
+
+---
+
+## 10. Larry Connors - RSI(2) Quantitative Mean Reversion Model
+
+```pinescript
+//@version=5
+strategy("Larry Connors RSI(2) Quantitative Model", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=25)
+
+rsi2 = ta.rsi(close, 2)
+sma200 = ta.sma(close, 200)
+ema5 = ta.ema(close, 5)
+
+plot(sma200, "200 SMA Filter", color=color.white, linewidth=2)
+plot(ema5, "5 EMA Exit", color=color.yellow, linewidth=1)
+
+inUptrend = close > sma200
+oversoldDip = rsi2 < 10.0
+exitCondition = close > ema5
+
+if (inUptrend and oversoldDip)
+    strategy.entry("Connors Dip Long", strategy.long)
+
+if (exitCondition)
+    strategy.close("Connors Dip Long", comment="Exit above 5 EMA")
+```
+
+---
+
+## 11. Nick Stott - Camarilla Pivot Points (H4 Breakout & L3 Reversal)
+
+```pinescript
+//@version=5
+indicator("Camarilla Pivot Points (Intraday)", overlay=true)
+
+prevClose = request.security(syminfo.tickerid, "D", close[1], barmerge.gaps_off, barmerge.lookahead_on)
+prevHigh  = request.security(syminfo.tickerid, "D", high[1], barmerge.gaps_off, barmerge.lookahead_on)
+prevLow   = request.security(syminfo.tickerid, "D", low[1], barmerge.gaps_off, barmerge.lookahead_on)
+
+rng = prevHigh - prevLow
+h4 = prevClose + rng * 1.1 / 2.0
+h3 = prevClose + rng * 1.1 / 4.0
+l3 = prevClose - rng * 1.1 / 4.0
+l4 = prevClose - rng * 1.1 / 2.0
+
+plot(h4, "H4 Breakout Long", color=color.green, linewidth=2, style=plot.style_linebr)
+plot(h3, "H3 Resistance", color=color.orange, linewidth=1, style=plot.style_linebr)
+plot(l3, "L3 Support", color=color.teal, linewidth=1, style=plot.style_linebr)
+plot(l4, "L4 Breakdown Short", color=color.red, linewidth=2, style=plot.style_linebr)
+```
+
+---
+
+## 12. Kunal Saraogi - VIP (Volume, Indicator, Price) Setup
+
+```pinescript
+//@version=5
+indicator("Kunal Saraogi VIP Setup", overlay=true)
+
+// Price (P): 20 EMA
+ema20 = ta.ema(close, 20)
+plot(ema20, "20 EMA", color=color.teal, linewidth=2)
+pPass = close > ema20
+
+// Indicator (I): MACD Histogram
+[macdLine, signalLine, histLine] = ta.macd(close, 12, 26, 9)
+iPass = histLine > 0
+
+// Volume (V): Volume > 1.1x SMA20
+volSMA = ta.sma(volume, 20)
+vPass = volume > (1.1 * volSMA)
+
+vipScore = (pPass ? 1 : 0) + (iPass ? 1 : 0) + (vPass ? 1 : 0)
+plotshape(vipScore == 3, title="VIP Strong Buy", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small, text="VIP BUY")
+```
