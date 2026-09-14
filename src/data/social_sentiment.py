@@ -55,43 +55,73 @@ def fetch_twitter_cli_posts(symbol: str, limit: int = 10) -> List[Dict[str, Any]
         env = os.environ.copy()
         env["PYTHONIOENCODING"] = "utf-8"
         query = f"{symbol} (lang:en)"
-        cmd = [TWITTER_CLI_PATH, "-c", "search", query]
         
+        # Try search first
         proc = subprocess.run(
-            cmd,
+            [TWITTER_CLI_PATH, "-c", "search", query],
             capture_output=True,
-            text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=12,
             env=env
         )
-        if proc.returncode != 0:
-            logger.warning("twitter.exe exited with %s: %s", proc.returncode, proc.stderr[:200])
-            return []
+        output = proc.stdout.strip() if proc.stdout else ""
+        
+        # Fallback to feed if search returns error or 404
+        if "error:" in output or not output or proc.returncode != 0:
+            proc = subprocess.run(
+                [TWITTER_CLI_PATH, "-c", "feed"],
+                capture_output=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=12,
+                env=env
+            )
+            output = proc.stdout.strip() if proc.stdout else ""
 
         posts = []
-        for line in proc.stdout.splitlines():
-            line = line.strip()
-            if not line:
-                continue
+        if output.startswith("["):
             try:
-                data = json.loads(line)
-                posts.append({
-                    "title": data.get("text", "")[:140],
-                    "url": data.get("url", f"https://x.com/i/web/status/{data.get('id', '')}"),
-                    "source": "x_twitter_cli",
-                    "author": data.get("author", "unknown"),
-                    "created_at": data.get("created_at")
-                })
-            except Exception:
-                posts.append({
-                    "title": line[:140],
-                    "url": "",
-                    "source": "x_twitter_cli",
-                    "author": "unknown",
-                    "created_at": None
-                })
-            if len(posts) >= limit:
-                break
+                items = json.loads(output)
+                clean_sym = symbol.replace(".NS", "").replace(".BO", "").lower()
+                for item in items:
+                    text = item.get("text", "")
+                    if clean_sym in text.lower() or not symbol:
+                        posts.append({
+                            "title": text[:140],
+                            "url": f"https://x.com/i/web/status/{item.get('id', '')}",
+                            "source": "x_twitter_cli",
+                            "author": item.get("author", "unknown"),
+                            "created_at": item.get("time")
+                        })
+                        if len(posts) >= limit:
+                            break
+            except Exception as e:
+                logger.warning("Failed to parse JSON array from twitter.exe: %s", str(e))
+        else:
+            for line in output.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line)
+                    posts.append({
+                        "title": data.get("text", "")[:140],
+                        "url": data.get("url", f"https://x.com/i/web/status/{data.get('id', '')}"),
+                        "source": "x_twitter_cli",
+                        "author": data.get("author", "unknown"),
+                        "created_at": data.get("created_at")
+                    })
+                except Exception:
+                    posts.append({
+                        "title": line[:140],
+                        "url": "",
+                        "source": "x_twitter_cli",
+                        "author": "unknown",
+                        "created_at": None
+                    })
+                if len(posts) >= limit:
+                    break
         return posts
     except Exception as e:
         logger.warning("Twitter CLI search error for %s: %s", symbol, str(e))
