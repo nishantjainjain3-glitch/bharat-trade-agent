@@ -253,6 +253,29 @@ def get_pre_market_radar_endpoint():
     from src.analysis.pre_market_radar import get_pre_market_radar
     return get_pre_market_radar()
 
+@app.get("/api/institutional/fii-dii")
+def get_fii_dii_endpoint():
+    from src.data.fii_dii import get_fii_dii_activity
+    return get_fii_dii_activity()
+
+@app.post("/api/tools/tax-calculator")
+def calculate_tax_breakdown(data: Dict[str, Any]):
+    from src.engine.tax_calculator import calculate_trade_costs, is_trade_asymmetric_after_costs
+    buy_p = float(data.get("buy_price", 0.0))
+    sell_p = float(data.get("sell_price", 0.0))
+    qty = int(data.get("quantity", 1))
+    stop_l = float(data.get("stop_loss", 0.0)) if data.get("stop_loss") else None
+
+    costs = calculate_trade_costs(buy_price=buy_p, sell_price=sell_p, quantity=qty)
+    asym = None
+    if stop_l and sell_p > buy_p:
+        asym = is_trade_asymmetric_after_costs(entry_price=buy_p, target_price=sell_p, stop_loss=stop_l, quantity=qty)
+
+    return {
+        "costs": costs,
+        "asymmetry": asym
+    }
+
 @app.get("/api/recommendations")
 def get_recommendations(preset: str = "ALL"):
     return get_preset_screener_recommendations(preset=preset, limit=4)

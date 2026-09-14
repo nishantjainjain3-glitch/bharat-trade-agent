@@ -56,16 +56,16 @@ def evaluate_survival_tier(
         
     drawdown_pct = max(0.0, ((peak_equity - current_equity) / peak_equity) * 100.0)
     
-    # Circuit Breaker: Daily loss exceeds 6% or overall drawdown exceeds 10%
-    if daily_pnl_pct <= -6.0 or drawdown_pct >= 10.0:
+    # Circuit Breaker: Daily loss exceeds 2.0% or overall drawdown exceeds 6.0%
+    if daily_pnl_pct <= -2.0 or drawdown_pct >= 6.0:
         active_tier = SurvivalTier.CIRCUIT_BREAKER
-        trigger_reason = f"Drawdown reached {drawdown_pct:.1f}% / Daily loss {daily_pnl_pct:.1f}%."
-    # Critical: Drawdown between 5% and 10%, or benchmark index is down worse than -2.5%
-    elif drawdown_pct >= 5.0 or nifty_day_change_pct <= -2.5:
+        trigger_reason = f"Circuit breaker tripped: Drawdown {drawdown_pct:.1f}% or Daily loss {daily_pnl_pct:.1f}% exceeds 2.0% limit."
+    # Critical: Drawdown between 3.5% and 6%, or benchmark index is down worse than -1.8%
+    elif drawdown_pct >= 3.5 or nifty_day_change_pct <= -1.8:
         active_tier = SurvivalTier.CRITICAL
-        trigger_reason = f"High risk environment: Drawdown {drawdown_pct:.1f}% or Nifty down {nifty_day_change_pct:.2f}%."
-    # Defensive: Drawdown between 2% and 5%, or benchmark index is down -1.0% to -2.5%
-    elif drawdown_pct >= 2.0 or nifty_day_change_pct <= -1.0:
+        trigger_reason = f"Capital preservation lock: Drawdown {drawdown_pct:.1f}% or Nifty down {nifty_day_change_pct:.2f}%."
+    # Defensive: Drawdown between 1.5% and 3.5%, or benchmark index down -0.8% to -1.8%
+    elif drawdown_pct >= 1.5 or nifty_day_change_pct <= -0.8:
         active_tier = SurvivalTier.DEFENSIVE
         trigger_reason = f"Defensive buffer: Drawdown {drawdown_pct:.1f}% or Nifty down {nifty_day_change_pct:.2f}%."
     # Normal: Portfolio healthy

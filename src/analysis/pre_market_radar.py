@@ -76,6 +76,17 @@ def get_pre_market_radar() -> Dict[str, Any]:
                 "sentiment": "NEUTRAL"
             }
 
+    # Institutional flows synthesis
+    try:
+        from src.data.fii_dii import get_fii_dii_activity
+        fii_dii = get_fii_dii_activity()
+        fii_net = fii_dii.get("fii_net_crores", 0.0)
+        # Factor FII net into score (each 500 cr net buy is +5 points, capped at +/- 25)
+        fii_flow_impact = max(-25.0, min(25.0, (fii_net / 500.0) * 5.0))
+        weighted_score += fii_flow_impact
+    except Exception:
+        fii_dii = None
+
     bias_score = round(weighted_score, 1)
 
     if bias_score >= 25.0:
@@ -99,5 +110,6 @@ def get_pre_market_radar() -> Dict[str, Any]:
         "bias_score": bias_score,
         "action_directive": action_directive,
         "badge_color": badge_color,
-        "global_cues": tickers_data
+        "global_cues": tickers_data,
+        "institutional_flows": fii_dii
     }

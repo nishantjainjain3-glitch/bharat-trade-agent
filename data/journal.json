@@ -1,31 +1,5 @@
 [
   {
-    "id": 255,
-    "timestamp": "2026-09-12 00:37:05 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #707: WEEKEND_CLOSED",
-    "content": "Heartbeat #707: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 707,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 256,
-    "timestamp": "2026-09-12 00:38:07 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #708: WEEKEND_CLOSED",
-    "content": "Heartbeat #708: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 708,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
     "id": 257,
     "timestamp": "2026-09-12 00:39:10 IST",
     "category": "HEARTBEAT",
@@ -2690,6 +2664,30 @@
   {
     "id": 202,
     "timestamp": "2026-09-14 14:06:48 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #1: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 1,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 14:11:20 IST",
+    "category": "BRIEFING",
+    "title": "Market Holiday Notice: Ganesh Chaturthi",
+    "content": "🏖️ *BHARAT TRADE AGENT — MARKET HOLIDAY NOTICE*\n📅 _Monday, 14 September 2026_\n🏛️ *Exchange Status:* CLOSED (Ganesh Chaturthi)\n\nNSE & BSE equity and derivatives segments are closed today for *Ganesh Chaturthi*.\nRegular market sessions and autonomous trade execution will resume on *Tuesday, 15 September 2026* at 09:15 IST.\n\n💼 *Account Snapshot (Capital Preserved):*\n• Total Portfolio Value: *₹51,384.05*\n• Available Cash: *₹167.51*\n• Autonomous Execution: *Standby Mode (Zero Orders Today)*\n\n🛡️ _No trades will be dispatched. Risk management actively protecting equity._",
+    "metadata": {
+      "holiday": "Ganesh Chaturthi",
+      "telegram_status": true
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-14 14:11:26 IST",
     "category": "HEARTBEAT",
     "title": "Cycle #1: HOLIDAY_CLOSED (Ganesh Chaturthi)",
     "content": "Heartbeat #1: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: NORMAL. System in low-compute stand-by.",
