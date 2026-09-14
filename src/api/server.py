@@ -248,6 +248,11 @@ def validate_trade_setup(data: Dict[str, Any]):
 def get_exit_rules():
     return get_default_exit_rules()
 
+@app.get("/api/radar/pre-market")
+def get_pre_market_radar_endpoint():
+    from src.analysis.pre_market_radar import get_pre_market_radar
+    return get_pre_market_radar()
+
 @app.get("/api/recommendations")
 def get_recommendations(preset: str = "ALL"):
     return get_preset_screener_recommendations(preset=preset, limit=4)

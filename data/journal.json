@@ -1,109 +1,5 @@
 [
   {
-    "id": 247,
-    "timestamp": "2026-09-12 00:28:43 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #699: WEEKEND_CLOSED",
-    "content": "Heartbeat #699: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 699,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 248,
-    "timestamp": "2026-09-12 00:29:46 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #700: WEEKEND_CLOSED",
-    "content": "Heartbeat #700: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 700,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 249,
-    "timestamp": "2026-09-12 00:30:48 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #701: WEEKEND_CLOSED",
-    "content": "Heartbeat #701: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 701,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 250,
-    "timestamp": "2026-09-12 00:31:51 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #702: WEEKEND_CLOSED",
-    "content": "Heartbeat #702: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 702,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 251,
-    "timestamp": "2026-09-12 00:32:53 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #703: WEEKEND_CLOSED",
-    "content": "Heartbeat #703: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 703,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 252,
-    "timestamp": "2026-09-12 00:33:56 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #704: WEEKEND_CLOSED",
-    "content": "Heartbeat #704: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 704,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 253,
-    "timestamp": "2026-09-12 00:34:59 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #705: WEEKEND_CLOSED",
-    "content": "Heartbeat #705: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 705,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 254,
-    "timestamp": "2026-09-12 00:36:02 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #706: WEEKEND_CLOSED",
-    "content": "Heartbeat #706: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 706,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
     "id": 255,
     "timestamp": "2026-09-12 00:37:05 IST",
     "category": "HEARTBEAT",
@@ -2700,6 +2596,108 @@
     "metadata": {
       "holiday": "Ganesh Chaturthi",
       "telegram_status": true
+    }
+  },
+  {
+    "id": 203,
+    "timestamp": "2026-09-14 13:47:55 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #4: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #4: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 4,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 204,
+    "timestamp": "2026-09-14 13:50:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #6: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #6: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 6,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 205,
+    "timestamp": "2026-09-14 13:51:07 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #7: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #7: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: DEFENSIVE. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 7,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 206,
+    "timestamp": "2026-09-14 13:55:18 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #11: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #11: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 11,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 207,
+    "timestamp": "2026-09-14 14:00:35 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #16: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #16: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 16,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 208,
+    "timestamp": "2026-09-14 14:05:49 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #21: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #21: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 21,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 14:06:44 IST",
+    "category": "BRIEFING",
+    "title": "Market Holiday Notice: Ganesh Chaturthi",
+    "content": "🏖️ *BHARAT TRADE AGENT — MARKET HOLIDAY NOTICE*\n📅 _Monday, 14 September 2026_\n🏛️ *Exchange Status:* CLOSED (Ganesh Chaturthi)\n\nNSE & BSE equity and derivatives segments are closed today for *Ganesh Chaturthi*.\nRegular market sessions and autonomous trade execution will resume on *Tuesday, 15 September 2026* at 09:15 IST.\n\n💼 *Account Snapshot (Capital Preserved):*\n• Total Portfolio Value: *₹51,384.05*\n• Available Cash: *₹167.51*\n• Autonomous Execution: *Standby Mode (Zero Orders Today)*\n\n🛡️ _No trades will be dispatched. Risk management actively protecting equity._",
+    "metadata": {
+      "holiday": "Ganesh Chaturthi",
+      "telegram_status": true
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-14 14:06:48 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: HOLIDAY_CLOSED (Ganesh Chaturthi)",
+    "content": "Heartbeat #1: Session HOLIDAY_CLOSED (Ganesh Chaturthi). Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 1,
+      "session": "HOLIDAY_CLOSED (Ganesh Chaturthi)",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
     }
   }
 ]

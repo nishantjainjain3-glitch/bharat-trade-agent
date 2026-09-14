@@ -1,41 +1,51 @@
 {
-  "IDFCFIRSTB": {
-    "symbol": "IDFCFIRSTB",
-    "quantity": 13,
-    "entry_price": 86.18,
-    "stop_loss": 83.07,
-    "target_price": 92.34,
-    "entry_time": "2026-09-11 10:24:45 IST",
-    "order_id": "260911000270430"
-  },
-  "TATAPOWER": {
-    "symbol": "TATAPOWER",
-    "quantity": 8,
-    "entry_price": 365.0,
-    "stop_loss": 346.95,
-    "target_price": 400.95,
-    "entry_time": "2026-09-11 10:30:55 IST",
-    "order_id": "260911000287670"
-  },
   "TMCV": {
     "symbol": "TMCV",
     "quantity": 38,
     "entry_price": 251.18,
     "highest_price": 434.55,
-    "stop_loss": 414.0,
+    "stop_loss": 418.0,
+    "trailing_distance_pct": 3.8,
+    "activation_profit_pct": 1.5,
     "target_price": 474.8,
     "entry_time": "2026-09-01 09:15:00 IST",
-    "order_id": "PORTFOLIO-HOLDING"
+    "order_id": "PORTFOLIO-HOLDING",
+    "notes": "Locked trailing stop at 418.0 to protect Rs 6,340+ profit. Trails 3.8% below highest peak."
   },
   "TEXMOPIPES": {
     "symbol": "TEXMOPIPES",
     "quantity": 345,
     "entry_price": 67.5,
     "highest_price": 60.25,
-    "stop_loss": 55.0,
+    "stop_loss": 57.5,
     "target_price": 70.0,
+    "trim_target_price": 61.8,
+    "trim_quantity": 170,
     "entry_time": "2026-09-01 09:15:00 IST",
-    "order_id": "PORTFOLIO-HOLDING"
+    "order_id": "PORTFOLIO-HOLDING",
+    "notes": "Overconcentrated (40% book). Hard stop at 57.50. De-risk trim of 170 shares on bounce to 61.80+ to free Rs 10,500 cash."
+  },
+  "TATAPOWER": {
+    "symbol": "TATAPOWER",
+    "quantity": 8,
+    "entry_price": 365.0,
+    "highest_price": 366.17,
+    "stop_loss": 346.95,
+    "trailing_distance_pct": 2.5,
+    "target_price": 400.95,
+    "entry_time": "2026-09-11 10:30:55 IST",
+    "order_id": "260911000287670"
+  },
+  "IDFCFIRSTB": {
+    "symbol": "IDFCFIRSTB",
+    "quantity": 13,
+    "entry_price": 86.18,
+    "highest_price": 86.76,
+    "stop_loss": 83.07,
+    "trailing_distance_pct": 2.0,
+    "target_price": 92.34,
+    "entry_time": "2026-09-11 10:24:45 IST",
+    "order_id": "260911000270430"
   },
   "MANAPPURAM": {
     "symbol": "MANAPPURAM",
@@ -44,6 +54,7 @@
     "highest_price": 329.0,
     "stop_loss": 312.8,
     "target_price": 361.2,
+    "is_dust": true,
     "entry_time": "2026-09-01 09:15:00 IST",
     "order_id": "PORTFOLIO-HOLDING"
   },
@@ -54,6 +65,7 @@
     "highest_price": 116.75,
     "stop_loss": 113.5,
     "target_price": 123.25,
+    "is_dust": true,
     "entry_time": "2026-09-01 09:15:00 IST",
     "order_id": "PORTFOLIO-HOLDING"
   },
@@ -64,6 +76,7 @@
     "highest_price": 183.0,
     "stop_loss": 175.45,
     "target_price": 198.0,
+    "is_dust": true,
     "entry_time": "2026-09-01 09:15:00 IST",
     "order_id": "PORTFOLIO-HOLDING"
   }

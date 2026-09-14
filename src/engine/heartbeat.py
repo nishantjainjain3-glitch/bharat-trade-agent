@@ -159,18 +159,67 @@ class AutonomousHeartbeat:
                         pos_data["highest_price"] = highest_price
                         updated_pos[sym] = pos_data
 
+                    trailing_dist = float(pos_data.get("trailing_distance_pct", 2.0))
+                    activation_pct = float(pos_data.get("activation_profit_pct", 1.5))
+                    is_dust = bool(pos_data.get("is_dust", False) or (qty <= 1 and (qty * ltp) < 500))
+
                     trail = compute_positive_trailing_stop(
                         entry_price=entry_price,
                         current_price=ltp,
                         highest_price=highest_price,
                         initial_stop_loss=sl,
-                        activation_profit_pct=1.5,
-                        trailing_distance_pct=1.0
+                        activation_profit_pct=activation_pct,
+                        trailing_distance_pct=trailing_dist
                     )
                     effective_sl = trail.get("effective_stop_loss", sl)
                     is_trailing = trail.get("is_trailing_active", False)
 
+                    # A. Partial de-risking trim execution
+                    trim_qty = int(pos_data.get("trim_quantity", 0))
+                    trim_tp = float(pos_data.get("trim_target_price", 0.0))
+                    if trim_qty > 0 and trim_tp > 0 and ltp >= trim_tp:
+                        actual_trim = min(trim_qty, qty)
+                        sell_res = angel_client.place_order(
+                            symbol=sym,
+                            quantity=actual_trim,
+                            transaction_type="SELL",
+                            order_type="MARKET",
+                            price=ltp
+                        )
+                        if sell_res.get("status"):
+                            rem_qty = qty - actual_trim
+                            pos_data["quantity"] = rem_qty
+                            pos_data.pop("trim_quantity", None)
+                            pos_data.pop("trim_target_price", None)
+                            if rem_qty <= 0:
+                                updated_pos.pop(sym, None)
+                            else:
+                                updated_pos[sym] = pos_data
+                            liberated = actual_trim * ltp
+                            msg = (
+                                f"🟡 *DE-RISKING TRIM EXECUTED*\n\n"
+                                f"• Stock: *{sym}*\n"
+                                f"• Action: *SELL {actual_trim} shares* @ ₹{ltp:.2f}\n"
+                                f"• Liberated Cash: *₹{liberated:,.2f}*\n"
+                                f"• Remaining Exposure: {rem_qty} shares\n"
+                                f"• Order ID: `{sell_res.get('order_id')}`\n\n"
+                                f"_Capital concentration reduced. Dry powder restored._"
+                            )
+                            send_telegram_text(msg)
+                            memory_journal.record_entry(
+                                category="TRIM",
+                                title=f"De-Risk Trim: SELL {actual_trim}x {sym}",
+                                content=msg,
+                                metadata=sell_res
+                            )
+                            continue
+
+                    # B. Full stop-loss / trailing exit
                     if effective_sl > 0 and ltp <= effective_sl:
+                        if is_dust:
+                            # Skip isolated single-share liquidation to prevent DP charges exceeding trade value
+                            continue
+
                         sell_res = angel_client.place_order(
                             symbol=sym,
                             quantity=qty,
