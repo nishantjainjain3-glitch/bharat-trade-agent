@@ -253,6 +253,11 @@ def get_pre_market_radar_endpoint():
     from src.analysis.pre_market_radar import get_pre_market_radar
     return get_pre_market_radar()
 
+@app.get("/api/sentiment/social/{symbol}")
+def get_social_sentiment_endpoint(symbol: str):
+    from src.data.social_sentiment import get_stock_social_sentiment
+    return get_stock_social_sentiment(symbol)
+
 @app.get("/api/institutional/fii-dii")
 def get_fii_dii_endpoint():
     from src.data.fii_dii import get_fii_dii_activity

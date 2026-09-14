@@ -104,6 +104,16 @@ def get_pre_market_radar() -> Dict[str, Any]:
 
     now_ist = datetime.now(IST)
 
+    # Evaluate social sentiment velocity for priority watch targets
+    social_radar = {}
+    try:
+        from src.data.social_sentiment import get_watchlist_social_sentiment
+        watch_symbols = ["BHEL.NS", "CUB.NS", "FEDERALBNK.NS"]
+        social_radar = get_watchlist_social_sentiment(watch_symbols)
+    except Exception as e:
+        logger.warning("Social sentiment pre-market scan error: %s", str(e))
+        social_radar = {"watchlist_sentiment": {}, "error": str(e)}
+
     return {
         "timestamp": now_ist.strftime("%Y-%m-%d %H:%M:%S IST"),
         "opening_bias": opening_bias,
@@ -111,5 +121,6 @@ def get_pre_market_radar() -> Dict[str, Any]:
         "action_directive": action_directive,
         "badge_color": badge_color,
         "global_cues": tickers_data,
-        "institutional_flows": fii_dii
+        "institutional_flows": fii_dii,
+        "social_sentiment_radar": social_radar
     }

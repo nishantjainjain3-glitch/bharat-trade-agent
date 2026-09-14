@@ -56,8 +56,8 @@ def evaluate_survival_tier(
         
     drawdown_pct = max(0.0, ((peak_equity - current_equity) / peak_equity) * 100.0)
     
-    # Circuit Breaker: Daily loss exceeds 2.5% or overall drawdown exceeds 10.0%
-    if daily_pnl_pct <= -2.5 or drawdown_pct >= 10.0:
+    # Circuit Breaker: Daily loss exceeds 2.0% or overall drawdown exceeds 10.0%
+    if daily_pnl_pct <= -2.0 or drawdown_pct >= 10.0:
         active_tier = SurvivalTier.CIRCUIT_BREAKER
         trigger_reason = f"Circuit breaker tripped: Drawdown {drawdown_pct:.1f}% or Daily loss {daily_pnl_pct:.1f}% exceeds threshold."
     # Critical: Drawdown between 5.0% and 10.0%, or benchmark index is down worse than -2.0%
