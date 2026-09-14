@@ -239,13 +239,13 @@ class AutonomousHeartbeat:
                                 f"_Capital preservation discipline strictly enforced._"
                             )
                             send_telegram_text(msg)
-                            memory_journal.record_entry(
-                                category="EXIT",
-                                title=f"Stop-Loss Hit: SELL {qty}x {sym}",
-                                content=msg,
-                                metadata=sell_res
-                            )
                             updated_pos.pop(sym, None)
+                            try:
+                                from src.engine.protections import protections_manager
+                                loss_pct = round(((ltp - float(pos_data.get("entry_price", ltp))) / float(pos_data.get("entry_price", ltp))) * 100.0, 2)
+                                protections_manager.record_stoploss_hit(sym, ltp, loss_pct)
+                            except Exception as pe:
+                                logger.warning("Protections record warning: %s", pe)
 
                     elif tp > 0 and ltp >= tp:
                         sell_res = angel_client.place_order(
@@ -302,9 +302,19 @@ class AutonomousHeartbeat:
                         import json
                         with open(curated_file, "r", encoding="utf-8") as f:
                             curated_list = json.load(f)
+                        from src.engine.protections import protections_manager
                         for c in sorted(curated_list, key=lambda x: x.get("priority", 99)):
                             csym = c.get("clean_symbol", "").upper()
                             if csym not in existing_syms:
+                                prot = protections_manager.evaluate_entry_protections(
+                                    symbol=csym,
+                                    current_equity=current_equity,
+                                    peak_equity=peak_equity,
+                                    daily_loss_pct=0.0
+                                )
+                                if not prot.get("allowed", True):
+                                    logger.info("Skipping curated candidate %s: %s", csym, prot.get("violations"))
+                                    continue
                                 target_cand = {
                                     "symbol": c.get("symbol", f"{csym}.NS"),
                                     "clean_symbol": csym,
