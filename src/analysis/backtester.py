@@ -289,6 +289,60 @@ def backtest_strategy(
 
             signals.append(position)
         df['Signal'] = signals
+    elif strategy_name in ("LIQUIDITY_SWEEP", "TURTLE_SOUP"):
+        # Liquidity Sweep / Institutional Stop Hunt Strategy
+        # Trigger: Bar's Low sweeps below prior 10-bar low, but closes back above with volume
+        # Stop loss: Sweep candle low - 0.5 ATR
+        # Target: 1:2.5 Reward to Risk
+        high = df['High'].astype(float)
+        low = df['Low'].astype(float)
+        close = df['Close'].astype(float)
+        vol = df['Volume'].astype(float) if 'Volume' in df.columns else pd.Series(1.0, index=df.index)
+
+        tr = pd.concat([
+            high - low,
+            (high - close.shift(1)).abs(),
+            (low - close.shift(1)).abs()
+        ], axis=1).max(axis=1)
+        atr = tr.rolling(14).mean()
+        avg_vol = vol.rolling(20).mean()
+
+        position = 0
+        signals = []
+        stop_loss = 0.0
+        target_price = 0.0
+
+        for i in range(len(df)):
+            if i < 15:
+                signals.append(0)
+                continue
+
+            curr_c = float(close.iloc[i])
+            curr_h = float(high.iloc[i])
+            curr_l = float(low.iloc[i])
+            curr_v = float(vol.iloc[i])
+            prior_low = float(low.iloc[i-10:i].min())
+            curr_atr = float(atr.iloc[i]) if not np.isnan(atr.iloc[i]) else (curr_h - curr_l)
+            curr_avg_v = float(avg_vol.iloc[i]) if not np.isnan(avg_vol.iloc[i]) else curr_v
+
+            if position == 0:
+                # Bullish SSL Stop Hunt: Low swept prior low, closed back above with volume
+                if curr_l < prior_low and curr_c > prior_low and (curr_v >= curr_avg_v * 1.1 or curr_avg_v == 0):
+                    position = 1
+                    entry_est = curr_c
+                    stop_loss = curr_l - (0.5 * curr_atr)
+                    risk = entry_est - stop_loss
+                    if risk <= 0:
+                        risk = curr_atr if curr_atr > 0 else 1.0
+                        stop_loss = entry_est - risk
+                    target_price = entry_est + (2.5 * risk)
+            elif position == 1:
+                # Exit on hitting stop-loss or profit target
+                if curr_l <= stop_loss or curr_h >= target_price:
+                    position = 0
+
+            signals.append(position)
+        df['Signal'] = signals
     else:
         raise ValueError(f"Unknown strategy: {strategy_name}")
 

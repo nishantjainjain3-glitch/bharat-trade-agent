@@ -179,6 +179,84 @@ def detect_liquidity_sweeps(df: pd.DataFrame, window: int = 5, lookback: int = 2
 
     return sweeps[-5:]
 
+
+def evaluate_liquidity_sweep_setup(df: pd.DataFrame, swing_lookback: int = 15, vol_mult: float = 1.2) -> Dict[str, Any]:
+    """
+    Evaluates actionable Liquidity Sweep / Institutional Stop Hunt setup on the latest candle.
+    - Bullish SSL Sweep (Sell-Side Liquidity Hunt):
+      Price pierces below previous swing low, flushing retail stops, then closes back inside with volume.
+    - Bearish BSL Sweep (Buy-Side Liquidity Hunt):
+      Price pierces above previous swing high, trapping retail breakout buyers, then closes back inside.
+    """
+    if len(df) < swing_lookback + 2:
+        return {"setup": "NO_SETUP", "status": "INSUFFICIENT_DATA"}
+
+    close = df['Close']
+    high = df['High']
+    low = df['Low']
+    vol = df['Volume'] if 'Volume' in df.columns else pd.Series(1.0, index=df.index)
+
+    prior_slice = df.iloc[-(swing_lookback + 1):-1]
+    prior_high = float(prior_slice['High'].max())
+    prior_low = float(prior_slice['Low'].min())
+
+    curr_close = float(close.iloc[-1])
+    curr_high = float(high.iloc[-1])
+    curr_low = float(low.iloc[-1])
+    curr_vol = float(vol.iloc[-1])
+    avg_vol = float(vol.tail(20).mean()) if len(vol) >= 20 else curr_vol
+    vol_ratio = round(curr_vol / avg_vol, 2) if avg_vol > 0 else 1.0
+
+    # ATR for stop buffer
+    tr = pd.concat([
+        high - low,
+        (high - close.shift(1)).abs(),
+        (low - close.shift(1)).abs()
+    ], axis=1).max(axis=1)
+    atr = float(tr.tail(14).mean())
+
+    # Bullish SSL Sweep
+    if curr_low < prior_low and curr_close > prior_low:
+        risk = curr_close - (curr_low - 0.5 * atr)
+        target = curr_close + (2.5 * risk)
+        return {
+            "setup": "BULLISH_SSL_SWEEP",
+            "type": "SELL_SIDE_LIQUIDITY_HUNT",
+            "swept_level": round(prior_low, 2),
+            "sweep_low": round(curr_low, 2),
+            "entry_price": round(curr_close, 2),
+            "stop_loss": round(curr_low - 0.5 * atr, 2),
+            "target_price": round(target, 2),
+            "risk_reward": 2.5,
+            "volume_ratio": vol_ratio,
+            "volume_confirmed": vol_ratio >= vol_mult,
+            "description": f"Retail sell-stops flushed below ₹{prior_low:.2f}. Price absorbed back to ₹{curr_close:.2f}."
+        }
+
+    # Bearish BSL Sweep
+    elif curr_high > prior_high and curr_close < prior_high:
+        risk = (curr_high + 0.5 * atr) - curr_close
+        target = curr_close - (2.5 * risk)
+        return {
+            "setup": "BEARISH_BSL_SWEEP",
+            "type": "BUY_SIDE_LIQUIDITY_HUNT",
+            "swept_level": round(prior_high, 2),
+            "sweep_high": round(curr_high, 2),
+            "entry_price": round(curr_close, 2),
+            "stop_loss": round(curr_high + 0.5 * atr, 2),
+            "target_price": round(target, 2),
+            "risk_reward": 2.5,
+            "volume_ratio": vol_ratio,
+            "volume_confirmed": vol_ratio >= vol_mult,
+            "description": f"Retail buy-stops trapped above ₹{prior_high:.2f}. Price rejected back to ₹{curr_close:.2f}."
+        }
+
+    return {
+        "setup": "NO_SETUP",
+        "description": "No liquidity sweep detected on the latest bar."
+    }
+
+
 def analyze_wyckoff_vsa(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Volume Spread Analysis (VSA) based on Wyckoff methodologies.
