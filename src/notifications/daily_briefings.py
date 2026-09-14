@@ -10,6 +10,7 @@ from src.analysis.multi_asset_scanner import scan_multi_asset_opportunities
 from src.notifications.telegram import send_telegram_text
 from src.engine.risk_tiers import evaluate_survival_tier
 from src.engine.memory import memory_journal
+from src.data.holidays import is_nse_holiday, get_next_trading_day
 
 logger = logging.getLogger(__name__)
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -260,10 +261,49 @@ def send_evening_report(chat_id: Optional[str] = None) -> Dict[str, Any]:
     return res
 
 
+def build_holiday_briefing(holiday_name: str) -> str:
+    """Constructs the morning notification when market is closed for an official NSE/BSE holiday."""
+    now_ist = datetime.now(IST)
+    date_str = now_ist.strftime("%A, %d %B %Y")
+    next_day = get_next_trading_day(now_ist)
+    next_day_str = next_day.strftime("%A, %d %B %Y")
+
+    portfolio = angel_client.get_portfolio_summary()
+    tot_val = float(portfolio.get("total_portfolio_value", 125000.0))
+    cash = float(portfolio.get("available_cash", 125000.0))
+
+    lines = [
+        "🏖️ *BHARAT TRADE AGENT — MARKET HOLIDAY NOTICE*",
+        f"📅 _{date_str}_",
+        f"🏛️ *Exchange Status:* CLOSED ({holiday_name})\n",
+        f"NSE & BSE equity and derivatives segments are closed today for *{holiday_name}*.",
+        f"Regular market sessions and autonomous trade execution will resume on *{next_day_str}* at 09:15 IST.\n",
+        "💼 *Account Snapshot (Capital Preserved):*",
+        f"• Total Portfolio Value: *₹{tot_val:,.2f}*",
+        f"• Available Cash: *₹{cash:,.2f}*",
+        "• Autonomous Execution: *Standby Mode (Zero Orders Today)*\n",
+        "🛡️ _No trades will be dispatched. Risk management actively protecting equity._"
+    ]
+    return "\n".join(lines)
+
+
+def send_holiday_briefing(holiday_name: str, chat_id: Optional[str] = None) -> Dict[str, Any]:
+    """Sends the holiday briefing to Telegram."""
+    msg = build_holiday_briefing(holiday_name)
+    res = send_telegram_text(msg, chat_id=chat_id)
+    memory_journal.record_entry(
+        category="BRIEFING",
+        title=f"Market Holiday Notice: {holiday_name}",
+        content=msg,
+        metadata={"holiday": holiday_name, "telegram_status": res.get("status")}
+    )
+    return res
+
+
 class DailyBriefingScheduler:
     """
     Background scheduler for scheduled daily Telegram dispatches:
-    - 08:45 AM IST: Morning Briefing
+    - 08:45 AM IST: Morning Briefing (or Holiday Notice)
     - 15:00 PM IST: 3:00 PM Market Check & Reminder
     - 16:00 PM IST: Evening Performance Report
     """
@@ -295,6 +335,18 @@ class DailyBriefingScheduler:
 
         # Only dispatch on trading days (Mon-Fri)
         if weekday >= 5:
+            return
+
+        # Check official NSE trading holidays
+        is_holiday, holiday_name = is_nse_holiday(now_ist)
+        if is_holiday:
+            if self.last_morning_sent_date != today_str:
+                logger.info(f"Triggering Market Holiday Notice for {holiday_name}")
+                loop = asyncio.get_event_loop()
+                res = await loop.run_in_executor(None, lambda: send_holiday_briefing(holiday_name))
+                if res.get("status"):
+                    self.last_morning_sent_date = today_str
+                    logger.info(f"Market Holiday Notice for {holiday_name} sent to Telegram")
             return
 
         current_minute = now_ist.hour * 60 + now_ist.minute

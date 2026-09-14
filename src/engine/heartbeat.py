@@ -15,6 +15,7 @@ from src.analysis.screener import get_top_buy_recommendations
 from src.broker.angel_one import angel_client
 from src.notifications.telegram import send_telegram_text
 from src.engine.exit_manager import compute_positive_trailing_stop
+from src.data.holidays import is_nse_holiday
 
 IST = timezone(timedelta(hours=5, minutes=30))
 
@@ -36,6 +37,10 @@ class AutonomousHeartbeat:
         if weekday >= 5:
             return "WEEKEND_CLOSED"
         
+        is_holiday, holiday_name = is_nse_holiday(now)
+        if is_holiday:
+            return f"HOLIDAY_CLOSED ({holiday_name})"
+
         current_minute = now.hour * 60 + now.minute
         # 09:00 - 09:15 = Pre-market
         if 9 * 60 <= current_minute < 9 * 60 + 15:
