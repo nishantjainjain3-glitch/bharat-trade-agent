@@ -300,8 +300,13 @@ def analyze_technical_indicators(df: pd.DataFrame) -> Dict[str, Any]:
     current_bb_lower = float(bb_lower.iloc[-1])
     
     # ATR
-    atr_series = calculate_atr(df, 14)
-    current_atr = float(atr_series.iloc[-1]) if not pd.isna(atr_series.iloc[-1]) else (current_price * 0.02)
+    atr_res = calculate_atr(df, 14)
+    if isinstance(atr_res, dict):
+        current_atr = float(atr_res.get("atr", current_price * 0.02))
+    elif hasattr(atr_res, "iloc"):
+        current_atr = float(atr_res.iloc[-1]) if not pd.isna(atr_res.iloc[-1]) else (current_price * 0.02)
+    else:
+        current_atr = current_price * 0.02
     
     # Volume analysis & Relative Volume (RVOL)
     avg_vol_20 = float(df['Volume'].rolling(20).mean().iloc[-1]) if 'Volume' in df and len(df) >= 20 else float(df['Volume'].mean()) if 'Volume' in df else 0.0
