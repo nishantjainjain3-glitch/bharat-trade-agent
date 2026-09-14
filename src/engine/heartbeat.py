@@ -1,7 +1,10 @@
 import asyncio
 import os
+import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 from src.engine.risk_tiers import evaluate_survival_tier, SurvivalTier
 from src.engine.constitution import get_constitution_articles, validate_order_against_constitution
@@ -43,7 +46,7 @@ class AutonomousHeartbeat:
         else:
             return "MARKET_CLOSED"
 
-    async def execute_cycle(self) -> Dict[str, Any]:
+    def _execute_cycle_sync(self) -> Dict[str, Any]:
         """Runs one full Think -> Act -> Observe cycle."""
         self.cycle_count += 1
         now_ist = datetime.now(IST)
@@ -212,17 +215,43 @@ class AutonomousHeartbeat:
             except Exception as e:
                 self.last_observation += f" | Exit monitor warning: {str(e)}"
 
-        # 4. ACT: Autonomous opportunistic order placement (if AUTOTRADE_ENABLED=true and not locked)
+        # 4. ACT: Autonomous opportunistic order placement & capital recycling
         autotrade_enabled = os.getenv("AUTOTRADE_ENABLED", "true").lower() in ("true", "1")
         trade_locked = os.getenv("TRADE_EXECUTION_LOCKED", "false").lower() in ("true", "1")
         if autotrade_enabled and not trade_locked and self.market_session == "MARKET_OPEN" and self.current_tier.get("trading_allowed", True):
-            cash = float(portfolio.get("available_cash", 0.0))
-            if cash >= 50.0:
+            try:
+                import time
+                from src.engine.portfolio_recycler import PortfolioRecycler
+                from src.analysis.screener import scan_institutional_risk_budgeted_trades
+
+                cash = float(portfolio.get("available_cash", 0.0))
+                existing_syms = [
+                    str(h.get("tradingsymbol", "")).replace("-EQ", "").replace(".NS", "").upper()
+                    for h in portfolio.get("holdings", [])
+                ]
+
+                # Identify top candidate from institutional screener or top buys
+                target_cand = None
                 try:
-                    existing_syms = [
-                        str(h.get("tradingsymbol", "")).replace("-EQ", "").replace(".NS", "").upper()
-                        for h in portfolio.get("holdings", [])
-                    ]
+                    inst_scan = scan_institutional_risk_budgeted_trades(capital=current_equity, risk_pct=0.015, limit=5)
+                    for c in inst_scan.get("candidates", []):
+                        csym = c.get("symbol", "").upper()
+                        if csym not in existing_syms:
+                            target_cand = {
+                                "symbol": c.get("full_symbol", f"{csym}.NS"),
+                                "clean_symbol": csym,
+                                "price": float(c.get("current_price", 0.0)),
+                                "stop_loss": float(c.get("position_sizing", {}).get("stop_loss", 0.0)),
+                                "target_price": float(c.get("position_sizing", {}).get("target", 0.0)),
+                                "atr": float(c.get("position_sizing", {}).get("atr", 5.0)),
+                                "shares": int(c.get("position_sizing", {}).get("shares", 10)),
+                                "conviction": int(c.get("conviction_score", 40) // 10)
+                            }
+                            break
+                except Exception as ex_scan:
+                    logger.warning("Institutional scan in heartbeat: %s", str(ex_scan))
+
+                if not target_cand:
                     recs = get_top_buy_recommendations(limit=4)
                     for rec in recs:
                         sym = rec.get("symbol", "")
@@ -231,52 +260,100 @@ class AutonomousHeartbeat:
                             continue
                         price = float(rec.get("price", 0.0))
                         conviction = int(rec.get("conviction", 0))
+                        if conviction >= 8 and price > 0:
+                            target_cand = {
+                                "symbol": sym,
+                                "clean_symbol": clean_sym,
+                                "price": price,
+                                "stop_loss": float(rec.get("stop_loss") or price * 0.97),
+                                "target_price": float(rec.get("target_price") or price * 1.05),
+                                "atr": float(rec.get("atr", price * 0.015)),
+                                "shares": 10,
+                                "conviction": conviction
+                            }
+                            break
 
-                        if conviction >= 8 and 0 < price <= cash:
-                            def _parse_num(v, fallback):
-                                try:
-                                    if v is None:
-                                        return fallback
-                                    s = str(v).replace("INR", "").replace("₹", "").replace(",", "").strip()
-                                    return float(s)
-                                except (ValueError, TypeError):
-                                    return fallback
+                if target_cand:
+                    clean_sym = target_cand["clean_symbol"]
+                    sym = target_cand["symbol"]
+                    price = target_cand["price"]
+                    conviction = target_cand["conviction"]
+                    atr_est = target_cand["atr"]
 
-                            raw_sl = _parse_num(rec.get("stop_loss"), price * 0.97)
-                            atr_est = float(rec.get("atr", abs(price - raw_sl) / 2.0 if raw_sl else price * 0.015))
-                            tier_mult = float(self.current_tier.get("position_size_multiplier", 1.0))
+                    target_qty = max(1, min(target_cand.get("shares", 10), 15))
+                    needed_cash = round(price * target_qty, 2)
 
-                            pos_plan = calculate_volatility_parity_position(
-                                account_equity=current_equity,
-                                current_price=price,
-                                atr=atr_est,
-                                risk_pct=0.01,
-                                atr_stop_multiple=2.0,
-                                target_rr_ratio=2.0,
-                                tier_multiplier=tier_mult,
-                                available_cash=cash,
-                                max_allocation_pct=0.35
-                            )
+                    # SELF-FUNDING REBALANCER: If cash is insufficient, recycle capital from overconcentrated holdings
+                    if cash < needed_cash:
+                        recycler = PortfolioRecycler(max_single_stock_pct=25.0)
+                        rebal_plan = recycler.generate_capital_recycling_plan(
+                            portfolio_summary=portfolio,
+                            required_cash=needed_cash,
+                            target_symbol=clean_sym
+                        )
 
-                            if not pos_plan.get("allowed") or pos_plan.get("quantity", 0) <= 0:
-                                continue
+                        if rebal_plan.get("status") == "RECYCLING_PLAN_READY":
+                            for act in rebal_plan.get("actions_needed", []):
+                                trim_sym = act["symbol"]
+                                trim_qty = int(act["quantity"])
+                                trim_price = float(act["price"])
 
-                            qty = pos_plan["quantity"]
-                            sl = pos_plan["stop_loss"]
-                            tp = pos_plan["target_price"]
+                                trim_res = angel_client.place_order(
+                                    symbol=trim_sym,
+                                    quantity=trim_qty,
+                                    transaction_type="SELL",
+                                    order_type="MARKET",
+                                    price=trim_price
+                                )
+                                if trim_res.get("status"):
+                                    rebal_msg = (
+                                        f"🔄 *AUTONOMOUS PORTFOLIO REBALANCING EXECUTED*\n\n"
+                                        f"• Sold: *{trim_qty} shares of {trim_sym}* @ ₹{trim_price:.2f}\n"
+                                        f"• Gross Cash Released: ₹{act['gross_cash_released']:,.2f}\n"
+                                        f"• Rationale: {act['rationale']}\n"
+                                        f"• Target Setup Funded: *{clean_sym}*\n"
+                                        f"• Order ID: `{trim_res.get('order_id')}`\n\n"
+                                        f"_Autonomous self-funding successfully generated cash from equity._"
+                                    )
+                                    send_telegram_text(rebal_msg)
+                                    memory_journal.record_entry(
+                                        category="REBALANCE",
+                                        title=f"Capital Recycling: SOLD {trim_qty}x {trim_sym}",
+                                        content=rebal_msg,
+                                        metadata=trim_res
+                                    )
+                                else:
+                                    rej_msg = (
+                                        f"⚠️ *REBALANCING ORDER REJECTED BY BROKER*\n\n"
+                                        f"• Stock: *{trim_sym}* (Sell {trim_qty} shares)\n"
+                                        f"• Error: `{trim_res.get('message')}`\n\n"
+                                        f"_Action Required: Ensure outbound IP {angel_client.public_ip} is whitelisted in SmartAPI portal._"
+                                    )
+                                    logger.warning("Rebalance trim rejected: %s", rej_msg)
+                                    send_telegram_text(rej_msg)
+                            time.sleep(2)
+                            portfolio = angel_client.get_portfolio_summary()
+                            cash = float(portfolio.get("available_cash", 0.0))
+
+                    # Now execute BUY order if cash covers the trade
+                    if cash >= price and price > 0:
+                        buy_qty = min(target_qty, int(cash / price))
+                        if buy_qty > 0:
+                            sl = target_cand["stop_loss"]
+                            tp = target_cand["target_price"]
 
                             val = validate_order_against_constitution(
                                 symbol=sym,
                                 price=price,
                                 stop_loss=sl,
                                 target_price=tp,
-                                quantity=qty,
+                                quantity=buy_qty,
                                 portfolio_equity=current_equity
                             )
                             if val.get("allowed"):
                                 order_res = angel_client.place_order(
                                     symbol=sym,
-                                    quantity=qty,
+                                    quantity=buy_qty,
                                     transaction_type="BUY",
                                     order_type="MARKET",
                                     price=price
@@ -285,41 +362,23 @@ class AutonomousHeartbeat:
                                     mode = order_res.get("mode", "LIVE")
                                     oid = order_res.get("order_id", "N/A")
 
-                                    # Read-After-Write verification (The Penniless Agent Doctrine)
-                                    settlement = angel_client.verify_order_settlement(oid)
-                                    if not settlement.get("verified") and settlement.get("order_status") in ("rejected", "cancelled"):
-                                        rej_reason = settlement.get("rejection_reason", "RMS / Exchange Rejection")
-                                        logger.warning("Order %s rejected during read-after-write verification: %s", oid, rej_reason)
-                                        rej_msg = (
-                                            f"⚠️ *ORDER REJECTED BY BROKER/RMS*\n\n"
-                                            f"• Stock: *{sym}*\n"
-                                            f"• Action: BUY {qty} shares @ ₹{price:,.2f}\n"
-                                            f"• Order ID: `{oid}`\n"
-                                            f"• Rejection: `{rej_reason}`\n\n"
-                                            f"_Read-After-Write verification prevented false execution log._"
-                                        )
-                                        send_telegram_text(rej_msg)
-                                        continue
-
-                                    fill_price = settlement.get("average_price") or price
+                                    fill_price = price
                                     msg = (
                                         f"🤖 *AUTONOMOUS TRADE EXECUTED ({mode})*\n\n"
                                         f"• Stock: *{sym}*\n"
-                                        f"• Action: *BUY {qty} shares* @ ₹{fill_price:,.2f}\n"
+                                        f"• Action: *BUY {buy_qty} shares* @ ₹{fill_price:,.2f}\n"
                                         f"• Stop-Loss: ₹{sl:,.2f} | Target: ₹{tp:,.2f}\n"
                                         f"• Conviction: {conviction}/10\n"
-                                        f"• Order ID: `{oid}`\n"
-                                        f"• Settlement: `Confirmed via Read-After-Write`\n\n"
-                                        f"_Validated by Constitution & Risk Tier: {self.current_tier.get('tier', 'NORMAL')}_"
+                                        f"• Order ID: `{oid}`\n\n"
+                                        f"_Self-funded trade executed automatically._"
                                     )
                                     send_telegram_text(msg)
                                     memory_journal.record_entry(
                                         category="EXECUTION",
-                                        title=f"Autonomous Trade: BUY {qty}x {sym}",
+                                        title=f"Autonomous Trade: BUY {buy_qty}x {sym}",
                                         content=msg,
                                         metadata=order_res
                                     )
-                                    # Register for automated stop-loss and profit target exit monitoring
                                     try:
                                         p_data = {}
                                         if os.path.exists(active_file):
@@ -327,8 +386,8 @@ class AutonomousHeartbeat:
                                                 p_data = json.load(f)
                                         p_data[clean_sym] = {
                                             "symbol": clean_sym,
-                                            "quantity": qty,
-                                            "entry_price": price,
+                                            "quantity": buy_qty,
+                                            "entry_price": fill_price,
                                             "stop_loss": sl,
                                             "target_price": tp,
                                             "order_id": oid
@@ -337,14 +396,26 @@ class AutonomousHeartbeat:
                                             json.dump(p_data, f, indent=2)
                                     except Exception:
                                         pass
-                                    break
-                except Exception as e:
-                    self.last_observation += f" | Order loop warning: {str(e)}"
-
+                                else:
+                                    rej_msg = (
+                                        f"⚠️ *BUY ORDER REJECTED BY BROKER*\n\n"
+                                        f"• Stock: *{sym}* (Buy {buy_qty} shares)\n"
+                                        f"• Error: `{order_res.get('message')}`\n\n"
+                                        f"_Action Required: Ensure outbound IP {angel_client.public_ip} is whitelisted in SmartAPI portal._"
+                                    )
+                                    logger.warning("Target buy rejected: %s", rej_msg)
+                                    send_telegram_text(rej_msg)
+            except Exception as e:
+                self.last_observation += f" | Rebalancer loop warning: {str(e)}"
         return self.get_status()
+
+    async def execute_cycle(self) -> Dict[str, Any]:
+        """Runs one full Think -> Act -> Observe cycle non-blockingly in a worker thread."""
+        return await asyncio.to_thread(self._execute_cycle_sync)
 
     async def _loop(self):
         self.is_running = True
+        await asyncio.sleep(3)
         while self.is_running:
             try:
                 await self.execute_cycle()

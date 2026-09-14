@@ -16,7 +16,7 @@ NIFTY_50_POPULAR = [
     {"symbol": "SBIN.NS", "name": "State Bank of India", "sector": "Banking"},
     {"symbol": "ITC.NS", "name": "ITC Ltd", "sector": "FMCG"},
     {"symbol": "LT.NS", "name": "Larsen & Toubro", "sector": "Capital Goods"},
-    {"symbol": "TATAMOTORS.NS", "name": "Tata Motors", "sector": "Automobile"},
+    {"symbol": "BAJFINANCE.NS", "name": "Bajaj Finance", "sector": "Financials"},
     {"symbol": "MARUTI.NS", "name": "Maruti Suzuki", "sector": "Automobile"},
     {"symbol": "SUNPHARMA.NS", "name": "Sun Pharma", "sector": "Healthcare"},
 ]

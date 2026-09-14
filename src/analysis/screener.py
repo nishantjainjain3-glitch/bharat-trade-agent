@@ -1420,6 +1420,9 @@ def scan_institutional_risk_budgeted_trades(
                 }
             })
 
+            if len(qualified_trades) >= max(limit, 5):
+                break
+
         except Exception as e:
             logger.warning("Institutional screener error for %s: %s", sym, str(e))
             continue

@@ -1,408 +1,5 @@
 [
   {
-    "id": 211,
-    "timestamp": "2026-09-11 23:17:02 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #631: MARKET_CLOSED",
-    "content": "Heartbeat #631: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 631,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 212,
-    "timestamp": "2026-09-11 23:22:16 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #636: MARKET_CLOSED",
-    "content": "Heartbeat #636: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 636,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 213,
-    "timestamp": "2026-09-11 23:27:31 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #641: MARKET_CLOSED",
-    "content": "Heartbeat #641: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 641,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 214,
-    "timestamp": "2026-09-11 23:32:45 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #646: MARKET_CLOSED",
-    "content": "Heartbeat #646: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 646,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 215,
-    "timestamp": "2026-09-11 23:38:00 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #651: MARKET_CLOSED",
-    "content": "Heartbeat #651: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 651,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 216,
-    "timestamp": "2026-09-11 23:43:29 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #656: MARKET_CLOSED",
-    "content": "Heartbeat #656: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 656,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 217,
-    "timestamp": "2026-09-11 23:48:45 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #661: MARKET_CLOSED",
-    "content": "Heartbeat #661: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 661,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 218,
-    "timestamp": "2026-09-11 23:53:59 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #666: MARKET_CLOSED",
-    "content": "Heartbeat #666: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 666,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 219,
-    "timestamp": "2026-09-11 23:59:19 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #671: MARKET_CLOSED",
-    "content": "Heartbeat #671: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 671,
-      "session": "MARKET_CLOSED",
-      "tier": "NORMAL",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 220,
-    "timestamp": "2026-09-12 00:00:22 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #672: WEEKEND_CLOSED",
-    "content": "Heartbeat #672: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 672,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 221,
-    "timestamp": "2026-09-12 00:01:25 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #673: WEEKEND_CLOSED",
-    "content": "Heartbeat #673: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 673,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 222,
-    "timestamp": "2026-09-12 00:02:28 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #674: WEEKEND_CLOSED",
-    "content": "Heartbeat #674: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 674,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 223,
-    "timestamp": "2026-09-12 00:03:30 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #675: WEEKEND_CLOSED",
-    "content": "Heartbeat #675: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 675,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 224,
-    "timestamp": "2026-09-12 00:04:39 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #676: WEEKEND_CLOSED",
-    "content": "Heartbeat #676: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 676,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": 0.0
-    }
-  },
-  {
-    "id": 225,
-    "timestamp": "2026-09-12 00:05:42 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #677: WEEKEND_CLOSED",
-    "content": "Heartbeat #677: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 677,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 226,
-    "timestamp": "2026-09-12 00:06:45 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #678: WEEKEND_CLOSED",
-    "content": "Heartbeat #678: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 678,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 227,
-    "timestamp": "2026-09-12 00:07:48 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #679: WEEKEND_CLOSED",
-    "content": "Heartbeat #679: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 679,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 228,
-    "timestamp": "2026-09-12 00:08:50 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #680: WEEKEND_CLOSED",
-    "content": "Heartbeat #680: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 680,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 229,
-    "timestamp": "2026-09-12 00:09:53 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #681: WEEKEND_CLOSED",
-    "content": "Heartbeat #681: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 681,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 230,
-    "timestamp": "2026-09-12 00:10:56 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #682: WEEKEND_CLOSED",
-    "content": "Heartbeat #682: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 682,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 231,
-    "timestamp": "2026-09-12 00:11:58 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #683: WEEKEND_CLOSED",
-    "content": "Heartbeat #683: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 683,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 232,
-    "timestamp": "2026-09-12 00:13:02 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #684: WEEKEND_CLOSED",
-    "content": "Heartbeat #684: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 684,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 233,
-    "timestamp": "2026-09-12 00:14:04 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #685: WEEKEND_CLOSED",
-    "content": "Heartbeat #685: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 685,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 234,
-    "timestamp": "2026-09-12 00:15:07 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #686: WEEKEND_CLOSED",
-    "content": "Heartbeat #686: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 686,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 235,
-    "timestamp": "2026-09-12 00:16:09 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #687: WEEKEND_CLOSED",
-    "content": "Heartbeat #687: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 687,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 236,
-    "timestamp": "2026-09-12 00:17:12 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #688: WEEKEND_CLOSED",
-    "content": "Heartbeat #688: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 688,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 237,
-    "timestamp": "2026-09-12 00:18:15 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #689: WEEKEND_CLOSED",
-    "content": "Heartbeat #689: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 689,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 238,
-    "timestamp": "2026-09-12 00:19:18 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #690: WEEKEND_CLOSED",
-    "content": "Heartbeat #690: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 690,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 239,
-    "timestamp": "2026-09-12 00:20:21 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #691: WEEKEND_CLOSED",
-    "content": "Heartbeat #691: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 691,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 240,
-    "timestamp": "2026-09-12 00:21:23 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #692: WEEKEND_CLOSED",
-    "content": "Heartbeat #692: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 692,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
-    "id": 241,
-    "timestamp": "2026-09-12 00:22:26 IST",
-    "category": "HEARTBEAT",
-    "title": "Cycle #693: WEEKEND_CLOSED",
-    "content": "Heartbeat #693: Session WEEKEND_CLOSED. Survival Tier: DEFENSIVE. System in low-compute stand-by.",
-    "metadata": {
-      "cycle": 693,
-      "session": "WEEKEND_CLOSED",
-      "tier": "DEFENSIVE",
-      "nifty_change": -0.34
-    }
-  },
-  {
     "id": 242,
     "timestamp": "2026-09-12 00:23:28 IST",
     "category": "HEARTBEAT",
@@ -2706,6 +2303,407 @@
         "order_id": "SIM-TEST1234",
         "message": "Paper simulated BUY 10 shares of RELIANCE at INR 1280.00."
       }
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 08:47:29 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_CLOSED",
+    "content": "Heartbeat #1: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-14 08:47:42 IST",
+    "category": "BRIEFING",
+    "title": "Morning Briefing Dispatched",
+    "content": "🌅 *BHARAT TRADE AGENT — MORNING BRIEFING*\n📅 _Monday, 14 September 2026 | 08:47 IST_\n🛡️ *Broker Mode:* `LIVE` (Angel One)\n\n🌐 *Global & Benchmark Cues:*\n• Nifty 50 Prev Close: *-0.34%*\n• India VIX: *14.20* (Low/Calm)\n• Survival Tier: *CIRCUIT_BREAKER* (0.0x sizing multiplier)\n\n💼 *Account Snapshot:*\n• Total Equity: *₹51,384.05*\n• Available Cash: *₹167.51*\n• Invested Margin: *₹46,924.54*\n• Overall P&L: *🟢 ₹+4,292.00 (+9.15%)*\n\n📊 *Open Positions (9):*\n• *MANAPPURAM*: 1 qty @ ₹329.0 (🟢 ₹+124.0)\n• *COALINDIA*: 1 qty @ ₹426.4 (🔴 ₹-81.0)\n• *PNB*: 1 qty @ ₹116.8 (🟢 ₹+11.0)\n• *TMCV*: 38 qty @ ₹434.6 (🟢 ₹+6,968.0)\n• *TATASTEEL*: 1 qty @ ₹183.0 (🟢 ₹+21.0)\n\n🎯 *Multi-Asset Tactical Battle Plan:*\n• *Indices*: Watching NIFTYBEES / BANKBEES 15m Bollinger mean-reversion.\n• *Commodities*: GOLDBEES / SILVERBEES 4h 50 EMA trend support active.\n• *Equities*: Scanning 1h volume breakouts on momentum leaders.\n\n⚖️ _Risk Mandate: Strict 1% ATR Volatility-Parity sizing per trade._",
+    "metadata": {
+      "status": true,
+      "message": "Message sent successfully"
+    }
+  },
+  {
+    "id": 203,
+    "timestamp": "2026-09-14 08:51:45 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #6: MARKET_CLOSED",
+    "content": "Heartbeat #6: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 6,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 204,
+    "timestamp": "2026-09-14 08:57:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #11: MARKET_CLOSED",
+    "content": "Heartbeat #11: Session MARKET_CLOSED. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 11,
+      "session": "MARKET_CLOSED",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 205,
+    "timestamp": "2026-09-14 09:02:24 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #16: PRE_MARKET",
+    "content": "Heartbeat #16: Session PRE_MARKET. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 16,
+      "session": "PRE_MARKET",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 206,
+    "timestamp": "2026-09-14 09:07:50 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #21: PRE_MARKET",
+    "content": "Heartbeat #21: Session PRE_MARKET. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 21,
+      "session": "PRE_MARKET",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 207,
+    "timestamp": "2026-09-14 09:13:09 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #26: PRE_MARKET",
+    "content": "Heartbeat #26: Session PRE_MARKET. Survival Tier: NORMAL. System in low-compute stand-by.",
+    "metadata": {
+      "cycle": 26,
+      "session": "PRE_MARKET",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 208,
+    "timestamp": "2026-09-14 09:18:54 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #31: MARKET_OPEN",
+    "content": "Heartbeat #31: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 31,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 209,
+    "timestamp": "2026-09-14 09:24:51 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #36: MARKET_OPEN",
+    "content": "Heartbeat #36: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 36,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 210,
+    "timestamp": "2026-09-14 09:30:42 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #41: MARKET_OPEN",
+    "content": "Heartbeat #41: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 41,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 211,
+    "timestamp": "2026-09-14 09:36:38 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #46: MARKET_OPEN",
+    "content": "Heartbeat #46: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 46,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 212,
+    "timestamp": "2026-09-14 09:42:28 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #51: MARKET_OPEN",
+    "content": "Heartbeat #51: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 51,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 213,
+    "timestamp": "2026-09-14 09:48:18 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #56: MARKET_OPEN",
+    "content": "Heartbeat #56: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 56,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 214,
+    "timestamp": "2026-09-14 09:54:11 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #61: MARKET_OPEN",
+    "content": "Heartbeat #61: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 61,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 215,
+    "timestamp": "2026-09-14 10:00:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #66: MARKET_OPEN",
+    "content": "Heartbeat #66: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 66,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 216,
+    "timestamp": "2026-09-14 10:05:56 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #71: MARKET_OPEN",
+    "content": "Heartbeat #71: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 71,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 217,
+    "timestamp": "2026-09-14 10:11:26 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #76: MARKET_OPEN",
+    "content": "Heartbeat #76: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 76,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 218,
+    "timestamp": "2026-09-14 10:16:56 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #81: MARKET_OPEN",
+    "content": "Heartbeat #81: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 81,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 219,
+    "timestamp": "2026-09-14 10:22:26 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #86: MARKET_OPEN",
+    "content": "Heartbeat #86: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 86,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 220,
+    "timestamp": "2026-09-14 10:27:55 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #91: MARKET_OPEN",
+    "content": "Heartbeat #91: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 91,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 13:01:22 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-14 13:06:10 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #6: MARKET_OPEN",
+    "content": "Heartbeat #6: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 6,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 203,
+    "timestamp": "2026-09-14 13:08:44 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #8: MARKET_OPEN",
+    "content": "Heartbeat #8: Market OPEN. Nifty 50: -0.34%. Survival Tier: DEFENSIVE (0.5x allocation). Portfolio equity: INR 50,000.00.",
+    "metadata": {
+      "cycle": 8,
+      "session": "MARKET_OPEN",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 204,
+    "timestamp": "2026-09-14 13:12:02 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #11: MARKET_OPEN",
+    "content": "Heartbeat #11: Market OPEN. Nifty 50: -0.34%. Survival Tier: DEFENSIVE (0.5x allocation). Portfolio equity: INR 50,000.00.",
+    "metadata": {
+      "cycle": 11,
+      "session": "MARKET_OPEN",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 205,
+    "timestamp": "2026-09-14 13:17:32 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #16: MARKET_OPEN",
+    "content": "Heartbeat #16: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 16,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 13:22:20 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 13:25:15 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 202,
+    "timestamp": "2026-09-14 13:25:51 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #2: MARKET_OPEN",
+    "content": "Heartbeat #2: Market OPEN. Nifty 50: -0.34%. Survival Tier: DEFENSIVE (0.5x allocation). Portfolio equity: INR 50,000.00.",
+    "metadata": {
+      "cycle": 2,
+      "session": "MARKET_OPEN",
+      "tier": "DEFENSIVE",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 13:26:27 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 13:27:38 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
+    }
+  },
+  {
+    "id": 201,
+    "timestamp": "2026-09-14 13:29:04 IST",
+    "category": "HEARTBEAT",
+    "title": "Cycle #1: MARKET_OPEN",
+    "content": "Heartbeat #1: Market OPEN. Nifty 50: -0.34%. Survival Tier: NORMAL (1.0x allocation). Portfolio equity: INR 51,384.05.",
+    "metadata": {
+      "cycle": 1,
+      "session": "MARKET_OPEN",
+      "tier": "NORMAL",
+      "nifty_change": -0.34
     }
   }
 ]

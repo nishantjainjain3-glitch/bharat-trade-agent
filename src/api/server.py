@@ -72,7 +72,6 @@ from src.data.research_vault import research_vault
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     agent_heartbeat.start()
-    asyncio.create_task(agent_heartbeat.execute_cycle())
     if telegram_listener.is_configured():
         asyncio.create_task(telegram_listener.start())
         asyncio.create_task(daily_briefing_scheduler.start())

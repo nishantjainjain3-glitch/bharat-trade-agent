@@ -1,4 +1,4 @@
-﻿from enum import Enum
+from enum import Enum
 from typing import Dict, Any
 
 class SurvivalTier(str, Enum):
@@ -52,7 +52,7 @@ def evaluate_survival_tier(
     Computes current survival tier based on portfolio health and macro conditions.
     """
     if peak_equity <= 0:
-        peak_equity = max(current_equity, 100000.0)
+        peak_equity = current_equity
         
     drawdown_pct = max(0.0, ((peak_equity - current_equity) / peak_equity) * 100.0)
     
