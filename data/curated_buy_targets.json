@@ -1,0 +1,44 @@
+[
+  {
+    "symbol": "ENGINERSIN.NS",
+    "clean_symbol": "ENGINERSIN",
+    "priority": 1,
+    "price": 268.95,
+    "stop_loss": 247.93,
+    "target_price": 310.99,
+    "atr": 10.51,
+    "shares": 37,
+    "conviction": 9,
+    "fundamental_score": 82,
+    "suitability": "ELITE_QUALITY_BREAKOUT",
+    "rationale": "Superb ROCE 28.1%, OPM 19.5%, D/E 0.53, rising DII holding 18.5%, Bullish above 50 EMA"
+  },
+  {
+    "symbol": "ARVIND.NS",
+    "clean_symbol": "ARVIND",
+    "priority": 2,
+    "price": 575.1,
+    "stop_loss": 533.24,
+    "target_price": 658.82,
+    "atr": 20.93,
+    "shares": 17,
+    "conviction": 8,
+    "fundamental_score": 78,
+    "suitability": "SOLID_CANDIDATE",
+    "rationale": "ROCE 15.4%, OPM 10.5%, D/E 0.40, Institutional holding 30.4%, Above 50 EMA"
+  },
+  {
+    "symbol": "CUB.NS",
+    "clean_symbol": "CUB",
+    "priority": 3,
+    "price": 227.32,
+    "stop_loss": 209.58,
+    "target_price": 262.8,
+    "atr": 8.87,
+    "shares": 43,
+    "conviction": 7,
+    "fundamental_score": 75,
+    "suitability": "SOLID_CANDIDATE",
+    "rationale": "Large Cap Bank, Heavy Institutional Holding 54.6%, P/E 16.1x, Above 50 EMA"
+  }
+]

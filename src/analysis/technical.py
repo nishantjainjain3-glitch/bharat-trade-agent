@@ -795,3 +795,29 @@ def calculate_5ema_setup(df: pd.DataFrame, target_rr: float = 3.0) -> Dict[str, 
             "Enter on breakout of alert candle boundary. Target 1:3 minimum RR. Hard SL at opposite extreme."
         )
     }
+
+
+def calculate_atr(df: pd.DataFrame, period: int = 14) -> Dict[str, Any]:
+    """
+    Computes J. Welles Wilder's Average True Range (ATR).
+    TR = max(High - Low, abs(High - PrevClose), abs(Low - PrevClose))
+    """
+    if len(df) < 2 or not all(c in df.columns for c in ['High', 'Low', 'Close']):
+        return {"atr": 0.0, "atr_pct": 0.0}
+
+    tr = pd.concat([
+        df['High'] - df['Low'],
+        (df['High'] - df['Close'].shift(1)).abs(),
+        (df['Low'] - df['Close'].shift(1)).abs()
+    ], axis=1).max(axis=1)
+
+    atr_series = tr.rolling(window=period, min_periods=min(len(df), period)).mean()
+    atr_val = float(atr_series.iloc[-1]) if len(atr_series) > 0 else 0.0
+    current_close = float(df['Close'].iloc[-1])
+    atr_pct = round((atr_val / current_close) * 100.0, 2) if current_close > 0 else 0.0
+
+    return {
+        "atr": round(atr_val, 2),
+        "atr_pct": atr_pct,
+        "period": period
+    }

@@ -294,26 +294,51 @@ class AutonomousHeartbeat:
                     for h in portfolio.get("holdings", [])
                 ]
 
-                # Identify top candidate from institutional screener or top buys
+                # Check user-approved curated buy targets first (e.g. inspected breakout leaders)
                 target_cand = None
-                try:
-                    inst_scan = scan_institutional_risk_budgeted_trades(capital=current_equity, risk_pct=0.015, limit=5)
-                    for c in inst_scan.get("candidates", []):
-                        csym = c.get("symbol", "").upper()
-                        if csym not in existing_syms:
-                            target_cand = {
-                                "symbol": c.get("full_symbol", f"{csym}.NS"),
-                                "clean_symbol": csym,
-                                "price": float(c.get("current_price", 0.0)),
-                                "stop_loss": float(c.get("position_sizing", {}).get("stop_loss", 0.0)),
-                                "target_price": float(c.get("position_sizing", {}).get("target", 0.0)),
-                                "atr": float(c.get("position_sizing", {}).get("atr", 5.0)),
-                                "shares": int(c.get("position_sizing", {}).get("shares", 10)),
-                                "conviction": int(c.get("conviction_score", 40) // 10)
-                            }
-                            break
-                except Exception as ex_scan:
-                    logger.warning("Institutional scan in heartbeat: %s", str(ex_scan))
+                curated_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "curated_buy_targets.json")
+                if os.path.exists(curated_file):
+                    try:
+                        import json
+                        with open(curated_file, "r", encoding="utf-8") as f:
+                            curated_list = json.load(f)
+                        for c in sorted(curated_list, key=lambda x: x.get("priority", 99)):
+                            csym = c.get("clean_symbol", "").upper()
+                            if csym not in existing_syms:
+                                target_cand = {
+                                    "symbol": c.get("symbol", f"{csym}.NS"),
+                                    "clean_symbol": csym,
+                                    "price": float(c.get("price", 0.0)),
+                                    "stop_loss": float(c.get("stop_loss", 0.0)),
+                                    "target_price": float(c.get("target_price", 0.0)),
+                                    "atr": float(c.get("atr", 5.0)),
+                                    "shares": int(c.get("shares", 10)),
+                                    "conviction": int(c.get("conviction", 9)),
+                                    "rationale": c.get("rationale", "")
+                                }
+                                break
+                    except Exception as e_cur:
+                        logger.warning("Curated targets read warning: %s", str(e_cur))
+
+                if not target_cand:
+                    try:
+                        inst_scan = scan_institutional_risk_budgeted_trades(capital=current_equity, risk_pct=0.015, limit=5)
+                        for c in inst_scan.get("candidates", []):
+                            csym = c.get("symbol", "").upper()
+                            if csym not in existing_syms:
+                                target_cand = {
+                                    "symbol": c.get("full_symbol", f"{csym}.NS"),
+                                    "clean_symbol": csym,
+                                    "price": float(c.get("current_price", 0.0)),
+                                    "stop_loss": float(c.get("position_sizing", {}).get("stop_loss", 0.0)),
+                                    "target_price": float(c.get("position_sizing", {}).get("target", 0.0)),
+                                    "atr": float(c.get("position_sizing", {}).get("atr", 5.0)),
+                                    "shares": int(c.get("position_sizing", {}).get("shares", 10)),
+                                    "conviction": int(c.get("conviction_score", 40) // 10)
+                                }
+                                break
+                    except Exception as ex_scan:
+                        logger.warning("Institutional scan in heartbeat: %s", str(ex_scan))
 
                 if not target_cand:
                     recs = get_top_buy_recommendations(limit=4)
