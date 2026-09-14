@@ -41,6 +41,16 @@ class AutonomousHeartbeat:
         if is_holiday:
             return f"HOLIDAY_CLOSED ({holiday_name})"
 
+        # Dual safety check: real-time news advisory detection
+        try:
+            from src.data.news_data import get_macro_market_news
+            macro_news = get_macro_market_news()
+            if macro_news.get("market_closure_indicated"):
+                reason = macro_news.get("detected_reason") or "News Advisory"
+                return f"HOLIDAY_CLOSED ({reason})"
+        except Exception:
+            pass
+
         current_minute = now.hour * 60 + now.minute
         # 09:00 - 09:15 = Pre-market
         if 9 * 60 <= current_minute < 9 * 60 + 15:

@@ -63,3 +63,16 @@ def test_build_holiday_briefing_content():
     assert "MARKET HOLIDAY NOTICE" in briefing
     assert "Ganesh Chaturthi" in briefing
     assert "Standby Mode" in briefing
+
+
+def test_heartbeat_fallback_to_news_closure():
+    """Verify that heartbeat catches closures from live macro news if calendar is bypassed."""
+    hb = AutonomousHeartbeat()
+    with patch("src.engine.heartbeat.is_nse_holiday", return_value=(False, None)):
+        with patch("src.data.news_data.get_macro_market_news") as mock_news:
+            mock_news.return_value = {
+                "market_closure_indicated": True,
+                "detected_reason": "Emergency Halt"
+            }
+            session = hb.get_market_session()
+            assert session == "HOLIDAY_CLOSED (Emergency Halt)"

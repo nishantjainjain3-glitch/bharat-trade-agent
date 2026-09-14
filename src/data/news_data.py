@@ -155,3 +155,68 @@ def get_indian_stock_news(symbol: str, company_name: str = "") -> List[Dict[str,
         })
         
     return unique_news[:8]
+
+
+_market_news_cache = {"timestamp": 0, "data": None}
+
+def get_macro_market_news(force_refresh: bool = False) -> Dict[str, Any]:
+    """
+    Fetches real-time macroeconomic and market-wide operational news for the Indian stock market.
+    Specifically verifies whether the exchange is operating normally, facing an unscheduled halt,
+    or closed for a trading holiday (e.g., Ganesh Chaturthi, Diwali, national elections).
+    Caches for 15 minutes to conserve network requests.
+    """
+    now_ts = time.time()
+    if not force_refresh and _market_news_cache["data"] and (now_ts - _market_news_cache["timestamp"]) < 900:
+        return _market_news_cache["data"]
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
+    # 1. Operational status query
+    q_status = urllib.parse.quote("Indian stock market holiday closed today NSE BSE")
+    url_status = f"https://news.google.com/rss/search?q={q_status}&hl=en-IN&gl=IN&ceid=IN:en"
+
+    # 2. General market overview query
+    q_general = urllib.parse.quote("Indian stock market Nifty Sensex today news")
+    url_general = f"https://news.google.com/rss/search?q={q_general}&hl=en-IN&gl=IN&ceid=IN:en"
+
+    status_items = fetch_rss_items(url_status, headers, default_source="Financial Wire")
+    general_items = fetch_rss_items(url_general, headers, default_source="Financial Wire")
+
+    # Analyze headlines for closure signals
+    closure_detected = False
+    detected_reason = None
+    closure_keywords = ["closed today", "trading holiday", "closed on account of", "remain closed today", "markets closed today"]
+    holiday_names = [
+        "Ganesh Chaturthi", "Diwali", "Holi", "Eid", "Muharram", "Christmas",
+        "Good Friday", "Mahashivratri", "Ram Navami", "Dr. Ambedkar Jayanti",
+        "Maharashtra Day", "Independence Day", "Republic Day", "Gandhi Jayanti",
+        "Dussehra", "Gurunanak Jayanti"
+    ]
+
+    for item in status_items[:8]:
+        title_lower = item.get("title", "").lower()
+        if any(kw in title_lower for kw in closure_keywords) or ("nse" in title_lower and "closed" in title_lower):
+            closure_detected = True
+            for h in holiday_names:
+                if h.lower() in title_lower:
+                    detected_reason = h
+                    break
+            if not detected_reason:
+                detected_reason = "Exchange Trading Holiday / Closure"
+            break
+
+    result = {
+        "market_closure_indicated": closure_detected,
+        "detected_reason": detected_reason,
+        "operational_headlines": [i.get("title") for i in status_items[:5]],
+        "market_headlines": [i.get("title") for i in general_items[:5]],
+        "checked_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S IST")
+    }
+
+    _market_news_cache["timestamp"] = now_ts
+    _market_news_cache["data"] = result
+    return result
+
