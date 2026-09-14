@@ -100,9 +100,33 @@ def get_company_fundamentals(symbol: str) -> Dict[str, Any]:
     norm_symbol = normalize_indian_symbol(symbol)
     ticker = yf.Ticker(norm_symbol)
     info = ticker.info or {}
-    
+
+    roce = None
+    try:
+        bs = ticker.balance_sheet
+        fin = ticker.financials
+        if not bs.empty and not fin.empty:
+            ebit = float(fin.loc['EBIT'].iloc[0]) if 'EBIT' in fin.index else (float(fin.loc['Operating Income'].iloc[0]) if 'Operating Income' in fin.index else 0.0)
+            tot_assets = float(bs.loc['Total Assets'].iloc[0]) if 'Total Assets' in bs.index else 0.0
+            curr_liab = float(bs.loc['Current Liabilities'].iloc[0]) if 'Current Liabilities' in bs.index else 0.0
+            cap_employed = tot_assets - curr_liab
+            if cap_employed > 0 and ebit != 0:
+                roce = round((ebit / cap_employed) * 100.0, 2)
+    except Exception:
+        pass
+
+    mcap_cr = round(float(info.get("marketCap", 0) or 0) / 1e7, 2)
+    opm = round(float(info.get("ebitdaMargins") or info.get("operatingMargins") or 0) * 100.0, 2)
+    inst_pct = round(float(info.get("heldPercentInstitutions", 0) or 0) * 100.0, 2)
+
     return {
         "symbol": norm_symbol,
+        "company_name": info.get("longName", norm_symbol),
+        "sector": info.get("sector", "Unknown"),
+        "industry": info.get("industry", "Unknown"),
+        "market_cap_crores": mcap_cr,
+        "opm_pct": opm,
+        "roce_pct": roce,
         "pe_ratio": info.get("trailingPE"),
         "forward_pe": info.get("forwardPE"),
         "peg_ratio": info.get("pegRatio"),
@@ -113,6 +137,7 @@ def get_company_fundamentals(symbol: str) -> Dict[str, Any]:
         "revenue_growth": info.get("revenueGrowth"),
         "earnings_growth": info.get("earningsGrowth"),
         "dividend_yield": info.get("dividendYield"),
+        "institutional_holding_pct": inst_pct,
         "free_cashflow": info.get("freeCashflow"),
         "description": info.get("longBusinessSummary", ""),
     }
