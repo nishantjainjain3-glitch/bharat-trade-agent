@@ -474,4 +474,49 @@ class TelegramBotListener:
             except Exception as e:
                 send_telegram_text(f"❌ Sell execution error: {str(e)}", chat_id)
 
+        else:
+            # Natural language & forwarded tip parser
+            words = [w.strip("$,.#:/()[]").upper() for w in text.split()]
+            common_tickers = {"BHEL", "CUB", "FEDERALBNK", "RELIANCE", "TCS", "INFY", "TATAMOTORS", "TMCV", "HDFCBANK", "ICICIBANK", "SBIN", "ITC", "LT", "BHARTIARTL", "ZOMATO"}
+            found_sym = None
+            for w in words:
+                if w in common_tickers:
+                    found_sym = w
+                    break
+
+            if found_sym:
+                send_telegram_text(f"🔍 *Analyzing forwarded tip for {found_sym}...*", chat_id)
+                try:
+                    q = get_stock_quote(found_sym)
+                    price = float(q.get("price", 0.0))
+                    chg = float(q.get("change_pct", 0.0))
+                    df = get_historical_bars(found_sym, period="3mo", interval="1d")
+                    tech = analyze_technical_indicators(df)
+                    of = analyze_order_flow(df)
+
+                    atr = tech.get("atr", round(price * 0.02, 2))
+                    sl = round(price - (2 * atr), 2)
+                    tp = round(price + (3 * atr), 2)
+                    rsi = tech.get("rsi", 50.0)
+                    bias = of.get("bias", "NEUTRAL")
+
+                    reply = (
+                        f"📊 *Quant Audit for {found_sym}*\n\n"
+                        f"• Live Price: *₹{price:,.2f}* ({chg:+.2f}%)\n"
+                        f"• Order Flow Bias: *{bias}*\n"
+                        f"• RSI (14): *{rsi:.1f}*\n"
+                        f"• Mathematical ATR SL: *₹{sl:,.2f}*\n"
+                        f"• Expectancy Target: *₹{tp:,.2f}*\n"
+                        f"• Risk/Reward: *1:1.5*\n\n"
+                        f"💡 _Tip Evaluation: Verify that the recommended entry is above ₹{sl:,.2f}. Send `/buy {found_sym} 1` to execute in paper mode._"
+                    )
+                    send_telegram_text(reply, chat_id)
+                except Exception as e:
+                    send_telegram_text(f"⚠️ Could not complete audit for {found_sym}: {str(e)}", chat_id)
+            else:
+                send_telegram_text(
+                    "🤖 Message received. To audit a stock from your groups, forward the tip message or send `/analyze <SYMBOL>` (e.g. `/analyze BHEL`).\n\nType `/help` for all commands.",
+                    chat_id
+                )
+
 telegram_listener = TelegramBotListener()
