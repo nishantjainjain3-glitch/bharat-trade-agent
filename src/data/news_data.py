@@ -185,7 +185,7 @@ def get_macro_market_news(force_refresh: bool = False) -> Dict[str, Any]:
     status_items = fetch_rss_items(url_status, headers, default_source="Financial Wire")
     general_items = fetch_rss_items(url_general, headers, default_source="Financial Wire")
 
-    # Analyze headlines for closure signals
+    # Analyze headlines for closure signals with recency and official calendar validation
     closure_detected = False
     detected_reason = None
     closure_keywords = ["closed today", "trading holiday", "closed on account of", "remain closed today", "markets closed today"]
@@ -196,16 +196,40 @@ def get_macro_market_news(force_refresh: bool = False) -> Dict[str, Any]:
         "Dussehra", "Gurunanak Jayanti"
     ]
 
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    today_date_str = datetime.now().strftime("%d %b %Y")
+    today_alt_str = datetime.now().strftime("%b %d")
+
+    try:
+        from src.data.holidays import NSE_TRADING_HOLIDAYS
+    except ImportError:
+        NSE_TRADING_HOLIDAYS = {}
+
     for item in status_items[:8]:
         title_lower = item.get("title", "").lower()
+        pub_date = item.get("published_at", "")
+
+        # Skip articles published on prior days if timestamp is present
+        if pub_date and not any(part.lower() in pub_date.lower() for part in [today_date_str, today_alt_str, today_str]):
+            continue
+
         if any(kw in title_lower for kw in closure_keywords) or ("nse" in title_lower and "closed" in title_lower):
-            closure_detected = True
+            matched_holiday = None
             for h in holiday_names:
                 if h.lower() in title_lower:
-                    detected_reason = h
+                    matched_holiday = h
                     break
-            if not detected_reason:
+
+            if matched_holiday:
+                cal_hol = NSE_TRADING_HOLIDAYS.get(today_str, "")
+                # If the holiday does not match today's entry in official calendar, it's stale
+                if not cal_hol or matched_holiday.lower() not in cal_hol.lower():
+                    continue
+                detected_reason = matched_holiday
+            else:
                 detected_reason = "Exchange Trading Holiday / Closure"
+
+            closure_detected = True
             break
 
     result = {

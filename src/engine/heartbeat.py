@@ -47,7 +47,11 @@ class AutonomousHeartbeat:
             macro_news = get_macro_market_news()
             if macro_news.get("market_closure_indicated"):
                 reason = macro_news.get("detected_reason") or "News Advisory"
-                return f"HOLIDAY_CLOSED ({reason})"
+                known_cal_holidays = ["ganesh", "chaturthi", "diwali", "holi", "eid", "muharram", "christmas", "friday", "navami", "jayanti", "maharashtra", "independence", "republic", "dussehra", "gurunanak"]
+                if any(h in reason.lower() for h in known_cal_holidays) and not is_holiday:
+                    logger.info("Ignoring stale calendar holiday news (%s); official calendar confirms active session", reason)
+                else:
+                    return f"HOLIDAY_CLOSED ({reason})"
         except Exception:
             pass
 
