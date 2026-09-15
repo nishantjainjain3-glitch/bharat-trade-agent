@@ -387,6 +387,10 @@ class AutonomousHeartbeat:
                     target_qty = max(1, min(target_cand.get("shares", 10), 15))
                     needed_cash = round(price * target_qty, 2)
 
+                    # In paper simulation or trade-locked mode, provide virtual liquidity to prevent unnecessary broker rebalance attempts
+                    if angel_client.is_trade_locked():
+                        cash = max(cash, 50000.0)
+
                     # SELF-FUNDING REBALANCER: If cash is insufficient, recycle capital from overconcentrated holdings
                     if cash < needed_cash:
                         recycler = PortfolioRecycler(max_single_stock_pct=25.0)
@@ -470,14 +474,24 @@ class AutonomousHeartbeat:
                                     oid = order_res.get("order_id", "N/A")
 
                                     fill_price = price
+                                    mobile_guide = ""
+                                    if mode == "SIMULATION":
+                                        mobile_guide = (
+                                            f"\n\n📱 *Execute Manually in Angel One Mobile App:*\n"
+                                            f"• Search: *{clean_sym}*\n"
+                                            f"• Buy: *{buy_qty} shares* @ Market (~₹{fill_price:,.2f})\n"
+                                            f"• Stop-Loss: *₹{sl:,.2f}* | Target: *₹{tp:,.2f}*"
+                                        )
+
                                     msg = (
-                                        f"🤖 *AUTONOMOUS TRADE EXECUTED ({mode})*\n\n"
+                                        f"🤖 *AUTONOMOUS TRADE SIGNAL ({mode})*\n\n"
                                         f"• Stock: *{sym}*\n"
                                         f"• Action: *BUY {buy_qty} shares* @ ₹{fill_price:,.2f}\n"
                                         f"• Stop-Loss: ₹{sl:,.2f} | Target: ₹{tp:,.2f}\n"
                                         f"• Conviction: {conviction}/10\n"
-                                        f"• Order ID: `{oid}`\n\n"
-                                        f"_Self-funded trade executed automatically._"
+                                        f"• Order ID: `{oid}`"
+                                        f"{mobile_guide}\n\n"
+                                        f"_Rationale: {target_cand.get('rationale', 'Quantitative Breakout / Pullback Model')}_"
                                     )
                                     send_telegram_text(msg)
                                     memory_journal.record_entry(
