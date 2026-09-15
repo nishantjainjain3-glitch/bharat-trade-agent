@@ -29,6 +29,7 @@ class AutonomousHeartbeat:
         self.current_tier: Dict[str, Any] = {}
         self.last_observation: str = "Heartbeat initialized. Awaiting first cycle."
         self.peak_equity: float = 0.0
+        self._notified_rejections: set = set()
         self._task: Optional[asyncio.Task] = None
 
     def get_market_session(self) -> str:
@@ -426,14 +427,17 @@ class AutonomousHeartbeat:
                                         metadata=trim_res
                                     )
                                 else:
-                                    rej_msg = (
-                                        f"⚠️ *REBALANCING ORDER REJECTED BY BROKER*\n\n"
-                                        f"• Stock: *{trim_sym}* (Sell {trim_qty} shares)\n"
-                                        f"• Error: `{trim_res.get('message')}`\n\n"
-                                        f"_Action Required: Ensure outbound IP {angel_client.public_ip} is whitelisted in SmartAPI portal._"
-                                    )
-                                    logger.warning("Rebalance trim rejected: %s", rej_msg)
-                                    send_telegram_text(rej_msg)
+                                    rej_key = f"trim_{trim_sym}_{trim_res.get('message')}"
+                                    logger.warning("Rebalance trim rejected: %s (%s)", trim_sym, trim_res.get('message'))
+                                    if rej_key not in self._notified_rejections:
+                                        self._notified_rejections.add(rej_key)
+                                        rej_msg = (
+                                            f"⚠️ *REBALANCING ORDER REJECTED BY BROKER*\n\n"
+                                            f"• Stock: *{trim_sym}* (Sell {trim_qty} shares)\n"
+                                            f"• Error: `{trim_res.get('message')}`\n\n"
+                                            f"_Action Required: Register outbound IP {angel_client.public_ip} in SmartAPI portal. Subsequent orders will route to simulation until registered._"
+                                        )
+                                        send_telegram_text(rej_msg)
                             time.sleep(2)
                             portfolio = angel_client.get_portfolio_summary()
                             cash = float(portfolio.get("available_cash", 0.0))
@@ -500,14 +504,17 @@ class AutonomousHeartbeat:
                                     except Exception:
                                         pass
                                 else:
-                                    rej_msg = (
-                                        f"⚠️ *BUY ORDER REJECTED BY BROKER*\n\n"
-                                        f"• Stock: *{sym}* (Buy {buy_qty} shares)\n"
-                                        f"• Error: `{order_res.get('message')}`\n\n"
-                                        f"_Action Required: Ensure outbound IP {angel_client.public_ip} is whitelisted in SmartAPI portal._"
-                                    )
-                                    logger.warning("Target buy rejected: %s", rej_msg)
-                                    send_telegram_text(rej_msg)
+                                    rej_key = f"buy_{sym}_{order_res.get('message')}"
+                                    logger.warning("Target buy rejected: %s (%s)", sym, order_res.get('message'))
+                                    if rej_key not in self._notified_rejections:
+                                        self._notified_rejections.add(rej_key)
+                                        rej_msg = (
+                                            f"⚠️ *BUY ORDER REJECTED BY BROKER*\n\n"
+                                            f"• Stock: *{sym}* (Buy {buy_qty} shares)\n"
+                                            f"• Error: `{order_res.get('message')}`\n\n"
+                                            f"_Action Required: Register outbound IP {angel_client.public_ip} in SmartAPI portal. Subsequent orders will route to simulation until registered._"
+                                        )
+                                        send_telegram_text(rej_msg)
             except Exception as e:
                 self.last_observation += f" | Rebalancer loop warning: {str(e)}"
         return self.get_status()

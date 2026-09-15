@@ -1,9 +1,12 @@
 import os
+import logging
 from dotenv import load_dotenv
 load_dotenv()
 import pyotp
 import requests
 from typing import Dict, Any, List, Optional
+
+logger = logging.getLogger(__name__)
 
 NSE_SYMBOL_TOKENS = {
     "RELIANCE": "2885",
@@ -90,6 +93,8 @@ class AngelOneClient:
         self.jwt_token: Optional[str] = None
         self.refresh_token: Optional[str] = None
         self.feed_token: Optional[str] = None
+        self.ip_whitelist_rejected: bool = False
+        self.rejected_ip: Optional[str] = None
         
         # Check if live credentials are configured
         self.is_configured = bool(self.api_key and self.client_code and self.pin and self.totp_key)
@@ -98,7 +103,12 @@ class AngelOneClient:
     def is_trade_locked(self) -> bool:
         locked = os.getenv("TRADE_EXECUTION_LOCKED", "false").lower() in ("true", "1", "yes")
         live_enabled = os.getenv("LIVE_EXECUTION_ENABLED", "true").lower() in ("true", "1", "yes")
-        return locked or (not live_enabled)
+        ip_blocked = (self.ip_whitelist_rejected and self.public_ip == self.rejected_ip)
+        return locked or (not live_enabled) or ip_blocked
+
+    def reset_ip_lock(self):
+        self.ip_whitelist_rejected = False
+        self.rejected_ip = None
 
     def login(self) -> Dict[str, Any]:
         if not self.is_configured:
@@ -232,9 +242,11 @@ class AngelOneClient:
         clean_sym = symbol.replace(".NS", "").replace(".BO", "").replace("-EQ", "").upper()
         trading_sym = f"{clean_sym}-EQ"
         
-        if trade_locked or not self.is_configured or not live_enabled:
-            # Paper execution (default safe mode)
+        ip_blocked = (self.ip_whitelist_rejected and self.public_ip == self.rejected_ip)
+        if trade_locked or not self.is_configured or not live_enabled or ip_blocked:
+            # Paper execution (default safe mode or IP registration fallback)
             sim_id = f"SIM-{pyotp.random_base32()[:8]}"
+            reason = f"Outbound IP {self.public_ip} registration pending in SmartAPI portal" if ip_blocked else "Safety lock / simulation mode"
             return {
                 "status": True,
                 "mode": "SIMULATION",
@@ -244,7 +256,7 @@ class AngelOneClient:
                 "transaction_type": transaction_type,
                 "order_type": order_type,
                 "price": price,
-                "message": f"Trade execution locked per user safety instructions. Paper simulated {transaction_type} {quantity} shares of {clean_sym} at INR {price:.2f}."
+                "message": f"Paper simulated {transaction_type} {quantity} shares of {clean_sym} at INR {price:.2f} ({reason})."
             }
 
         # Real Live Order Execution on Angel One SmartAPI
@@ -301,11 +313,18 @@ class AngelOneClient:
                     "message": f"LIVE order executed on Angel One! Order ID: {order_id}"
                 }
             else:
+                msg = data.get("message", "Angel One order rejected")
+                if "registered ip" in msg.lower():
+                    self.ip_whitelist_rejected = True
+                    self.rejected_ip = self.public_ip
+                    logger.warning("Angel One IP Whitelist required: Outbound IP %s is not registered. Halting live orders to prevent broker rejections.", self.public_ip)
                 return {
                     "status": False,
                     "mode": "LIVE_ERROR",
-                    "message": data.get("message", "Angel One order rejected"),
-                    "errorcode": data.get("errorcode")
+                    "message": msg,
+                    "errorcode": data.get("errorcode"),
+                    "requires_ip_whitelist": self.ip_whitelist_rejected,
+                    "current_ip": self.public_ip
                 }
         except Exception as e:
             return {"status": False, "mode": "LIVE_ERROR", "message": f"Order placement failed: {str(e)}"}
