@@ -49,6 +49,7 @@ from src.engine import (
 from src.engine.exit_manager import get_default_exit_rules
 from src.analysis.order_flow import analyze_order_flow
 from src.analysis.volatility_regimes import analyze_volatility_regime
+from src.analysis.sector_rotation import get_nifty_sector_rotation
 from src.broker.execution_algos import execution_engine
 from src.notifications.telegram_listener import telegram_listener
 from src.notifications.daily_briefings import (

@@ -30,6 +30,7 @@ class AutonomousHeartbeat:
         self.last_observation: str = "Heartbeat initialized. Awaiting first cycle."
         self.peak_equity: float = 0.0
         self._notified_rejections: set = set()
+        self._signaled_symbols: set = set()
         self._task: Optional[asyncio.Task] = None
 
     def get_market_session(self) -> str:
@@ -310,26 +311,86 @@ class AutonomousHeartbeat:
                         from src.engine.protections import protections_manager
                         for c in sorted(curated_list, key=lambda x: x.get("priority", 99)):
                             csym = c.get("clean_symbol", "").upper()
-                            if csym not in existing_syms:
-                                prot = protections_manager.evaluate_entry_protections(
-                                    symbol=csym,
-                                    current_equity=current_equity,
-                                    peak_equity=peak_equity,
-                                    daily_loss_pct=0.0
-                                )
-                                if not prot.get("allowed", True):
-                                    logger.info("Skipping curated candidate %s: %s", csym, prot.get("violations"))
+                            full_sym = c.get("symbol", f"{csym}.NS")
+                            if csym in existing_syms:
+                                continue
+                            if csym in self._signaled_symbols:
+                                continue
+
+                            # 1. Protection rules check
+                            prot = protections_manager.evaluate_entry_protections(
+                                symbol=csym,
+                                current_equity=current_equity,
+                                peak_equity=peak_equity,
+                                daily_loss_pct=0.0
+                            )
+                            if not prot.get("allowed", True):
+                                logger.info("Skipping curated candidate %s: %s", csym, prot.get("violations"))
+                                continue
+
+                            # 2. Real-time market tick lookup (never use static file prices)
+                            from src.data.market_data import get_stock_quote
+                            live_q = get_stock_quote(full_sym)
+                            live_price = float(live_q.get("price") or 0.0)
+                            if live_price <= 0:
+                                continue
+
+                            # 3. Verify strategy entry condition against live market
+                            strategy = c.get("best_strategy", "BREAKOUT")
+                            trigger_price = float(c.get("price", 0.0))
+                            base_sl = float(c.get("stop_loss", 0.0))
+                            base_tp = float(c.get("target_price", 0.0))
+                            atr = float(c.get("atr", live_price * 0.02))
+
+                            setup_triggered = False
+                            setup_reason = ""
+
+                            if strategy == "BREAKOUT":
+                                # Breakout rule: stock MUST trade at or above the breakout trigger level
+                                # and not extended more than 2.5% above it
+                                if live_price >= trigger_price * 0.998 and live_price <= trigger_price * 1.025:
+                                    setup_triggered = True
+                                    setup_reason = f"Breakout confirmed: Live price ₹{live_price:.2f} >= trigger ₹{trigger_price:.2f}"
+                                else:
+                                    logger.info(
+                                        "Candidate %s breakout trigger inactive: live price ₹%.2f vs trigger ₹%.2f (Setup not triggered)",
+                                        csym, live_price, trigger_price
+                                    )
                                     continue
+                            elif strategy in ("PATRICK_NILL_PBD", "PULLBACK"):
+                                # Pullback rule: stock must be holding above stop loss and near pullback support
+                                if live_price >= base_sl and live_price <= trigger_price * 1.02:
+                                    setup_triggered = True
+                                    setup_reason = f"Pullback support holding: Live price ₹{live_price:.2f} above stop ₹{base_sl:.2f}"
+                                else:
+                                    logger.info(
+                                        "Candidate %s pullback inactive: live price ₹%.2f out of zone",
+                                        csym, live_price
+                                    )
+                                    continue
+                            else:
+                                if live_price > 0:
+                                    setup_triggered = True
+                                    setup_reason = f"Market condition satisfied: Live price ₹{live_price:.2f}"
+
+                            if setup_triggered:
+                                if strategy == "BREAKOUT":
+                                    dynamic_sl = round(live_price - 2 * atr, 2)
+                                    dynamic_tp = round(live_price + 4.5 * atr, 2)
+                                else:
+                                    dynamic_sl = base_sl
+                                    dynamic_tp = base_tp
+
                                 target_cand = {
-                                    "symbol": c.get("symbol", f"{csym}.NS"),
+                                    "symbol": full_sym,
                                     "clean_symbol": csym,
-                                    "price": float(c.get("price", 0.0)),
-                                    "stop_loss": float(c.get("stop_loss", 0.0)),
-                                    "target_price": float(c.get("target_price", 0.0)),
-                                    "atr": float(c.get("atr", 5.0)),
+                                    "price": live_price,
+                                    "stop_loss": dynamic_sl,
+                                    "target_price": dynamic_tp,
+                                    "atr": atr,
                                     "shares": int(c.get("shares", 10)),
                                     "conviction": int(c.get("conviction", 9)),
-                                    "rationale": c.get("rationale", "")
+                                    "rationale": f"{c.get('rationale', '')} | {setup_reason}"
                                 }
                                 break
                     except Exception as e_cur:
@@ -494,6 +555,7 @@ class AutonomousHeartbeat:
                                         f"_Rationale: {target_cand.get('rationale', 'Quantitative Breakout / Pullback Model')}_"
                                     )
                                     send_telegram_text(msg)
+                                    self._signaled_symbols.add(clean_sym)
                                     memory_journal.record_entry(
                                         category="EXECUTION",
                                         title=f"Autonomous Trade: BUY {buy_qty}x {sym}",
